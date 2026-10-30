@@ -17,11 +17,15 @@ implementation PR is mostly typing.
 7. **Polished, game-like graphics**, with **Phaser 4** as the candidate framework.
 
 Non-goals for v1: MIDI input, accidentals/key signatures, accounts or sync.
-Section 13 has these as open questions.
+Accidentals/key signatures are planned as a later feature (see the roadmap).
 
 ---
 
 ## 2. Recommendation at a glance
+
+> **Framework under review**: [frameworks.md](frameworks.md) compares Phaser 4 with
+> four alternatives and recommends Svelte 5 + SVG + GSAP. The rows below that mention Phaser
+> will be updated once the choice is made; everything in `src/core/` is unaffected.
 
 | Concern | Choice | Why |
 |---|---|---|
@@ -556,14 +560,13 @@ that weak notes get at least N× the exposure. That gives cheap regression prote
 - Clef setting `treble` / `bass` / `both`. With `both`, each question picks a
   clef (weighted too), and a **grand staff** is shown with the note on one stave so the
   eye also learns to pick the right stave.
-- Wrong answer: flash red, show the correct letter (and optionally the note name
-  with octave, e.g. "C6"), then continue. Wrong answers are recorded.
+- Wrong answer: same **retry-then-reveal** flow as sequences (8.4).
 
 ### 8.2 Multi-note sequence
 
 - N notes (setting, default 6) on one stave. The current target note is highlighted blue.
-- Each tap answers the current note: green if right, red if wrong, then the cursor advances.
-  Stats are recorded **per note**, so sequences feed the same table.
+- A correct tap turns the note green and moves the cursor on. A wrong tap follows the
+  **retry-then-reveal** flow (8.4). Stats are recorded **per note**, so sequences feed the same table.
 - Generation: sample each note with `pickNext`, but constrain the interval
   from the previous note (≤ an octave by default) so it reads like a melodic
   line instead of random jumps. This is a setting ("Leaps: small / any").
@@ -591,19 +594,37 @@ without a browser:
 type QuizState =
   | { phase: 'idle' }
   | { phase: 'asking'; items: Candidate[]; cursor: number; startedAt: number; deadline?: number }
-  | { phase: 'feedback'; items: Candidate[]; cursor: number; last: Attempt }
+  | { phase: 'retry'; items: Candidate[]; cursor: number; startedAt: number }   // 1st miss
+  | { phase: 'reveal'; items: Candidate[]; cursor: number; last: Attempt }      // waits for CONTINUE
   | { phase: 'done'; summary: SessionSummary };
 
 type QuizEvent =
   | { type: 'START'; items: Candidate[]; now: number }
   | { type: 'ANSWER'; letter: Letter; now: number }
   | { type: 'TICK'; now: number }           // detects timeout
-  | { type: 'NEXT'; now: number };
+  | { type: 'CONTINUE'; now: number };     // only a user tap leaves 'reveal'; never automatic
 
 export function reduce(s: QuizState, e: QuizEvent, settings: Settings): QuizState { /* ... */ }
 ```
 
 ---
+
+### 8.4 Wrong answers: retry, then reveal, then confirm (decided)
+
+Applies to both modes.
+
+1. **First miss**: the note shakes red and you get a **second try**. The timer, if on, doesn't restart.
+2. **Second miss or timeout**: the correct answer is **revealed**. The note is labeled
+   (e.g. "C6"), and the sound plays if enabled.
+3. The quiz **waits** until you tap **Continue**. It never advances automatically.
+
+Scoring for the stats: a first-try hit is 1.0, a second-try hit is 0.5, and a miss is 0.
+`ewmaAcc` uses that credit instead of a plain boolean, and the Leitner `box` only goes
+up on a first-try hit.
+
+```ts
+export const credit = (tries: 1 | 2, correct: boolean) => (!correct ? 0 : tries === 1 ? 1 : 0.5);
+```
 
 ## 9. Settings
 
@@ -619,6 +640,10 @@ export interface Settings {
     | { kind: 'off' }
     | { kind: 'perNote'; seconds: number }     // countdown per question; timeout = miss
     | { kind: 'session'; seconds: number };    // sprint: as many as you can in N seconds
+  answerInput: 'letters' | 'lettersOctave' | 'piano';
+  //  letters        A–G buttons; any octave counts (the default; the fallback you asked for)
+  //  lettersOctave  A–G plus an octave picker; must match exactly (e.g. C6)
+  //  piano          on-screen keyboard spanning the active range; tap the exact key
   showOctaveOnFeedback: boolean;   // "C6" vs "C"
   ledgerBoost: number;             // exposes WeightConfig.ledgerBoost as a slider
   sound: {
@@ -630,7 +655,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   clef: 'treble', range: 'ledger3', mode: 'single', sequenceLength: 6,
-  questionsPerSession: 20, timer: { kind: 'off' }, showOctaveOnFeedback: true, ledgerBoost: 0.6,
+  questionsPerSession: 20, timer: { kind: 'off' }, answerInput: 'letters', showOctaveOnFeedback: true, ledgerBoost: 0.6,
   sound: { when: 'afterAnswer', volume: 0.8, ignoreSilentSwitch: true },
 };
 ```
@@ -708,23 +733,15 @@ public/
 
 ## 12. Delivery plan
 
-1. **Spike**: Vite + Phaser 4 draws a treble/bass/grand staff note with Bravura and
-   plays a piano sample, on an iPad and iPhone installed to the home screen, in airplane
-   mode, with the silent switch on. This retires the biggest risks (glyph layout, offline, iOS audio) first.
-2. **Single-note MVP**: core pitch/range, letter pad, uniform random selection, settings overlay, sound setting.
-3. **Stats + weighting**: Dexie, `applyAttempt`, `pickNext`, review mode, and the simulation test.
-4. **Sequence mode**: multi-note staff with active/right/wrong states and `makeSequence`.
-5. **Juice**: tweens, particles, streak effects, scene transitions.
-6. **Timer modes, stats heat-map, backup/export, update prompt, GitHub Pages deploy action.**
+See [docs/roadmap.md](roadmap.md) for the milestones, one doc each, and the quality gates.
 
-## 13. Open questions
+## 13. Decisions (from review)
 
-1. **Accidentals / key signatures**: add later as a setting? (The model extends with
-   a chromatic offset; the answer pad would grow sharps/flats.)
-2. **Answer precision**: letter only (as requested), or optionally require the octave
-   for ledger notes (e.g. a piano-keyboard answer pad)?
-3. **Look and feel**: any visual direction for the "pretty graphics" (cozy/paper,
-   neon arcade, cartoon)? The Phaser layer is where that lives, so it doesn't affect the core.
-4. **Sequence errors**: advance on a wrong tap (proposed), or require the correct
-   letter before moving on?
-5. **Hosting**: OK to publish on GitHub Pages (public URL), or prefer another host?
+| Question | Decision |
+|---|---|
+| Hosting | GitHub Pages, deployed by GitHub Actions only when all gates are green |
+| Sequence errors | Retry once, then reveal, then wait for Continue; applies to both modes (8.4) |
+| Look and feel | Early spike (M1) shows several themes on device; pick one there |
+| Answer precision | Configurable: `letters` / `lettersOctave` / `piano` (section 9) |
+| Answer input | On-screen piano keyboard, with the letter pad as the simple fallback |
+| Accidentals / key signatures | A later feature (F1 in the roadmap) |
