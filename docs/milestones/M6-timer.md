@@ -3,7 +3,7 @@
 **Goal**: optional time pressure and a view of your progress.
 
 ## Scope
-- Timer setting (off by default): a sprint, with one countdown bar for the whole session. Easy 60 s, Medium 75 s, Hard 90 s (design §14).
+- Timer setting (off by default): a sprint, with one countdown bar for the whole session. Easy 60 s, Medium 50 s, Hard 40 s (design §14).
   When it runs out, the session ends and results show. Pauses when the app is backgrounded.
 - Results screen (accuracy, average time, slowest notes). Stats screen: per-note heat-map on a staff.
 

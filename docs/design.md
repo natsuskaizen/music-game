@@ -820,7 +820,7 @@ input mid-quiz. The octave must always match.
 toggles add "when the note appears" and "after a wrong try". Volume and "play with the silent switch on" sit in the same group.
 
 **Timer**: off by default. When on, it's a **sprint**: one countdown bar for the whole session, answering as many
-notes (or sequences) as you can. Length by difficulty: Easy 60 s, Medium 75 s, Hard 90 s. There's no per-note timer.
+notes (or sequences) as you can. Length by difficulty: Easy 60 s, Medium 50 s, Hard 40 s. There's no per-note timer.
 When the bar runs out, the current question ends without counting as a miss, and results show.
 
 **Home**: mode (single / sequence), clef (treble / bass / both), Review weak notes (once M4 lands), a Settings button,
