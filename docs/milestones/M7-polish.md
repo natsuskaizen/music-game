@@ -3,11 +3,11 @@
 **Goal**: feels finished and stays reliable on iOS.
 
 ## Scope
-- "Update available" prompt, Add-to-Home-Screen hint, safe-area insets, streak and celebration effects in the chosen theme.
+- (The update banner shipped early, outside M7.) Add-to-Home-Screen hint, safe-area insets, streak and celebration effects in the chosen theme.
 - Accessibility: button labels, contrast, reduced-motion support.
 
 ## Acceptance criteria
-- M7-AC1 A new deploy shows the update prompt and never swaps mid-quiz (e2e).
+- M7-AC1 A new deploy shows the update prompt and never swaps mid-quiz (e2e). The banner exists; this AC adds the e2e proof.
 - M7-AC2 The install hint shows only in the Safari tab, never in standalone mode (e2e).
 - M7-AC3 `prefers-reduced-motion` disables non-essential animation (e2e).
 - M7-AC4 Lighthouse PWA/accessibility checks pass in CI.

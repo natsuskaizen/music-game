@@ -1,16 +1,20 @@
 <script lang="ts">
   import Home from './components/Home.svelte';
   import Quiz from './components/Quiz.svelte';
+  import UpdateBanner from './components/UpdateBanner.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
   import Staff from './components/Staff.svelte';
   import type { ClefNote } from './core/pitch';
   import type { ClefMode } from './core/staff-layout';
   import { loadSettings, saveSettings, type Settings } from './core/settings';
   import type { NoteStat } from './core/stats';
+  import { applyUpdate, watchForUpdates } from './pwa/update';
   import { THEME_NAMES, type Theme } from './core/theme';
 
   let { theme }: { theme: Theme } = $props();
 
+  let updateReady = $state(false);
+  watchForUpdates(() => (updateReady = true));
   let screen = $state<'home' | 'settings' | 'quiz' | 'review'>('home');
   let reviewStats = $state.raw<ReadonlyMap<string, NoteStat>>(new Map());
   let settings = $state(loadSettings(localStorage));
@@ -28,6 +32,7 @@
   ];
 </script>
 
+<UpdateBanner ready={updateReady} onUpdate={applyUpdate} />
 <main>
   <h1>Sight Reading</h1>
   <nav aria-label="Theme">

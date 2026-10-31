@@ -52,6 +52,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Review mode | `core/stats.ts` `isWeak` (seen and `box <= 1` or `ewmaAcc < 0.7`) and `weakNotes(pool, stats)`. `Quiz` with a `review` stats prop starts from the weak notes, refilters after each settled answer (`withPool`), and the session is `done` when the pool is empty; a lone weak note may repeat. Home's "Review weak notes (n)" button is disabled at 0 | M4-5 |
 | Backup | `core/backup.ts` (`serializeBackup`, `parseBackup` validates, `rebuildStats` replays attempts); `storage/backup-file.ts` (`exportProgress` share sheet or download, `importProgress`); `db.ts` `replaceAttempts` swaps log and stats in one transaction. File is `{ v: 1, attempts }` | M4-6 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
+| App updates | `registerType: 'prompt'`, registered by `watchForUpdates()` in `App.svelte`: the new service worker waits until the person taps **Update now** (`UpdateBanner`), which reloads into it. Needed because an installed PWA otherwise keeps the old build until every window closes | design §5.2 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -59,12 +60,11 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✱
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: Update banner (not a roadmap issue, Stan's ask): a waiting new version shows "Update now" on every screen (`src/pwa/update.ts`, `UpdateBanner.svelte`); checks at launch, on return and hourly; never swaps by itself. M7 keeps the install hint and its e2e.
 - 2026-10-31: M5 kick-off: issues #72–#75 listed, roadmap marks M4 Done and M5 In progress.
 - 2026-10-31: M4-6 (#63): JSON export/import in Settings (share sheet or download, validated, replace-on-restore), M4 Summary written (M4-AC6).
 - 2026-10-31: M4-5 (#62): Review weak notes: `weakNotes` pool, session ends when empty, Home button (M4-AC5).
 - 2026-10-31: M4-4 (#61): Dexie storage, `recordAttempt`, and `learnedPicker` (weighted, stepwise) drive the quiz; stats survive a reload.
-- 2026-10-31: Mic fix from Stan's iPhone test (M3-AC9): audio session `play-and-record` while listening (iOS refused the mic under `playback`, so no prompt), error message when the mic is blocked, level meter, context resumes on return to the app. Needs re-test on the iPhone.
-- 2026-10-31: M4-3 (#60): `pickStepwise` (steps of 1–3, ~10% jumps of three kinds) now drives the session (M4-AC4); doc nits from the M4-2 review fixed.
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).

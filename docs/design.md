@@ -315,7 +315,7 @@ export default defineConfig({
   plugins: [
     svelte(),
     VitePWA({
-      registerType: 'prompt', // show "Update available" instead of silently swapping mid-quiz
+      registerType: 'prompt', // a banner with an Update button instead of silently swapping mid-quiz
       includeAssets: ['apple-touch-icon.png'],
       workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2,m4a,mp3}'] }, // precache everything, incl. font + piano samples
       manifest: {
