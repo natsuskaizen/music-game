@@ -18,6 +18,7 @@ export interface SoundSettings {
 /** Quiet, medium and loud. */
 export const VOLUMES = [0.4, 0.8, 1];
 
+/** Sound as first installed: on, with the note played after each answer only, at medium volume. */
 export const DEFAULT_SOUND: SoundSettings = {
   on: true,
   onShow: false,

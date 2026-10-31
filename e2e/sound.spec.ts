@@ -8,14 +8,14 @@ declare global {
   }
 }
 
-// Stands in for Safari's audioSession (present or missing) on a touch device and records the MIDI note of every sound started.
+// Stands in for Safari's audioSession (present or missing, starting as 'initial') on a touch device and records the MIDI note of every sound started.
 async function stubAudio(page: Page, withSession: boolean, sound?: object) {
   if (sound)
     await page.addInitScript((saved) => {
       localStorage.setItem('settings', JSON.stringify({ sound: saved }));
     }, sound);
   await page.addInitScript((present) => {
-    const session = present ? { type: 'auto' } : undefined;
+    const session = present ? { type: 'initial' } : undefined;
     Object.defineProperty(Navigator.prototype, 'audioSession', { get: () => session });
     // iPhone and iPad report 5 touch points; Playwright's WebKit emulation doesn't always.
     Object.defineProperty(Navigator.prototype, 'maxTouchPoints', { get: () => 5 });
@@ -114,9 +114,15 @@ test('M3-AC2 "after a wrong try" plays the correct note on the first miss', asyn
   expect(await tones()).toEqual([midiOfLabel(target)]);
 });
 
-test('M3-AC2 the silent-switch setting picks the audio session type', async ({ page }) => {
+const sessionType = (page: Page) =>
+  page.evaluate(() => (navigator as Navigator & { audioSession: { type: string } }).audioSession.type);
+
+test('M3-AC2 playing with the silent switch on asks for a playback audio session', async ({ page }) => {
+  await stubAudio(page, true, { ignoreSilentSwitch: true });
+  expect(await sessionType(page)).toBe('playback');
+});
+
+test('M3-AC2 turning the silent-switch setting off leaves the audio session on auto', async ({ page }) => {
   await stubAudio(page, true, { ignoreSilentSwitch: false });
-  const type = () =>
-    page.evaluate(() => (navigator as Navigator & { audioSession: { type: string } }).audioSession.type);
-  expect(await type()).not.toBe('playback');
+  expect(await sessionType(page)).toBe('auto');
 });
