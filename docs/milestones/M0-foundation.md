@@ -40,10 +40,10 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 - M0-AC5 Playwright: the page loads offline after first visit (service worker).
 - M0-AC6 Manual: it installs to the iPad/iPhone home screen and opens full-screen.
 - [x] M0-AC7 A seeded violation of each static rule (complex function, duplicated block, unused export) fails CI. ([complex](https://github.com/natsuskaizen/music-game/actions/runs/41165719488), [duplicate](https://github.com/natsuskaizen/music-game/actions/runs/41165842359), [unused](https://github.com/natsuskaizen/music-game/actions/runs/41165947254), 2026-10-31)
-- M0-AC8 A seeded PR with a needlessly repeated, undocumented function gets a `fail` verdict; the clean version passes.
+- [x] M0-AC8 A seeded PR with a needlessly repeated, undocumented function gets a `fail` verdict; the clean version passes. ([fail](https://github.com/natsuskaizen/music-game/actions/runs/41167653514), [pass](https://github.com/natsuskaizen/music-game/actions/runs/41167730502), 2026-10-31)
 - M0-AC9 A new session reading only `CLAUDE.md` (with STATUS.md auto-loaded) can state the project goal, current state, workflow, and commands.
 - [x] M0-AC10 A PR that changes `src/` but not `docs/STATUS.md` fails CI. ([run](https://github.com/natsuskaizen/music-game/actions/runs/41165646526), 2026-10-31)
-- M0-AC11 Every new push re-runs the review; a docs-only PR skips it.
+- [x] M0-AC11 Every new push re-runs the review; a docs-only PR skips it. (push re-runs: [seed](https://github.com/natsuskaizen/music-game/actions/runs/41167653514), [revert](https://github.com/natsuskaizen/music-game/actions/runs/41167730502); docs-only skip: `M0-AC11` unit tests, 2026-10-31)
 
 ## Setup Stan does once
 - ✓ `CLAUDE_CODE_OAUTH_TOKEN` repo secret (done 2026-10-31).
