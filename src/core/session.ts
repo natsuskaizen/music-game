@@ -1,7 +1,7 @@
 // The quiz session as a reducer (design §8.3, §8.4): a miss gets one retry, then the answer is revealed and the
 // session waits for the next event. It ends after `questionsPerSession` questions. Inputs only produce an `Answer` (design §3.4).
 import { midiOf, type ClefNote } from './pitch';
-import { pickNote, type Random } from './selector';
+import { pickStepwise, type Random } from './selector';
 
 /** What an input reports. Every M2 input knows the octave, so an answer is an exact pitch (design §3.4, §14). */
 export interface Answer {
@@ -44,7 +44,7 @@ export function startSession(
   questionsPerSession: number | undefined,
   random: Random,
 ): Session {
-  const note = pickNote(pool, random);
+  const note = pickStepwise(pool, random);
   return { pool, questionsPerSession, phase: 'ask', note, misses: [], streak: 0, firstTry: 0, total: 0 };
 }
 
@@ -74,7 +74,7 @@ function scoreRight(s: Session): Session {
 
 function next(s: Session, random: Random): Session {
   if (s.questionsPerSession !== undefined && s.total >= s.questionsPerSession) return { ...s, phase: 'done' };
-  return { ...s, note: pickNote(s.pool, random, s.note), phase: 'ask', misses: [] };
+  return { ...s, note: pickStepwise(s.pool, random, s.note), phase: 'ask', misses: [] };
 }
 
 /** First-try accuracy as a whole percentage, 0 before any answer. */

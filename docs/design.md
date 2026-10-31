@@ -504,7 +504,7 @@ weight = difficulty × weakness × slowness × staleness
 // src/core/selector.ts
 export interface WeightConfig {
   ledgerBoost: number;   // per ledger line; 0.6 means 3 ledger lines ≈ 2.8× an on-staff note
-  weaknessGain: number;  // 6: a note at 40% accuracy is ~4× a note at 95% (M4-AC2)
+  weaknessGain: number;  // 6: a note at 40% accuracy is at least 3× a note at 95% (M4-AC2)
   targetMs: number;      // "fast enough" response time
   exploration: number;   // 0.15: share of picks that ignore stats (keeps coverage)
 }

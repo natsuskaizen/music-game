@@ -1,4 +1,4 @@
-// Note selection: uniform `pickNote` (M2) and the stats-weighted `pickWeighted` (M4; stepwise ordering joins in M4-3; design §7.3, §14).
+// Note selection: uniform `pickNote` (M2) and the stats-weighted `pickWeighted` (M4), both choosing among stepwise candidates (M4-3; design §7.3, §14).
 import { ledgerPositions, staffPos, type ClefNote } from './pitch';
 import type { Difficulty } from './ranges';
 import { statKey, type NoteStat } from './stats';
@@ -19,11 +19,50 @@ export function pickNote(pool: ClefNote[], random: Random, previous?: ClefNote):
   return note;
 }
 
+/** Share of picks that jump instead of stepping (design §14). */
+const JUMP_RATE = 0.1;
+const MAX_STEP = 3;
+const OCTAVE = 7;
+
+type Move = (distance: number, sameClef: boolean) => boolean;
+
+/** The three jump kinds: the other clef, an octave away, or an octave ± 1–2 steps (design §14). */
+const JUMPS: Move[] = [
+  (_distance, sameClef) => !sameClef,
+  (distance, sameClef) => sameClef && distance === OCTAVE,
+  (distance, sameClef) => sameClef && distance !== OCTAVE && Math.abs(distance - OCTAVE) <= 2,
+];
+
+const isStep: Move = (distance, sameClef) => sameClef && distance >= 1 && distance <= MAX_STEP;
+
+/**
+ * The notes that may follow `previous`: usually 1–3 steps away on the same clef, and about 10% of the time one
+ * jump kind chosen at random. Falls back to the whole pool when nothing fits (design §14).
+ */
+function candidates(pool: ClefNote[], random: Random, previous?: ClefNote): ClefNote[] {
+  if (!previous) return pool;
+  const from = staffPos(previous);
+  const near = (fits: Move) =>
+    pool.filter((note) => fits(Math.abs(staffPos(note) - from), note.clef === previous.clef));
+  if (random() < JUMP_RATE) {
+    const jumps = JUMPS.map((jump) => near(jump)).filter((c) => c.length > 0);
+    const chosen = jumps[Math.floor(random() * jumps.length)];
+    if (chosen) return chosen;
+  }
+  const steps = near(isStep);
+  return steps.length > 0 ? steps : pool;
+}
+
+/** A stepwise-ordered random note: uniform among `candidates`, never `previous` (design §14). */
+export function pickStepwise(pool: ClefNote[], random: Random, previous?: ClefNote): ClefNote {
+  return pickNote(candidates(pool, random, previous), random, previous);
+}
+
 /** Tunables of the weight function (design §7.3). */
 export interface WeightConfig {
   /** Extra weight per ledger line: 0.6 makes a 3-line note about 2.8× an on-staff one. 0 outside Hard. */
   ledgerBoost: number;
-  /** How much a miss adds: 6 makes a note at 40% accuracy about 4× one at 95%. */
+  /** How much a miss adds: 6 makes a note at 40% accuracy at least 3× one at 95%. */
   weaknessGain: number;
   /** "Fast enough" answer time in ms; slower notes weigh more. */
   targetMs: number;
