@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M5 Sequence mode (`docs/milestones/M5-sequence.md`, issues #72–#75). M4 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M5-1 (#72) sequence generation.
+- **Next issue**: M5-2 (#73) session cursor.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -51,6 +51,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Storage | `storage/db.ts` (Dexie `sight-reading`: `stats` by key, `attempts` log): `recordAttempt` folds the attempt into its stat and appends it in one transaction; `loadStats`; `requestPersistence`. `Session` takes a `Picker` (`selector.ts`) instead of `random`: `learnedPicker` weights within `candidates`, `stepwisePicker` is the stats-free one for tests. `settledAttempt` builds the `Attempt` when a question settles (first miss records nothing). `Quiz` keeps a live stats map, merges stored stats in on mount, and ignores storage errors. | M4-4 |
 | Review mode | `core/stats.ts` `isWeak` (seen and `box <= 1` or `ewmaAcc < 0.7`) and `weakNotes(pool, stats)`. `Quiz` with a `review` stats prop starts from the weak notes, refilters after each settled answer (`withPool`), and the session is `done` when the pool is empty; a lone weak note may repeat. Home's "Review weak notes (n)" button is disabled at 0 | M4-5 |
 | Backup | `core/backup.ts` (`serializeBackup`, `parseBackup` validates, `rebuildStats` replays attempts); `storage/backup-file.ts` (`exportProgress` share sheet or download, `importProgress`); `db.ts` `replaceAttempts` swaps log and stats in one transaction. File is `{ v: 1, attempts }` | M4-6 |
+| Sequence | `core/sequence.ts` `makeSequence(pool, difficulty, { picker, random })` returns `Measure[]` of `{ note, duration }`. Hard's 3 measures force 12–16 notes (design's 10 can't fill 3 bars). Notes split evenly over measures; each measure has `count - 4` beats of two eighths, the rest quarters (always beamable pairs) | M5-1 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
@@ -59,6 +60,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✱
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M5-1 (#72): `makeSequence` in `core/sequence.ts` (sizes by difficulty, chains the picker, fills 4/4 measures with quarters and eighth pairs; M5-AC1).
 - 2026-10-31: M5 kick-off: issues #72–#75 listed, roadmap marks M4 Done and M5 In progress.
 - 2026-10-31: M4-6 (#63): JSON export/import in Settings (share sheet or download, validated, replace-on-restore), M4 Summary written (M4-AC6).
 - 2026-10-31: M4-5 (#62): Review weak notes: `weakNotes` pool, session ends when empty, Home button (M4-AC5).
