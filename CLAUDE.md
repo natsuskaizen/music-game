@@ -32,7 +32,7 @@ Svelte 5 + SVG (Bravura glyphs) + GSAP, Vite, TypeScript, Dexie (IndexedDB), Web
 - When a milestone's last issue closes: fill in its Summary (5–10 lines), update the roadmap status, and refresh all of STATUS.md (trim Recent to the last ~5 lines).
 
 ## Autonomous mode (authorized by Stan, 2026-10-31)
-Each issue gets its own fresh thread, so context stays small. A run does **one issue**. When its PR merges, it asks the coordinator for a new thread for the next issue, unless the next item is a stop point. A scheduled task every 2 hours is the backup if the chain stalls.
+Each issue gets its own fresh thread, so context stays small. A run does **one issue**. When its PR merges, it asks the coordinator for a new thread for the next issue, unless the next item is a stop point. A scheduled task every hour is the backup if the chain stalls; delete it once the roadmap is complete.
 1. Read STATUS.md. If a PR from the loop is still open, check it: fix red CI or review findings (max 2 attempts per issue), then stop.
 2. If a **stop point** is next, update STATUS.md "Blocked on Stan", notify, and stop. Stop points: a gate failing twice on the same issue, or anything needing a repo setting or secret.
    Not stop points (Stan, 2026-10-31): a milestone's end (fill in the Summary, post a short summary, carry on); a pending manual device AC (leave it open, keep building; the milestone stays not-done until Stan ticks it); the M1 theme pick (if none within a day of the demo, use Paper & ink).
