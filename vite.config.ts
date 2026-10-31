@@ -29,6 +29,8 @@ export default defineConfig({
     }),
   ],
   build: { target: 'es2022' },
+  // Unit tests that mount components (the input contract suite) need Svelte's browser build, not its server one.
+  resolve: process.env.VITEST ? { conditions: ['browser'] } : undefined,
   test: {
     include: ['tests/**/*.test.ts'],
     passWithNoTests: true,

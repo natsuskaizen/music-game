@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M2 single-note MVP in progress (`docs/milestones/M2-single-note.md`, issues #30–#34). M1 is done.
-- **Next issue**: M2-3 (#32) input plug-ins: `InputMethod`, registry, on-screen piano input emitting `Answer`, contract suite + fake input.
+- **Next issue**: M2-4 (#33) quiz screen: staff, active input + switcher (`inputs/index.ts` `available()`), feedback, Continue, grand staff; replaces the M1 demo. AC8 e2e lands there.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -35,6 +35,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Icons | Paper & ink icons and theme color (Stan's pick); `npm run icons` renders the PNGs from `public/icon.svg` via Playwright | M1-5 |
 | Note pool | `core/ranges.ts` `notePool(mode, difficulty)` from the §14 table (bounds written as pitches); `core/selector.ts` `pickNote` is uniform and never repeats, until M4's weighted ordering. The demo quiz uses Medium | M2-1 |
 | Session | `core/session.ts`: `reduce(session, event, random)` with `answer` / `next` events; phases ask → retry → reveal or right → `next` → done after `questionsPerSession` (undefined = endless). `Answer` is `{ kind: 'pitch', midi }` only (letter answers are F3); `gradeAnswer` is exact pitch. Timer events wait for the sprint timer | M2-2 |
+| Inputs (code) | `src/inputs/`: `types.ts` (`InputMethod`: id, label, `isAvailable`, a union of an on-screen input with a `component` taking `InputProps`, or a headless one with `start(emit)`); `registry.ts` (`register` refuses duplicate ids, `inputById` falls back to the first available); `index.ts` is the only list. No `octaveAware`: every input is exact pitch (§14). Contract suite mounts components in happy-dom | M2-3 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -42,6 +43,7 @@ M0 ✓ · M1 ✓ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M2-3 (#32): input plug-ins (`src/inputs/`), the on-screen piano is the first input and emits `Answer`; the demo quiz renders the registered input. Contract suite runs on every registered input plus a headless fake (M2-AC7), and answers from two inputs share one question's attempts (M2-AC8 unit).
 - 2026-10-31: M2-2 (#31): `core/session.ts` session reducer with `Answer` + exact-pitch `gradeAnswer` and a done phase after the session length, replacing `core/quiz.ts`; the demo quiz runs on it (a clef switch starts a new session). M2-AC3 (unit), M2-AC9.
 - 2026-10-31: M1 done: Stan picked Paper & ink (AC4); silent switch OK (AC2); works offline but the tone is silent in airplane mode (AC3, sound moved to M3-AC7, #39); Storybook note alignment logged for M8 (#38).
 - 2026-10-31: M8 Themes in Settings added to the roadmap (near the end): theme switch in Settings, Paper & ink default, and the arcade note-position bug (#36).

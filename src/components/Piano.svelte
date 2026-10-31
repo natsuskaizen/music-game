@@ -1,14 +1,12 @@
-<!-- On-screen piano for answering (design §3.2): real buttons named "C4", scrolls sideways on phones. Spike, from the prototype. -->
+<!-- On-screen piano input (design §3.2): real buttons named "C4", scrolls sideways on phones. A tap emits the key's exact pitch. -->
 <script lang="ts">
-  import { keyName, pianoKeys, type KeyRange, type PianoKey } from '../core/keyboard';
+  import { KEY_RANGES, keyName, pianoKeys, type PianoKey } from '../core/keyboard';
+  import type { InputProps } from '../inputs/types';
 
-  let {
-    range,
-    marks,
-    onpress,
-  }: { range: KeyRange; marks: Map<number, 'right' | 'wrong'>; onpress: (midi: number) => void } = $props();
+  let { mode, marks, emit }: InputProps = $props();
 
   const MIDDLE_C = 60;
+  const range = $derived(KEY_RANGES[mode]);
   const keys = $derived(pianoKeys(range));
   const whiteCount = $derived(keys.filter((k) => !k.black).length);
 
@@ -49,7 +47,7 @@
         style:width="{k.black ? blackWidth : keyWidth}px"
         aria-label={keyName(k.midi)}
         onclick={() => {
-          onpress(k.midi);
+          emit({ kind: 'pitch', midi: k.midi });
         }}
       >
         {#if !k.black && k.midi % 12 === 0}<span>{keyName(k.midi)}</span>{/if}
