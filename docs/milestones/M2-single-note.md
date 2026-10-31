@@ -6,6 +6,7 @@
 - `src/core`: pitch model, ranges, uniform random selection, quiz state reducer.
 - Staff view for treble, bass, and grand staff (`both`), in the M1 theme.
 - Input plug-in system (design §3.4): `InputMethod`, registry, `gradeAnswer()`, with the letter pad as the first input. Letter pad A–G. **Wrong answer**: second try, then reveal (e.g. "C6"), then wait for **Continue**. Never auto-advance.
+- App shell: Home (pick mode, Start), Quiz, Settings, with simple navigation. Results and Stats come in M6.
 - Settings: clef (treble/bass/both), range (staff to 3 ledger lines), questions per session. Persisted in localStorage.
 
 ## Acceptance criteria

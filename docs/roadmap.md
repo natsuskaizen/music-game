@@ -74,6 +74,14 @@ To keep usage low, it reads only the PR diff, uses Sonnet, and skips docs-only P
 also runs locally before each PR, so CI usually confirms rather than finds problems. The agent file is the single source of the review checklist, used both
 locally by Claude and in CI.
 
+**Gate mechanics**
+- Every required workflow runs on every PR. Docs-only PRs exit early with *success* instead of using a `paths`
+  filter, because a required check that never runs stays "waiting" and blocks the merge.
+- AI review escape hatch: if the reviewer is wrong, Stan can add the `review-override` label. The check then
+  passes and the override is logged in the PR. Only Stan uses it.
+- Manual ACs (device checks) are recorded in the milestone doc as `- [x] M1-AC2 (iPad, 2026-11-02)`. The AC report reads them.
+- `prototypes/` is excluded from lint, `jscpd`, `knip`, and coverage. It's reference code and is deleted after M1.
+
 **AC tagging convention**: a test's title starts with its AC id, e.g.
 `test('M2-AC3 wrong answer allows a second try', ...)`. The report matches ids from
 the milestone doc to test results, so status is visible without reading logs.

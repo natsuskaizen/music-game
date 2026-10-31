@@ -456,7 +456,10 @@ export interface Attempt {   // append-only log, for history charts and re-deriv
   ts: number;
   key: string;
   mode: 'single' | 'sequence';
-  answered: Letter | null;   // null = timed out
+  input: string;             // InputMethod id (3.4): letter-only answers are easier than exact keys
+  exactOctave: boolean;      // so stats can be filtered by how strict the answer was
+  answer: Answer | null;     // null = timed out
+  tries: 1 | 2;
   correct: boolean;
   ms: number;
 }
@@ -635,7 +638,7 @@ type QuizState =
 
 type QuizEvent =
   | { type: 'START'; items: Candidate[]; now: number }
-  | { type: 'ANSWER'; letter: Letter; now: number }
+  | { type: 'ANSWER'; answer: Answer; input: string; now: number }
   | { type: 'TICK'; now: number }           // detects timeout
   | { type: 'CONTINUE'; now: number };     // only a user tap leaves 'reveal'; never automatic
 
@@ -694,8 +697,12 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 ```
 
-Settings are small and read synchronously at startup, so they live in
-**localStorage** through Zustand's `persist` middleware. Stats and attempts live in IndexedDB.
+Settings are small and read synchronously at startup, so they live in **localStorage** through a
+persisted Svelte store. Stats and attempts live in IndexedDB.
+
+**Versioning**: settings carry `v: number`, and a `migrateSettings()` function fills new fields with defaults,
+so an app update never breaks saved settings. Dexie schema changes use `this.version(n).upgrade(...)`.
+Exported backups carry `v` as well.
 
 Response time is **always recorded**, even with the timer off, so "slow" still counts as weak.
 
