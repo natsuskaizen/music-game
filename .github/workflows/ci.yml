@@ -42,19 +42,20 @@ jobs:
         run: npm run ac-report
 
   status-file:
-    name: STATUS.md updated
+    name: Recent entry added
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - name: Fail if src/ changed without docs/STATUS.md
+      - name: Fail if src/ changed without a new docs/recent/ entry
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
           changed=$(git diff --name-only "origin/$BASE_REF...HEAD")
-          if grep -q '^src/' <<< "$changed" && ! grep -qx 'docs/STATUS.md' <<< "$changed"; then
-            echo "::error file=docs/STATUS.md::This PR changes src/ but not docs/STATUS.md. Update its Now and Recent sections."
+          added=$(git diff --name-only --diff-filter=A "origin/$BASE_REF...HEAD")
+          if grep -q '^src/' <<< "$changed" && ! grep -q '^docs/recent/' <<< "$added"; then
+            echo "::error file=docs/recent::This PR changes src/ but adds no docs/recent/<date>-<issue>.md entry. Add a one-line file."
             exit 1
           fi
