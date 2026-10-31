@@ -39,3 +39,5 @@ End with exactly one fenced JSON block, and nothing after it:
 ```
 
 `verdict` is `fail` if any finding is blocking, otherwise `pass`. Keep each message to one sentence with a concrete fix.
+`line` is optional (leave it out for file-level findings). In CI (`review.yml`) the same object is returned as
+structured output instead of a fenced block; blocking findings become inline PR annotations.

@@ -1,0 +1,66 @@
+# AI code review gate (roadmap "Quality gates"): runs .claude/agents/code-reviewer.md on the PR diff
+# and fails on a `fail` verdict. Docs-only PRs and the `review-override` label pass without calling Claude.
+name: AI review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+
+concurrency:
+  group: review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  review:
+    name: AI review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Decide whether to review
+        id: scope
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          OVERRIDE: ${{ contains(github.event.pull_request.labels.*.name, 'review-override') }}
+        run: |
+          if [ "$OVERRIDE" = true ]; then
+            echo "::notice::The review-override label is set, so the AI review passes without running."
+            echo "### AI review: overridden by the \`review-override\` label" >> "$GITHUB_STEP_SUMMARY"
+            echo "review=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git diff --name-only "origin/$BASE_REF...HEAD" | node scripts/review-gate/main.ts scope >> "$GITHUB_OUTPUT"
+          if grep -q '^review=false$' "$GITHUB_OUTPUT"; then
+            echo "::notice::Docs-only PR, so the AI review is skipped."
+            echo "### AI review: skipped (docs-only PR)" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Run the code-reviewer agent
+        id: review
+        if: steps.scope.outputs.review == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          github_token: ${{ github.token }}
+          prompt: |
+            Act as the code-reviewer agent: read .claude/agents/code-reviewer.md and follow it exactly.
+            Review pull request #${{ github.event.pull_request.number }}. Get its diff with
+            `git diff origin/${{ github.base_ref }}...HEAD`. Do not post comments or change files.
+            Return the verdict and findings as the structured output.
+          claude_args: |
+            --model sonnet
+            --max-turns 30
+            --allowedTools "Read,Grep,Glob,Bash(git diff:*),Bash(git log:*),Bash(git show:*)"
+            --json-schema '{"type":"object","required":["verdict","findings"],"properties":{"verdict":{"enum":["pass","fail"]},"findings":{"type":"array","items":{"type":"object","required":["severity","file","rule","message"],"properties":{"severity":{"enum":["blocking","suggestion"]},"file":{"type":"string"},"line":{"type":"integer"},"rule":{"type":"string"},"message":{"type":"string"}}}}}}'
+      - name: Apply the verdict
+        if: steps.scope.outputs.review == 'true'
+        env:
+          REVIEW_JSON: ${{ steps.review.outputs.structured_output }}
+        run: node scripts/review-gate/main.ts verdict
