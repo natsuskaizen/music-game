@@ -28,6 +28,7 @@
   />
   <button type="button" class="link" onclick={onSettings}>Settings</button>
   <button type="button" class="start" onclick={onStart}>Start</button>
+  <small class="credit">Piano sound: Salamander Grand Piano by Alexander Holm, CC BY 3.0</small>
 </section>
 
 <style>
@@ -47,6 +48,11 @@
     border: 0;
     color: var(--muted);
     text-decoration: underline;
+  }
+  .credit {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-align: center;
   }
   .start {
     padding: 0.75rem 3rem;
