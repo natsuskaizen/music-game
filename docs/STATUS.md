@@ -6,9 +6,9 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: planning done; design PR #1 open. Next: merge it, then start **M0** (foundation & quality gates).
-- **Next issue**: M0-1 Scaffold (see `docs/milestones/M0-foundation.md`).
-- **Blocked on Stan**: merge PR #1. During M0, a one-time setup (branch protection, Pages source). The AI review secret `CLAUDE_CODE_OAUTH_TOKEN` is already added.
+- **Phase**: M0 (foundation & quality gates) in progress. M0 issues are #2–#8.
+- **Next issue**: M0-2 Test harness (#3), after the M0-1 scaffold PR merges.
+- **Blocked on Stan**: merge M0 PRs until branch protection is on (M0-4/M0-5). Later in M0: branch protection on `main` and Settings → Pages → Source: GitHub Actions. GitHub milestones weren't created (no tool for it); create "M0 Foundation" in the UI or leave it to M0-7.
 
 ## Decisions so far
 | Topic | Decision | Where |
@@ -23,11 +23,12 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Later | Accidentals/key signatures (F1), mic input (F2) | roadmap |
 
 ## Milestones
-M0 ○ · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1 backlog · F2 after M5
+M0 ✱ · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1 backlog · F2 after M5
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
 - 2026-10-31: Research, design, framework comparison, Svelte keyboard mock-up (`prototypes/compare/`), roadmap and gates. All in PR #1.
+- 2026-10-31: M0-1 scaffold: Vite 7 + Svelte 5 + TS (strict), Prettier; `npm run check` = format, svelte-check, build. `src/` folders from design §11 are created with their first file, not as empty placeholders.
 
 ## Known issues / open questions
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
