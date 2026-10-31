@@ -20,7 +20,7 @@ technical risks early.
 | M1-1 (#19) | Pitch math (`src/core`) + `Staff` component: treble, bass, grand staff with ledger notes; Bravura subset | AC1 |
 | M1-2 (#20) | Theme tokens + `?theme=` switch: *Paper & ink* and *Storybook*; CI screenshots of both themes × 3 staffs | AC1 |
 | M1-3 (#21) | Demo quiz: on-screen piano answers, retry → reveal → Continue, GSAP right/wrong feedback per theme | AC1 |
-| M1-4 (#22) | Sound: a tone after each answer, `audioSession` playback for the silent switch, ringer hint fallback | AC2 |
+| M1-4 (#22) | Sound: a tone after each answer, `audioSession` playback for the silent switch, ringer hint fallback | AC2, AC5 |
 | M1-5 (#23) | Device checks + theme pick: AC2/AC3 on iPhone and iPad, record the pick, icons in the picked theme, Summary | AC2, AC3, AC4 |
 
 M1-4 uses a synthesized tone: the silent-switch behavior is the same for any Web Audio output, and piano samples land in M3.
@@ -30,6 +30,7 @@ M1-4 uses a synthesized tone: the silent-switch behavior is the same for any Web
 - M1-AC2 Manual (iPhone + iPad): sound plays with the silent switch on, or the limitation is documented.
 - M1-AC3 Manual: works in airplane mode after install.
 - M1-AC4 You pick a theme (or a mix); the choice is recorded in the Summary.
+- M1-AC5 The correct note sounds once a question is settled (right, or revealed), with the audio session set to `playback`; without `audioSession`, a touch device shows a "turn the ringer on for sound" hint.
 
 Refs: design §3 (rendering), §4 (audio), §14, [frameworks.md](../frameworks.md).
 

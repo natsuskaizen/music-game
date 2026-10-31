@@ -59,6 +59,12 @@ export function answerKey(s: QuizState, midi: number): QuizState {
   return { ...s, phase: 'reveal', wrongKeys, streak: 0, total: s.total + 1 };
 }
 
+/** The note to sound when an answer settles the question (right, or revealed after two misses); design §14. */
+export function toneAfter(before: QuizState, after: QuizState): number | undefined {
+  const settled = after.phase === 'right' || after.phase === 'reveal';
+  return settled && after.phase !== before.phase ? midiOf(after.note.pitch) : undefined;
+}
+
 function scoreRight(s: QuizState): QuizState {
   const first = s.phase === 'ask';
   return {

@@ -46,6 +46,11 @@ export function midiOf(pitch: Pitch): number {
   return (pitch.octave + 1) * 12 + SEMITONE[pitch.letter];
 }
 
+/** Frequency in Hz of a MIDI note in equal temperament (A4 = 440 Hz), for the synthesized answer tone. */
+export function hzOf(midi: number): number {
+  return 440 * 2 ** ((midi - 69) / 12);
+}
+
 /** Positions of the ledger lines a note at `pos` needs, from the staff outward (±6, ±8, ±10). */
 export function ledgerPositions(pos: number): number[] {
   const out: number[] = [];

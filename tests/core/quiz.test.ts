@@ -6,6 +6,7 @@ import {
   nextQuestion,
   pickNote,
   startQuiz,
+  toneAfter,
   type QuizState,
 } from '../../src/core/quiz';
 
@@ -103,4 +104,21 @@ test('M1-AC1 startQuiz begins with an empty score', () => {
 test('M1-AC1 firstTryPercent rounds and is 0 before any answer', () => {
   expect(firstTryPercent(quiz())).toBe(0);
   expect(firstTryPercent(quiz({ firstTry: 2, total: 3 }))).toBe(67);
+});
+
+describe('toneAfter', () => {
+  test('M1-AC5 sounds the correct note when an answer settles the question', () => {
+    const ask = quiz();
+    expect(toneAfter(ask, answerKey(ask, 60))).toBe(60);
+    const retry = answerKey(ask, 62);
+    expect(toneAfter(retry, answerKey(retry, 64))).toBe(60);
+  });
+
+  test('M1-AC5 stays quiet on a first miss and on taps after a reveal', () => {
+    const ask = quiz();
+    const retry = answerKey(ask, 62);
+    expect(toneAfter(ask, retry)).toBeUndefined();
+    const reveal = answerKey(retry, 64);
+    expect(toneAfter(reveal, answerKey(reveal, 60))).toBeUndefined();
+  });
 });

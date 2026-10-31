@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'vitest';
 import {
+  hzOf,
   ledgerPositions,
   midiOf,
   noteAt,
@@ -60,4 +61,10 @@ test('M1-AC1 midiOf puts middle C at 60 and A4 at 69', () => {
   expect(midiOf({ letter: 'C', octave: 4 })).toBe(60);
   expect(midiOf({ letter: 'A', octave: 4 })).toBe(69);
   expect(midiOf({ letter: 'B', octave: 3 })).toBe(59);
+});
+
+test('M1-AC5 hzOf tunes A4 to 440 Hz and doubles per octave', () => {
+  expect(hzOf(69)).toBe(440);
+  expect(hzOf(81)).toBe(880);
+  expect(hzOf(60)).toBeCloseTo(261.63, 2);
 });
