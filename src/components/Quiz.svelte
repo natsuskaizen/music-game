@@ -2,7 +2,8 @@
      A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4).
      The correct note sounds once the question is settled (design §14). Switching input keeps the question. -->
 <script lang="ts">
-  import { needsRingerHint, playTone } from '../audio/tone';
+  import { needsRingerHint } from '../audio/context';
+  import { loadPiano, playPitch } from '../audio/piano';
   import { midiOf, pitchLabel } from '../core/pitch';
   import { notePool } from '../core/ranges';
   import {
@@ -26,6 +27,7 @@
 
   const feedback = $derived(FEEDBACK[theme]);
   const ringerHint = needsRingerHint();
+  void loadPiano(); // the Start tap that opened this screen lets iOS start audio
   const inputs = available();
   const begin = () =>
     startSession(
@@ -70,7 +72,7 @@
     const before = quiz;
     quiz = reduce(quiz, { type: 'answer', answer }, Math.random);
     const tone = toneAfter(before, quiz);
-    if (tone !== undefined) playTone(tone);
+    if (tone !== undefined) playPitch(tone);
     if (quiz.phase === before.phase || !noteEl) return;
     if (quiz.phase !== 'right') {
       feedback.wrong(noteEl);
