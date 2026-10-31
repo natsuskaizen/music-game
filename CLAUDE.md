@@ -31,6 +31,14 @@ Svelte 5 + SVG (Bravura glyphs) + GSAP, Vite, TypeScript, Dexie (IndexedDB), Web
 - **Every PR updates `docs/STATUS.md`**: Now, Recent (one line), and new decisions or known issues.
 - When a milestone's last issue closes: fill in its Summary (5–10 lines), update the roadmap status, and refresh all of STATUS.md (trim Recent to the last ~5 lines).
 
+## Autonomous mode (authorized by Stan, 2026-10-31)
+A scheduled task starts a fresh session every 2 hours. Each run does at most **one issue**:
+1. Read STATUS.md. If a PR from the loop is still open, check it: fix red CI or review findings (max 2 attempts per issue), then stop.
+2. If a **stop point** is next, update STATUS.md "Blocked on Stan", notify, and stop. Stop points: a milestone's end, any "working session" item, M1 device checks or theme pick, a gate failing twice on the same issue, or anything needing a repo setting or secret.
+3. Otherwise take the next issue: branch, build, test, `npm run check`, run the code-reviewer agent, fix blocking findings, update STATUS.md (Now, Recent, handoff notes), and open the PR.
+4. Merging: once branch protection requires the CI and review checks (after M0-4/M0-5), enable **auto-merge**, and GitHub merges only when every check is green. Before that, leave the PR for Stan to merge.
+Never merge by hand, never use `review-override`, and never change gates to make a PR pass.
+
 ## Commands (created in M0)
 - `npm run check`: types, lint, quality rules, unit, build, size budget. Run before every push.
 - `npm test` runs unit tests (Vitest); `npm run e2e` runs Playwright (WebKit iPhone/iPad).
