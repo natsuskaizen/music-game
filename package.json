@@ -17,7 +17,8 @@
     "dupes": "jscpd",
     "knip": "knip",
     "ac-report": "node scripts/ac-report/main.ts",
-    "size": "node scripts/size-budget/main.ts"
+    "size": "node scripts/size-budget/main.ts",
+    "icons": "node scripts/icons/main.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
