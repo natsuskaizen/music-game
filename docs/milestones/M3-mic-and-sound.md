@@ -11,6 +11,16 @@
 - Playback is muted while listening. The heard key is highlighted on the on-screen keyboard.
 - Single notes and sequences only (no chords). MIDI is out: iOS Safari has no Web MIDI.
 
+## Issues
+| Id | Issue | ACs |
+|---|---|---|
+| M3-1 (#45) | Piano samples: build script, nearest-sample/detune math in `core`, `audio/piano.ts` `playPitch`, shared `AudioContext` module, CC-BY credit | AC1, AC6 (sound), AC7 |
+| M3-2 (#46) | Sound settings (§14 group); pure `core` rule for when a note plays, replacing `toneAfter` | AC2 |
+| M3-3 (#47) | Pitch-to-note filter in `core`: Hz → MIDI ±30 cents, stability over N frames, octave majority, re-fire rule | AC3, AC4 |
+| M3-4 (#48) | `pitchy` + recorded-piano fixtures for G1–F6; accuracy test, tune frames and window | AC5 |
+| M3-5 (#49) | `mic` input: `getUserMedia` (raw), analyser on the shared context, contract suite, ask permission only when chosen | AC6 (latency) |
+| M3-6 (#50) | Mute playback while listening, highlight the heard key; delete `prototypes/`; M3 Summary | AC8 |
+
 ## Acceptance criteria
 - M3-AC1 `midi()`/nearest-sample/detune math is correct across G1–F6 (unit).
 - M3-AC2 Each sound setting triggers playback at the right moment, and "off" plays nothing (e2e with a stubbed audio player).
@@ -19,6 +29,7 @@
 - M3-AC5 Detection of recorded piano samples for every note in range: ≥ 95% letter-correct, ≥ 90% octave-correct above C2 (unit, offline fixtures).
 - M3-AC6 Manual: on your piano, iPad and iPhone, normal room, a played note registers in under 0.3 s, and samples sound right.
 - M3-AC7 Manual: the answer sound plays in airplane mode after install, on iPhone and iPad (#39).
+- M3-AC8 While the mic listens, no note plays, and the heard key is highlighted on the on-screen keyboard (e2e with a stubbed mic).
 
 Refs: design §3.3, §3.4, §4, §14. Prototypes: `prototypes/compare/keyboard.html`, `prototypes/compare/src/shared/mic.ts`.
 
