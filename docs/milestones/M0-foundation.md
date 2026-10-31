@@ -47,8 +47,8 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 
 ## Setup Stan does once
 - ✓ `CLAUDE_CODE_OAUTH_TOKEN` repo secret (done 2026-10-31).
-- Branch protection on `main`: require the CI and review checks.
-- Settings → Pages → Source: GitHub Actions.
+- ✓ Branch protection on `main`: require the CI and review checks (done 2026-10-31).
+- ✓ Settings → Pages → Source: GitHub Actions (done 2026-10-31).
 
 Refs: design §5 (PWA), §11 (layout), roadmap "Workflow" and "Quality gates".
 
