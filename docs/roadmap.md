@@ -30,7 +30,7 @@ Milestone doc (scope + ACs + issue list)
 | M3 | [Real piano & sound](milestones/M3-mic-and-sound.md) | Mic input from a real piano, piano samples, sound settings | Not started |
 | M4 | [Tracking, review & ordering](milestones/M4-tracking.md) | Stats in IndexedDB, weighted stepwise ordering, review mode, backup | Not started |
 | M5 | [Sequence mode](milestones/M5-sequence.md) | Multi-note quiz in measures, sized by difficulty | Not started |
-| M6 | [Timer & results](milestones/M6-timer.md) | Countdown-bar timer, results and stats screens | Not started |
+| M6 | [Timer & results](milestones/M6-timer.md) | Sprint timer, results and stats screens | Not started |
 | M7 | [Polish & PWA hardening](milestones/M7-polish.md) | Update prompt, install hint, effects, accessibility | Not started |
 | F1 | [Accidentals & key signatures](milestones/F1-accidentals.md) | Later feature | Backlog |
 | F3 | [Write or say the letter](milestones/F3-letter-inputs.md) | Handwriting and voice letter inputs | Backlog |
