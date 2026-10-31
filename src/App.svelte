@@ -4,7 +4,8 @@
   import UpdateBanner from './components/UpdateBanner.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
   import Staff from './components/Staff.svelte';
-  import type { ClefNote } from './core/pitch';
+  import type { Clef, ClefNote, Pitch } from './core/pitch';
+  import type { Measure } from './core/sequence';
   import type { ClefMode } from './core/staff-layout';
   import { loadSettings, saveSettings, type Settings } from './core/settings';
   import type { NoteStat } from './core/stats';
@@ -23,6 +24,37 @@
     settings = next;
     saveSettings(localStorage, next);
   }
+
+  // `n('treble', 'A5', 'eighth')`: a note from its clef, pitch name and duration.
+  const n = (clef: Clef, name: string, duration: 'quarter' | 'eighth') => ({
+    note: { pitch: { letter: name.charAt(0) as Pitch['letter'], octave: Number(name.slice(1)) }, clef },
+    duration,
+  });
+  // 16 notes in 3 measures with ledger lines on both staves, the largest sequence (M5-AC4).
+  const SEQUENCE: Measure[] = [
+    [
+      n('treble', 'A5', 'eighth'),
+      n('treble', 'C6', 'eighth'),
+      n('treble', 'E6', 'quarter'),
+      n('treble', 'F6', 'eighth'),
+      n('treble', 'E6', 'eighth'),
+      n('treble', 'D6', 'quarter'),
+    ],
+    [
+      n('bass', 'E2', 'quarter'),
+      n('bass', 'D2', 'quarter'),
+      n('bass', 'C2', 'eighth'),
+      n('bass', 'B1', 'eighth'),
+      n('bass', 'A1', 'quarter'),
+    ],
+    [
+      n('treble', 'D4', 'quarter'),
+      n('treble', 'C4', 'quarter'),
+      n('treble', 'B3', 'eighth'),
+      n('treble', 'A3', 'eighth'),
+      n('treble', 'G3', 'quarter'),
+    ],
+  ];
 
   // M1 spike gallery: the extremes of the hard range (3 ledger lines) and middle C on a grand staff.
   const EXAMPLES: { title: string; mode: ClefMode; note: ClefNote }[] = [
@@ -64,6 +96,10 @@
           <figcaption>{example.title}</figcaption>
         </figure>
       {/each}
+      <figure>
+        <Staff mode="both" sequence={SEQUENCE} />
+        <figcaption>Sequence</figcaption>
+      </figure>
     </section>
   {/if}
 </main>
