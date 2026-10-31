@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M4 Tracking, review & ordering (`docs/milestones/M4-tracking.md`, issues #58–#63). M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M4-5 (#62) Review weak notes (weak-note pool in `core`, button on Home).
+- **Next issue**: M4-6 (#63) JSON export/import and the M4 Summary.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -46,9 +46,10 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Mic input | `inputs/mic.ts`: headless `mic` input; `start` calls `getUserMedia` (echo cancellation, noise suppression, auto-gain off) so the permission prompt shows only once it's chosen, runs a `pitchy` detector (fftSize 4096, −45 dB floor) each animation frame on the shared `AudioContext` through `listenStep`, emits pitch answers in A0–C8, and stop releases the tracks. Hidden without `getUserMedia`. Its tests are tagged M3-5, not AC6, so the manual latency AC stays pending | M3-5 |
 | Listening UI | `HeadlessInput.listens` mutes `playPitch` in `Quiz`; `start(emit, heard)` reports the sounding note (`heardNote` in `core/listen.ts`) and the keyboard marks it `heard` (answer marks win). A headless input shows the piano beside "Listening". e2e drives it with `scripted-heard`. `prototypes/` deleted | M3-6 |
 | Note stats | `core/stats.ts`: `NoteStat`, `Attempt` (ts, key, input, answer, tries, correct, ms; no `exactOctave`/`mode` yet), `statKey` (`treble:C6`), `newStat`, `credit` (1 / 0.5 / 0), `applyAttempt`: EWMA α 0.3 on credit and ms (first attempt replaces the 0.5 start), box +1 only on a first-try hit, 0 on a miss, streak counts first-try hits | M4-1 |
-| Weighted pick | `core/selector.ts` `weight` (ledger × weakness × slowness × staleness, unseen ×2) and `pickWeighted(pool, ctx, previous)`: 15% of picks explore uniformly, never repeats. `weightsFor(difficulty)` turns the ledger boost on for Hard only. `weaknessGain` is 6, not design's 3, so 40% vs 95% accuracy gives ≥3× (M4-AC2); design §7.3 updated. Not wired into the session yet (M4-3, M4-4) | M4-2 |
+| Weighted pick | `core/selector.ts` `weight` (ledger × weakness × slowness × staleness, unseen ×2) and `pickWeighted(pool, ctx, previous)`: 15% of picks explore uniformly, never repeats. `weightsFor(difficulty)` turns the ledger boost on for Hard only. `weaknessGain` is 6, not design's 3, so 40% vs 95% accuracy gives ≥3× (M4-AC2); design §7.3 updated. Wired in by `learnedPicker` (M4-4) | M4-2 |
 | Stepwise order | `core/selector.ts` `candidates(pool, random, previous)`: 90% same clef 1–3 steps away, 10% one jump kind (other clef, octave, octave ± 1–2) chosen uniformly among kinds that fit; falls back to the whole pool. `pickStepwise` picks uniformly among them and drives the session. M4-4 will weight within `candidates` | M4-3 |
 | Storage | `storage/db.ts` (Dexie `sight-reading`: `stats` by key, `attempts` log): `recordAttempt` folds the attempt into its stat and appends it in one transaction; `loadStats`; `requestPersistence`. `Session` takes a `Picker` (`selector.ts`) instead of `random`: `learnedPicker` weights within `candidates`, `stepwisePicker` is the stats-free one for tests. `settledAttempt` builds the `Attempt` when a question settles (first miss records nothing). `Quiz` keeps a live stats map, merges stored stats in on mount, and ignores storage errors. M4-AC6's reload part is tagged M4-4 so AC6 stays pending until the M4-6 round trip | M4-4 |
+| Review mode | `core/stats.ts` `isWeak` (seen and `box <= 1` or `ewmaAcc < 0.7`) and `weakNotes(pool, stats)`. `Quiz` with a `review` stats prop starts from the weak notes, refilters after each settled answer (`withPool`), and the session is `done` when the pool is empty; a lone weak note may repeat. Home's "Review weak notes (n)" button is disabled at 0 | M4-5 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
@@ -57,6 +58,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✱ · M5 ○
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M4-5 (#62): Review weak notes: `weakNotes` pool, session ends when empty, Home button (M4-AC5).
 - 2026-10-31: M4-4 (#61): Dexie storage, `recordAttempt`, and `learnedPicker` (weighted, stepwise) drive the quiz; stats survive a reload.
 - 2026-10-31: Mic fix from Stan's iPhone test (M3-AC9): audio session `play-and-record` while listening (iOS refused the mic under `playback`, so no prompt), error message when the mic is blocked, level meter, context resumes on return to the app. Needs re-test on the iPhone.
 - 2026-10-31: M4-3 (#60): `pickStepwise` (steps of 1–3, ~10% jumps of three kinds) now drives the session (M4-AC4); doc nits from the M4-2 review fixed.

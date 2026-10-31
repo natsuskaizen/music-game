@@ -1,5 +1,15 @@
 import { expect, test } from 'vitest';
-import { applyAttempt, credit, newStat, statKey, type Attempt } from '../../src/core/stats';
+import { notePool } from '../../src/core/ranges';
+import {
+  applyAttempt,
+  credit,
+  isWeak,
+  newStat,
+  statKey,
+  weakNotes,
+  type Attempt,
+  type NoteStat,
+} from '../../src/core/stats';
 
 const attempt = (tries: 1 | 2, correct: boolean, over: Partial<Attempt> = {}): Attempt => ({
   ts: 5,
@@ -62,4 +72,30 @@ test('M4-AC1 the box tops out at 4', () => {
     fresh(),
   );
   expect(s.box).toBe(4);
+});
+
+test('M4-AC5 weak means seen and (box <= 1 or accuracy < 0.7); unseen notes are not weak', () => {
+  const stat = (over: Partial<NoteStat>): NoteStat => ({
+    ...fresh(),
+    attempts: 3,
+    box: 2,
+    ewmaAcc: 0.9,
+    ...over,
+  });
+  expect(isWeak(undefined)).toBe(false);
+  expect(isWeak(fresh())).toBe(false);
+  expect(isWeak(stat({}))).toBe(false);
+  expect(isWeak(stat({ box: 1 }))).toBe(true);
+  expect(isWeak(stat({ ewmaAcc: 0.6 }))).toBe(true);
+});
+
+test('M4-AC5 weakNotes keeps only the weak notes of the pool', () => {
+  const pool = notePool('treble', 'easy');
+  const [weak, strong] = [pool[0], pool[1]] as [(typeof pool)[0], (typeof pool)[0]];
+  const stats = new Map<string, NoteStat>([
+    [statKey(weak), { ...fresh(), key: statKey(weak), attempts: 2, box: 0, ewmaAcc: 0.2 }],
+    [statKey(strong), { ...fresh(), key: statKey(strong), attempts: 9, box: 4, ewmaAcc: 0.95 }],
+  ]);
+  expect(weakNotes(pool, stats)).toEqual([weak]);
+  expect(weakNotes(pool, new Map())).toEqual([]);
 });

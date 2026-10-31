@@ -36,6 +36,11 @@ export interface Session {
   total: number;
 }
 
+/** The same session drawing from a new pool; review mode shrinks it as notes are learned, and an empty pool ends the session. */
+export function withPool(s: Session, pool: ClefNote[]): Session {
+  return { ...s, pool };
+}
+
 /** What the UI can tell the session: an answer, or `next` after a right answer's animation or the Continue tap. */
 export type SessionEvent = { type: 'answer'; answer: Answer } | { type: 'next' };
 
@@ -74,7 +79,8 @@ function scoreRight(s: Session): Session {
 }
 
 function next(s: Session, pick: Picker): Session {
-  if (s.questionsPerSession !== undefined && s.total >= s.questionsPerSession) return { ...s, phase: 'done' };
+  const finished = s.questionsPerSession !== undefined && s.total >= s.questionsPerSession;
+  if (finished || s.pool.length === 0) return { ...s, phase: 'done' };
   return { ...s, note: pick(s.pool, s.note), phase: 'ask', misses: [] };
 }
 

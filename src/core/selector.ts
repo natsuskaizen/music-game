@@ -8,8 +8,11 @@ export type Random = () => number;
 
 const sameNote = (a: ClefNote, b: ClefNote) => a.clef === b.clef && staffPos(a) === staffPos(b);
 
-const withoutPrevious = (pool: ClefNote[], previous?: ClefNote) =>
-  previous ? pool.filter((note) => !sameNote(note, previous)) : pool;
+/** The pool minus `previous`, unless that leaves nothing (review mode can end on one note). */
+const withoutPrevious = (pool: ClefNote[], previous?: ClefNote) => {
+  const others = previous ? pool.filter((note) => !sameNote(note, previous)) : pool;
+  return others.length > 0 ? others : pool;
+};
 
 /** A uniformly random note from `pool`, never `previous` again, so the staff always visibly changes. */
 export function pickNote(pool: ClefNote[], random: Random, previous?: ClefNote): ClefNote {
