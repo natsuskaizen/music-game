@@ -1,5 +1,5 @@
 // Staff geometry in SVG units (design §3.1). Pure, so the Staff component only draws.
-import type { Clef } from './pitch';
+import { staffPos, writtenPitch, type Clef, type ClefNote } from './pitch';
 
 /** Clef setting: one stave, or both on a grand staff (design §9). */
 export type ClefMode = Clef | 'both';
@@ -45,4 +45,19 @@ export function yOf(stave: Stave, pos: number): number {
 /** Staff position of the line a clef glyph sits on: the G clef curls around G4, the F clef's dots surround F3. */
 export function clefLinePos(clef: Clef): number {
   return clef === 'treble' ? -2 : 2;
+}
+
+// Farthest staff position a heard note is drawn at: past it, the note would leave the system's ledger room.
+const HEARD_REACH = 12;
+const MIDDLE_C = 60;
+
+/**
+ * Where a heard MIDI note lands on the staff, so the player sees where their playing hits (on a grand staff, middle C
+ * and up goes on the treble). `undefined` when it is too far off the staff to draw.
+ */
+export function heardMark(midi: number, mode: ClefMode): { note: ClefNote; sharp: boolean } | undefined {
+  const { pitch, sharp } = writtenPitch(midi);
+  const clef = mode !== 'both' ? mode : midi >= MIDDLE_C ? 'treble' : 'bass';
+  const note = { pitch, clef };
+  return Math.abs(staffPos(note)) <= HEARD_REACH ? { note, sharp } : undefined;
 }

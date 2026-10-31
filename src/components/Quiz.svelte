@@ -1,5 +1,6 @@
 <!-- The quiz screen (design §8.1): read the note on the staff (a grand staff for `both`) and answer with the active input.
-     A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4).
+     A miss gets one retry, then the answer is revealed and the quiz waits for Continue; with a listening input,
+     playing the revealed note is Continue too (design §8.4).
      Sound follows the sound settings (`noteToPlay`, design §14). Switching input keeps the question. -->
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -9,6 +10,7 @@
   import { midiOf, pitchLabel } from '../core/pitch';
   import { notePool } from '../core/ranges';
   import {
+    answerContinues,
     firstTryPercent,
     isSettled,
     reduce,
@@ -66,11 +68,13 @@
   // The default input starts; the switcher changes it for this quiz only.
   const defaultInput = () => inputById(settings.input);
   let input = $state.raw(defaultInput());
+  // A listening input hears the room: the app stays quiet (design §4.3) and playing the revealed note continues.
+  const listening = $derived('listens' in input && input.listens === true);
   let quiz = $state(begin());
   const sound = (before: Session | undefined, after: Session) => {
     const midi = noteToPlay(before, after, settings.sound);
-    // A listening input hears the room, so playing a note would answer itself (design §4.3).
-    if (midi !== undefined && !('listens' in input && input.listens)) playPitch(midi, settings.sound.volume);
+    // Playing a note while listening would answer itself.
+    if (midi !== undefined && !listening) playPitch(midi, settings.sound.volume);
   };
   onMount(() => {
     setIgnoreSilentSwitch(settings.sound.ignoreSilentSwitch);
@@ -130,6 +134,10 @@
   }
 
   async function onAnswer(answer: Answer) {
+    if (listening && answerContinues(quiz, answer)) {
+      advance();
+      return;
+    }
     const before = quiz;
     quiz = reduce(quiz, { type: 'answer', answer }, pick);
     record(before, quiz, answer);
@@ -166,9 +174,9 @@
   {#if ringerHint}<p class="hint">Turn the ringer on for sound.</p>{/if}
   <p class="msg {quiz.phase}" aria-live="polite">
     {#if quiz.phase === 'retry'}Not quite. One more try.
-    {:else if quiz.phase === 'reveal'}It's {name}. Tap Continue.
+    {:else if quiz.phase === 'reveal'}It's {name}. {listening ? 'Play it or tap Continue.' : 'Tap Continue.'}
     {:else if quiz.phase === 'right'}Yes, {name}!
-    {:else}Find this note on the keyboard.{/if}
+    {:else}{listening ? 'Play this note.' : 'Find this note on the keyboard.'}{/if}
   </p>
   {#if quiz.phase === 'done'}
     <div class="results">
@@ -191,12 +199,14 @@
       note={quiz.note}
       mark={quiz.phase === 'right' ? 'right' : quiz.phase === 'ask' ? undefined : 'wrong'}
       revealed={quiz.phase === 'reveal'}
+      {heard}
       bind:noteEl
     />
     <ActiveInput
       method={input}
       mode={settings.clef}
       {marks}
+      minLevel={settings.micLevel}
       emit={onAnswer}
       onHeard={(midi: number | undefined) => {
         heard = midi;

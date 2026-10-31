@@ -2,6 +2,7 @@ import { describe, expect, test } from 'vitest';
 import { midiOf, type ClefNote } from '../../src/core/pitch';
 import { notePool } from '../../src/core/ranges';
 import {
+  answerContinues,
   firstTryPercent,
   gradeAnswer,
   settledAttempt,
@@ -176,4 +177,16 @@ test('M4-AC5 a review session with one weak note keeps asking it', () => {
   const again = next(solved);
   expect(again.phase).toBe('ask');
   expect(again.note).toEqual(C4);
+});
+
+describe('answerContinues (design §8.4)', () => {
+  test('M3-AC11 playing the revealed note stands in for Continue', () => {
+    expect(answerContinues(session({ phase: 'reveal' }), key(60))).toBe(true);
+  });
+
+  test('M3-AC11 a miss, or any answer before the reveal, never continues', () => {
+    expect(answerContinues(session({ phase: 'reveal' }), key(62))).toBe(false);
+    expect(answerContinues(session({ phase: 'retry' }), key(60))).toBe(false);
+    expect(answerContinues(session({ phase: 'right' }), key(60))).toBe(false);
+  });
 });

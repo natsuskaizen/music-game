@@ -88,6 +88,16 @@ export function listenStep(
   return { state: { recent, fired: held }, note: held };
 }
 
+/** Loudness a frame needs before the mic hears it (meter scale 0..1), quietest first; 0.5 is about -35 dB. */
+export const MIC_LEVELS = [0.35, 0.5, 0.65];
+/** The default needs a firm note, so talking or a creak in the room counts as silence. */
+export const DEFAULT_MIC_LEVEL = 0.5;
+
+/** The frame when it is at least `minLevel` loud, else silence: quiet sounds never reach the filter or the heard marks. */
+export function loudEnough(frame: PitchFrame, level: number, minLevel: number): PitchFrame | undefined {
+  return level >= minLevel ? frame : undefined;
+}
+
 const METER_FLOOR_DB = -60; // quieter than this reads as an empty meter
 const METER_CEIL_DB = -10; // a loud piano near the device fills it
 

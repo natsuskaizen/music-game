@@ -269,7 +269,10 @@ always muted** so the app never hears itself.
 The mic shares the playback `AudioContext`. An `AnalyserNode` feeds `pitchy` about 60 times
 a second. A note counts once it holds for 4 frames (~65 ms) with clarity > 0.9. The same
 note can fire again only after a short silence or a different note. The resulting MIDI number goes
-through `gradeAnswer()` like a tap. The shipped version is `src/inputs/mic.ts`.
+through `gradeAnswer()` like a tap. Frames quieter than the **mic loudness** setting (Soft / Firm / Loud, meter
+level 0.35 / 0.5 / 0.65, about −42 / −35 / −28 dB, default Firm) count as silence, so room noise and soft sounds
+never answer; the meter marks that level. The heard note is drawn faintly on the staff, a black key as the natural
+below with a sharp. The shipped version is `src/inputs/mic.ts`.
 
 ```ts
 const stream = await navigator.mediaDevices.getUserMedia({
@@ -656,7 +659,9 @@ Applies to both modes.
 1. **First miss**: the note shakes red and you get a **second try**. The timer, if on, doesn't restart.
 2. **Second miss or timeout**: the correct answer is **revealed**. The note is labeled
    (e.g. "C6"), and the sound plays if enabled.
-3. The quiz **waits** until you tap **Continue**. It never advances automatically.
+3. The quiz **waits** until you tap **Continue**. It never advances automatically. With a listening input (the mic),
+   playing the revealed note also counts as Continue, so a player at the piano can keep going through a sequence
+   without touching the screen (Stan, 2026-10-31).
 
 Scoring for the stats: a first-try hit is 1.0, a second-try hit is 0.5, and a miss is 0.
 `ewmaAcc` uses that credit instead of a plain boolean, and the Leitner `box` only goes

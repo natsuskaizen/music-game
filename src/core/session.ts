@@ -84,6 +84,14 @@ function next(s: Session, pick: Picker): Session {
   return { ...s, note: pick(s.pool, s.note), phase: 'ask', misses: [] };
 }
 
+/**
+ * Whether an answer stands in for the Continue tap: playing the revealed note moves on, so someone at a real piano
+ * keeps their hands on the keys (design §8.4). A miss still never moves on.
+ */
+export function answerContinues(s: Session, a: Answer): boolean {
+  return s.phase === 'reveal' && gradeAnswer(s.note, a);
+}
+
 /** The attempt a question just settled into, or `undefined` if `after` is not a newly settled question. */
 export function settledAttempt(
   before: Session,

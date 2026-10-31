@@ -1,5 +1,6 @@
-<!-- Settings (design §14): difficulty, questions per session, the default answer input, and sound. Changes save at once. -->
+<!-- Settings (design §14): difficulty, questions per session, the default answer input, mic loudness, and sound. Changes save at once. -->
 <script lang="ts">
+  import { MIC_LEVELS } from '../core/listen';
   import { DIFFICULTIES, SESSION_LENGTHS, type Settings } from '../core/settings';
   import { VOLUMES, type SoundSettings } from '../core/sound';
   import type { Difficulty } from '../core/ranges';
@@ -21,6 +22,8 @@
     { key: 'ignoreSilentSwitch', text: 'Play with the silent switch on' },
   ];
   const VOLUME_NAMES = ['Quiet', 'Medium', 'Loud'];
+  const MIC_LEVEL_NAMES = ['Soft', 'Firm', 'Loud'];
+  const canListen = inputs.some((input) => 'listens' in input && input.listens);
   let backupMessage = $state('');
   async function runBackup(task: () => Promise<string>) {
     try {
@@ -78,6 +81,19 @@
         {#each inputs as option (option.id)}<option value={option.id}>{option.label}</option>{/each}
       </select>
     </label>
+  {/if}
+  {#if canListen}
+    <div class="row">
+      <span>Mic hears notes played at least</span>
+      <Segmented
+        label="Mic loudness"
+        options={MIC_LEVELS.map((value, i) => ({ value, text: MIC_LEVEL_NAMES[i] ?? '' }))}
+        value={settings.micLevel}
+        onchange={(micLevel: number) => {
+          onchange({ ...settings, micLevel });
+        }}
+      />
+    </div>
   {/if}
   <fieldset class="row sound">
     <legend>Sound</legend>

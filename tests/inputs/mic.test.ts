@@ -1,5 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { DEFAULT_MIC_LEVEL } from '../../src/core/listen';
 import type { Answer } from '../../src/core/session';
 import { micInput } from '../../src/inputs/mic';
 
@@ -9,6 +10,7 @@ const A4 = 69;
 
 let pending: (() => void) | undefined;
 let tone = true;
+let amplitude = 0.5;
 const trackStop = vi.fn();
 const sourceDisconnect = vi.fn();
 
@@ -24,7 +26,7 @@ vi.mock('../../src/audio/context', () => ({
       fftSize: 0,
       getFloatTimeDomainData: (buf: Float32Array) => {
         buf.forEach((_, i) => {
-          buf[i] = tone ? 0.5 * Math.sin((2 * Math.PI * A4_HZ * i) / RATE) : 0;
+          buf[i] = tone ? amplitude * Math.sin((2 * Math.PI * A4_HZ * i) / RATE) : 0;
         });
       },
     }),
@@ -36,6 +38,7 @@ const getUserMedia = vi.fn(() => Promise.resolve({ getTracks: () => [{ stop: tra
 
 beforeEach(() => {
   tone = true;
+  amplitude = 0.5;
   vi.stubGlobal('navigator', { mediaDevices: { getUserMedia } });
   vi.stubGlobal('requestAnimationFrame', (cb: () => void) => {
     pending = cb;
@@ -75,10 +78,7 @@ describe('M3-5 mic input', () => {
 
   test('M3-AC8 reports the sounding note as heard, then none once stopped', async () => {
     const heard: (number | undefined)[] = [];
-    const stop = await micInput.start(
-      () => undefined,
-      (midi) => heard.push(midi),
-    );
+    const stop = await micInput.start(() => undefined, { heard: (midi) => heard.push(midi) });
     runFrames(2);
     stop();
     expect(heard).toEqual([A4, A4, undefined]);
@@ -90,6 +90,20 @@ describe('M3-5 mic input', () => {
     const stop = await micInput.start((a) => answers.push(a));
     runFrames(10);
     expect(answers).toEqual([]);
+    stop();
+  });
+
+  test('M3-AC10 a note quieter than the threshold neither answers nor shows as heard', async () => {
+    amplitude = 0.014; // about -40 dB: loud enough to detect, under the default threshold
+    const answers: Answer[] = [];
+    const heard: (number | undefined)[] = [];
+    const stop = await micInput.start((a) => answers.push(a), {
+      heard: (midi) => heard.push(midi),
+      minLevel: DEFAULT_MIC_LEVEL,
+    });
+    runFrames(10);
+    expect(answers).toEqual([]);
+    expect(heard.every((midi) => midi === undefined)).toBe(true);
     stop();
   });
 
@@ -108,11 +122,7 @@ describe('M3-5 mic input', () => {
 
   test('M3-AC9 reports a level each frame, 0 once stopped', async () => {
     const levels: number[] = [];
-    const stop = await micInput.start(
-      () => undefined,
-      () => undefined,
-      (level) => levels.push(level),
-    );
+    const stop = await micInput.start(() => undefined, { level: (level) => levels.push(level) });
     runFrames(2);
     expect(levels.at(-1)).toBeGreaterThan(0);
     stop();

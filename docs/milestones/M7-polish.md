@@ -4,6 +4,8 @@
 
 ## Scope
 - (The update banner shipped early, outside M7.) Add-to-Home-Screen hint, safe-area insets, streak and celebration effects in the chosen theme.
+- Redesign the mic level bar (Stan, 2026-10-31): the thin "Listening" meter works but needs a proper visual design in
+  the chosen theme. Keep its threshold mark (M3-AC10) and its `role="meter"`.
 - Accessibility: button labels, contrast, reduced-motion support.
 
 ## Acceptance criteria

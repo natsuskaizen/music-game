@@ -46,6 +46,14 @@ export function midiOf(pitch: Pitch): number {
   return (pitch.octave + 1) * 12 + SEMITONE[pitch.letter];
 }
 
+/** The natural a MIDI note is written on, and whether it needs a sharp: a black key sits on the natural below it. */
+export function writtenPitch(midi: number): { pitch: Pitch; sharp: boolean } {
+  const octave = Math.floor(midi / 12) - 1;
+  const semitone = midi - (octave + 1) * 12;
+  const letter = LETTERS.findLast((l) => SEMITONE[l] <= semitone) ?? 'C';
+  return { pitch: { letter, octave }, sharp: SEMITONE[letter] < semitone };
+}
+
 /** Frequency in Hz of a MIDI note in equal temperament (A4 = 440 Hz), for the synthesized answer tone. */
 export function hzOf(midi: number): number {
   return 440 * 2 ** ((midi - 69) / 12);
