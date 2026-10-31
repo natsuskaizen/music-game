@@ -15,7 +15,8 @@
     "e2e": "playwright test",
     "lint": "eslint . --max-warnings 0",
     "dupes": "jscpd",
-    "knip": "knip"
+    "knip": "knip",
+    "ac-report": "node scripts/ac-report/main.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

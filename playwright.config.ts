@@ -5,7 +5,7 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: 'e2e',
   forbidOnly: !!process.env.CI,
-  reporter: process.env.CI ? [['list'], ['json', { outputFile: 'test-results/e2e.json' }]] : 'list',
+  reporter: process.env.CI ? [['list'], ['json', { outputFile: 'reports/e2e.json' }]] : 'list',
   use: { baseURL: 'http://localhost:4173/music-game/' },
   webServer: { command: 'npm run build && npm run preview', url: 'http://localhost:4173/music-game/' },
   projects: [

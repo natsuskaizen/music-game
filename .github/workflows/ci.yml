@@ -1,0 +1,53 @@
+# Every non-AI gate from the roadmap "Quality gates", on each PR and on main.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  gates:
+    name: Gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Format, types, lint, duplicates, unused code, unit, build
+        run: npm run check
+      - name: Install WebKit
+        run: npx playwright install --with-deps webkit
+      - name: E2E (WebKit iPhone + iPad)
+        run: npm run e2e
+      - name: AC status report
+        if: ${{ !cancelled() }}
+        run: npm run ac-report
+
+  status-file:
+    name: STATUS.md updated
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Fail if src/ changed without docs/STATUS.md
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          changed=$(git diff --name-only "origin/$BASE_REF...HEAD")
+          if grep -q '^src/' <<< "$changed" && ! grep -qx 'docs/STATUS.md' <<< "$changed"; then
+            echo "::error file=docs/STATUS.md::This PR changes src/ but not docs/STATUS.md. Update its Now and Recent sections."
+            exit 1
+          fi

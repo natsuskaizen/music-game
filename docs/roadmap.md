@@ -51,7 +51,7 @@ Order rationale: gates first, so every later PR reports status. Then the riskies
 | Status file | PRs that change `src/` must also change `docs/STATUS.md` | file not updated |
 | **Code quality (static)** | ESLint strict profile (below), `jscpd` duplicate detection, `knip` unused code | any violation |
 | **Code review (AI)** | `review.yml`: `anthropics/claude-code-action` runs the [code-reviewer agent](../.claude/agents/code-reviewer.md) on the PR diff on every push, authenticated with the `CLAUDE_CODE_OAUTH_TOKEN` secret (Stan's subscription) | verdict `fail` (any blocking finding) |
-| **AC status** | `scripts/ac-report` reads test results and writes a per-AC table to the job summary | always runs; red if any AC for the active milestone is failing or missing |
+| **AC status** | `scripts/ac-report` reads test results and writes a per-AC table to the job summary | always runs; red if any AC for the active milestone is failing. ACs with no test or check yet show as *pending*; a milestone can't close with any pending |
 
 Deploy: `deploy.yml` runs on `main` only after CI passes, then publishes to GitHub Pages.
 To make the gates truly blocking, turn on branch protection for `main` with "require
