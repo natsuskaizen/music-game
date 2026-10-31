@@ -7,6 +7,7 @@ import {
   settledAttempt,
   reduce,
   startSession,
+  withPool,
   type Answer,
   type Session,
 } from '../../src/core/session';
@@ -163,4 +164,16 @@ describe('settledAttempt', () => {
       settledAttempt(session({ phase: 'right' }), session({ phase: 'right' }), { ...meta, answer: hit }),
     ).toBeUndefined();
   });
+});
+
+test('M4-AC5 a review session ends on the next event once its pool is empty', () => {
+  const solved = withPool(press(session({ pool: [C4] }), midiOf(C4.pitch)), []);
+  expect(next(solved).phase).toBe('done');
+});
+
+test('M4-AC5 a review session with one weak note keeps asking it', () => {
+  const solved = press(session({ pool: [C4] }), midiOf(C4.pitch));
+  const again = next(solved);
+  expect(again.phase).toBe('ask');
+  expect(again.note).toEqual(C4);
 });

@@ -70,3 +70,13 @@ function nextBox(box: Box, score: number): Box {
   if (score === 0) return 0;
   return score === 1 ? (Math.min(4, box + 1) as Box) : box;
 }
+
+/** Whether a seen note still needs review: low box or low recent accuracy (design §7.4). Unseen notes are not weak. */
+export function isWeak(stat: NoteStat | undefined): boolean {
+  return stat !== undefined && stat.attempts > 0 && (stat.box <= 1 || stat.ewmaAcc < 0.7);
+}
+
+/** The notes of `pool` that are weak, for the Review weak notes mode; empty once everything is learned. */
+export function weakNotes(pool: ClefNote[], stats: ReadonlyMap<string, NoteStat>): ClefNote[] {
+  return pool.filter((note) => isWeak(stats.get(statKey(note))));
+}

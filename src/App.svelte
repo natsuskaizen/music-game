@@ -6,11 +6,13 @@
   import type { ClefNote } from './core/pitch';
   import type { ClefMode } from './core/staff-layout';
   import { loadSettings, saveSettings, type Settings } from './core/settings';
+  import type { NoteStat } from './core/stats';
   import { THEME_NAMES, type Theme } from './core/theme';
 
   let { theme }: { theme: Theme } = $props();
 
-  let screen = $state<'home' | 'settings' | 'quiz'>('home');
+  let screen = $state<'home' | 'settings' | 'quiz' | 'review'>('home');
+  let reviewStats = $state.raw<ReadonlyMap<string, NoteStat>>(new Map());
   let settings = $state(loadSettings(localStorage));
 
   function change(next: Settings) {
@@ -35,6 +37,8 @@
   </nav>
   {#if screen === 'quiz'}
     <Quiz {theme} {settings} onHome={() => (screen = 'home')} />
+  {:else if screen === 'review'}
+    <Quiz {theme} {settings} review={reviewStats} onHome={() => (screen = 'home')} />
   {:else if screen === 'settings'}
     <SettingsScreen {settings} onchange={change} onBack={() => (screen = 'home')} />
   {:else}
@@ -42,6 +46,10 @@
       {settings}
       onchange={change}
       onStart={() => (screen = 'quiz')}
+      onReview={(stats: ReadonlyMap<string, NoteStat>) => {
+        reviewStats = stats;
+        screen = 'review';
+      }}
       onSettings={() => (screen = 'settings')}
     />
     <section aria-label="Staff gallery">

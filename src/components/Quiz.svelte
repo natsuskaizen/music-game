@@ -14,13 +14,14 @@
     reduce,
     settledAttempt,
     startSession,
+    withPool,
     type Answer,
     type Session,
   } from '../core/session';
   import type { Settings } from '../core/settings';
   import { learnedPicker, weightsFor } from '../core/selector';
   import { noteToPlay } from '../core/sound';
-  import { applyAttempt, newStat, type NoteStat } from '../core/stats';
+  import { applyAttempt, newStat, weakNotes, type NoteStat } from '../core/stats';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
   import { available, inputById } from '../inputs';
@@ -29,26 +30,39 @@
   import ActiveInput from './ActiveInput.svelte';
   import Staff from './Staff.svelte';
 
-  let { theme, settings, onHome }: { theme: Theme; settings: Settings; onHome: () => void } = $props();
+  let {
+    theme,
+    settings,
+    onHome,
+    review,
+  }: {
+    theme: Theme;
+    settings: Settings;
+    onHome: () => void;
+    /** Review weak notes (design §7.4): the stats Home loaded, so the first pool is known. Absent for a normal quiz. */
+    review?: ReadonlyMap<string, NoteStat>;
+  } = $props();
 
   const feedback = $derived(FEEDBACK[theme]);
   const ringerHint = needsRingerHint();
   void loadPiano(); // the Start tap that opened this screen lets iOS start audio
   const inputs = available();
   // What the quiz knows about each note; it fills from storage and grows with every answer, and the picker reads it live.
-  const stats = new SvelteMap<string, NoteStat>();
+  // `review` is fixed for the life of the screen, so reading it once is right.
+  // svelte-ignore state_referenced_locally
+  const stats = new SvelteMap<string, NoteStat>(review);
   const pick = learnedPicker(() => ({
     stats,
     cfg: weightsFor(settings.difficulty),
     now: Date.now(),
     random: Math.random,
   }));
+  const fullPool = () => notePool(settings.clef, settings.difficulty);
+  // Review draws only weak notes and runs until none remain; a normal quiz runs for the chosen question count.
   const begin = () =>
-    startSession(
-      notePool(settings.clef, settings.difficulty),
-      settings.questionsPerSession || undefined,
-      pick,
-    );
+    review
+      ? startSession(weakNotes(fullPool(), stats), undefined, pick)
+      : startSession(fullPool(), settings.questionsPerSession || undefined, pick);
   // The default input starts; the switcher changes it for this quiz only.
   const defaultInput = () => inputById(settings.input);
   let input = $state.raw(defaultInput());
@@ -81,6 +95,8 @@
     if (!attempt) return;
     stats.set(attempt.key, applyAttempt(stats.get(attempt.key) ?? newStat(attempt.key), attempt));
     recordAttempt(attempt).catch(() => undefined);
+    // A note that is no longer weak drops out of the review pool, and the session ends when the pool is empty.
+    if (review) quiz = withPool(quiz, weakNotes(fullPool(), stats));
   }
 
   const target = $derived(midiOf(quiz.note.pitch));
@@ -157,14 +173,17 @@
   {#if quiz.phase === 'done'}
     <div class="results">
       <p class="msg right">
-        Session done: {quiz.firstTry} of {quiz.total} right on the first try ({firstTryPercent(quiz)}%).
+        {review ? 'No weak notes left. ' : ''}Session done: {quiz.firstTry} of {quiz.total} right on the first try
+        ({firstTryPercent(quiz)}%).
       </p>
-      <button
-        type="button"
-        onclick={() => {
-          showQuestion(begin());
-        }}>Play again</button
-      >
+      {#if !review}
+        <button
+          type="button"
+          onclick={() => {
+            showQuestion(begin());
+          }}>Play again</button
+        >
+      {/if}
     </div>
   {:else}
     <Staff

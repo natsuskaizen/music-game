@@ -1,5 +1,9 @@
 <!-- Home (design §14): pick the clef, open Settings, or Start with the last settings. -->
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { notePool } from '../core/ranges';
+  import { weakNotes, type NoteStat } from '../core/stats';
+  import { loadStats } from '../storage/db';
   import { CLEFS, type Settings } from '../core/settings';
   import type { ClefMode } from '../core/staff-layout';
   import Segmented from './Segmented.svelte';
@@ -8,13 +12,26 @@
     settings,
     onchange,
     onStart,
+    onReview,
     onSettings,
   }: {
     settings: Settings;
     onchange: (next: Settings) => void;
     onStart: () => void;
+    onReview: (stats: ReadonlyMap<string, NoteStat>) => void;
     onSettings: () => void;
   } = $props();
+
+  // Review needs stored stats; until they load, or if storage is unavailable, there is nothing to review.
+  let stats = $state<ReadonlyMap<string, NoteStat>>(new Map());
+  const weakCount = $derived(weakNotes(notePool(settings.clef, settings.difficulty), stats).length);
+  onMount(() => {
+    loadStats()
+      .then((stored) => {
+        stats = stored;
+      })
+      .catch(() => undefined);
+  });
 </script>
 
 <section class="home" aria-label="Home">
@@ -28,6 +45,16 @@
   />
   <button type="button" class="link" onclick={onSettings}>Settings</button>
   <button type="button" class="start" onclick={onStart}>Start</button>
+  <button
+    type="button"
+    class="link"
+    disabled={weakCount === 0}
+    onclick={() => {
+      onReview(stats);
+    }}
+  >
+    Review weak notes ({weakCount})
+  </button>
   <small class="credit">Piano sound: Salamander Grand Piano by Alexander Holm, CC BY 3.0</small>
 </section>
 
@@ -48,6 +75,10 @@
     border: 0;
     color: var(--muted);
     text-decoration: underline;
+  }
+  .link:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
   .credit {
     color: var(--muted);

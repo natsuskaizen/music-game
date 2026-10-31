@@ -132,3 +132,24 @@ test('M4-4 answers are kept on the device and survive a reload', async ({ page }
   await page.reload();
   expect(await stored()).toBe(1);
 });
+
+test('M4-AC5 review draws only the weak note and ends when it is learned', async ({ page }) => {
+  const { quiz, target, wrongKeys, key } = await openQuiz(page, '', 'treble');
+  await wrongKeys.nth(0).click();
+  await wrongKeys.nth(1).click();
+  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
+  await quiz.getByRole('button', { name: 'Continue' }).click();
+  await quiz.getByRole('button', { name: 'Home' }).click();
+
+  await page.getByRole('button', { name: 'Review weak notes (1)' }).click();
+  const staff = quiz.getByRole('img');
+  const asking = quiz.getByText('Find this note on the keyboard.');
+  const done = quiz.getByText(/No weak notes left/);
+  for (let i = 0; i < 8 && !(await done.isVisible()); i++) {
+    await expect(asking.or(done).first()).toBeVisible();
+    if (await done.isVisible()) break;
+    await expect(staff).toHaveAttribute('aria-label', new RegExp(`^${target} `));
+    await key(target).click();
+  }
+  await expect(done).toBeVisible();
+});
