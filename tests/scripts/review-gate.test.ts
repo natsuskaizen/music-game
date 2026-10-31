@@ -23,12 +23,13 @@ const suggestion: Finding = {
 
 describe('M0-AC11 review scope', () => {
   test('M0-AC11 a docs-only PR skips the review', () => {
-    expect(isDocsOnly(['docs/STATUS.md', 'README.md', '.claude/agents/code-reviewer.md'])).toBe(true);
+    expect(isDocsOnly(['docs/STATUS.md', 'README.md', 'CLAUDE.md'])).toBe(true);
   });
 
   test('M0-AC11 any non-Markdown change is reviewed', () => {
     expect(isDocsOnly(['docs/STATUS.md', 'src/core/quiz.ts'])).toBe(false);
     expect(isDocsOnly(['.github/workflows/review.yml'])).toBe(false);
+    expect(isDocsOnly(['.claude/agents/code-reviewer.md'])).toBe(false);
   });
 });
 

@@ -10,7 +10,9 @@ function scope(): void {
 }
 
 function verdict(): void {
-  const result = JSON.parse(process.env.REVIEW_JSON ?? '') as Verdict;
+  const json = process.env.REVIEW_JSON;
+  if (!json) throw new Error('REVIEW_JSON is empty: the reviewer returned no structured output.');
+  const result = JSON.parse(json) as Verdict;
   for (const command of annotations(result)) console.log(command);
   const summary = renderSummary(result);
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;

@@ -13,9 +13,10 @@ export interface Verdict {
   findings: Finding[];
 }
 
-/** A PR that only touches Markdown has no code to review, so the gate passes without calling Claude. */
+/** A PR that only touches Markdown has no code to review, so the gate passes without calling Claude.
+ * Agent files under `.claude/` are Markdown but steer the reviewer, so they still get reviewed. */
 export function isDocsOnly(changedPaths: string[]): boolean {
-  return changedPaths.every((path) => path.endsWith('.md'));
+  return changedPaths.every((path) => path.endsWith('.md') && !path.startsWith('.claude/'));
 }
 
 /** Fails on the agent's `fail` verdict or on any blocking finding, so a mislabeled verdict can't slip through. */
