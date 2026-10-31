@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Reviews a diff against this project's clean-code standards and returns a pass/fail verdict. Use before opening every PR, and in CI on every PR.
+description: Reviews a diff against this project's clean-code standards and returns a pass/fail verdict. Runs in CI on every PR (review.yml); locally, threads self-check against its checklist instead.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 ---

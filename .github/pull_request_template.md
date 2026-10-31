@@ -9,6 +9,6 @@ Closes #<issue> (`Mx-y`, `docs/milestones/<doc>.md`)
 
 ## Checklist
 - [ ] `npm run check` passes locally
-- [ ] code-reviewer agent run on the diff; blocking findings fixed
+- [ ] Diff self-checked against the code-reviewer checklist (the agent runs in CI)
 - [ ] `docs/STATUS.md` updated (Now, Recent, new decisions or known issues)
 - [ ] Test titles start with their AC id
