@@ -54,6 +54,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✱ · M5 ○
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: Mic fix from Stan's iPhone test (M3-AC9): audio session `play-and-record` while listening (iOS refused the mic under `playback`, so no prompt), error message when the mic is blocked, level meter, context resumes on return to the app. Needs re-test on the iPhone.
 - 2026-10-31: M4-1 (#58): `core/stats.ts` with `applyAttempt`, `credit` and `statKey` (M4-AC1).
 - 2026-10-31: M4 kick-off: issue list #58–#63 in the M4 doc; roadmap shows M3 "Built, device checks open" and M4 In progress.
 - 2026-10-31: M3-6 (#50): playback muted while listening, heard key highlighted (M3-AC8), `prototypes/` deleted, M3 Summary written; AC6 and AC7 stay open for Stan.
@@ -67,4 +68,4 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✱ · M5 ○
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
 - WebKit can't be downloaded in the cloud sessions, so e2e runs there on Chromium as a smoke test; CI is the WebKit source of truth.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
-- iOS: mic permission may re-prompt per launch (M3). The answer tone is silent in airplane mode (#39, M3-AC7).
+- iOS: mic permission may re-prompt per launch (M3). Stan's iPhone test: no mic prompt at all and sound dropped after app switching; fixed in M3-AC9, awaiting re-test. The answer tone is silent in airplane mode (#39, M3-AC7).

@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { hzOf } from '../../src/core/pitch';
 import {
+  frameLevel,
   heardNote,
   initialListen,
   hzToMidi,
@@ -85,5 +86,18 @@ describe('heard note', () => {
     expect(heardNote({ hz: hzOf(60), clarity: 0.95 })).toBe(60);
     expect(heardNote({ hz: hzOf(60), clarity: 0.5 })).toBeUndefined();
     expect(heardNote(undefined)).toBeUndefined();
+  });
+});
+
+describe('M3-AC9 mic level meter', () => {
+  const frame = (amp: number) => new Float32Array(1024).fill(amp);
+
+  test('M3-AC9 silence reads 0 and a loud frame reads 1', () => {
+    expect(frameLevel(frame(0))).toBe(0);
+    expect(frameLevel(frame(0.9))).toBe(1);
+  });
+
+  test('M3-AC9 a louder frame reads higher than a quieter one', () => {
+    expect(frameLevel(frame(0.1))).toBeGreaterThan(frameLevel(frame(0.01)));
   });
 });

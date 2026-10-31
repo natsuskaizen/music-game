@@ -12,7 +12,12 @@ let tone = true;
 const trackStop = vi.fn();
 const sourceDisconnect = vi.fn();
 
+const setRecording = vi.fn();
+
 vi.mock('../../src/audio/context', () => ({
+  setRecording: (on: boolean) => {
+    setRecording(on);
+  },
   audioContext: () => ({
     sampleRate: RATE,
     createAnalyser: () => ({
@@ -99,5 +104,31 @@ describe('M3-5 mic input', () => {
   test('M3-5 is unavailable without a mic API', () => {
     vi.stubGlobal('navigator', {});
     expect(micInput.isAvailable()).toBe(false);
+  });
+
+  test('M3-AC9 reports a level each frame, 0 once stopped', async () => {
+    const levels: number[] = [];
+    const stop = await micInput.start(
+      () => undefined,
+      () => undefined,
+      (level) => levels.push(level),
+    );
+    runFrames(2);
+    expect(levels.at(-1)).toBeGreaterThan(0);
+    stop();
+    expect(levels.at(-1)).toBe(0);
+  });
+
+  test('M3-AC9 records while listening and stops recording on stop', async () => {
+    const stop = await micInput.start(() => undefined);
+    expect(setRecording).toHaveBeenLastCalledWith(true);
+    stop();
+    expect(setRecording).toHaveBeenLastCalledWith(false);
+  });
+
+  test('M3-AC9 a blocked mic rejects and leaves recording off', async () => {
+    getUserMedia.mockRejectedValueOnce(new Error('NotAllowedError'));
+    await expect(micInput.start(() => undefined)).rejects.toThrow('NotAllowedError');
+    expect(setRecording).toHaveBeenLastCalledWith(false);
   });
 });

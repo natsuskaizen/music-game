@@ -1,7 +1,7 @@
 // The mic input (design §3.4, §4.4): listens to a real piano and emits each played note as a pitch answer.
 import { PitchDetector } from 'pitchy';
-import { audioContext } from '../audio/context';
-import { heardNote, initialListen, listenStep, type ListenState } from '../core/listen';
+import { audioContext, setRecording } from '../audio/context';
+import { frameLevel, heardNote, initialListen, listenStep, type ListenState } from '../core/listen';
 import type { Answer } from '../core/session';
 import type { HeadlessInput } from './types';
 
@@ -12,6 +12,17 @@ const MIDI_RANGE = { lo: 21, hi: 108 }; // A0 to C8, the 88 keys
 /** Raw audio, because echo cancellation, noise suppression and auto-gain all distort a piano's pitch. */
 const RAW_AUDIO = { echoCancellation: false, noiseSuppression: false, autoGainControl: false };
 
+/** Asks for the mic under a recording audio session (iOS refuses capture otherwise), undoing it if refused. */
+async function openMic(): Promise<MediaStream> {
+  setRecording(true);
+  try {
+    return await navigator.mediaDevices.getUserMedia({ audio: RAW_AUDIO });
+  } catch (error) {
+    setRecording(false);
+    throw error;
+  }
+}
+
 /**
  * Opens the mic on the shared context and feeds each animation frame through the note filter.
  * The permission prompt appears here, so it only shows once the player picks this input.
@@ -19,8 +30,9 @@ const RAW_AUDIO = { echoCancellation: false, noiseSuppression: false, autoGainCo
 async function listen(
   emit: (answer: Answer) => void,
   heard: (midi: number | undefined) => void = () => undefined,
+  level: (level: number) => void = () => undefined,
 ): Promise<() => void> {
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: RAW_AUDIO });
+  const stream = await openMic();
   const ctx = audioContext();
   const analyser = ctx.createAnalyser();
   analyser.fftSize = FFT_SIZE;
@@ -35,6 +47,7 @@ async function listen(
 
   const onFrame = () => {
     analyser.getFloatTimeDomainData(samples);
+    level(frameLevel(samples));
     const [hz, clarity] = detector.findPitch(samples, ctx.sampleRate);
     const pitch = { hz, clarity };
     heard(heardNote(pitch));
@@ -49,6 +62,8 @@ async function listen(
   return () => {
     cancelAnimationFrame(frame);
     heard(undefined);
+    level(0);
+    setRecording(false);
     source.disconnect();
     stream.getTracks().forEach((track) => {
       track.stop();

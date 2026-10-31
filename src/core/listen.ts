@@ -87,3 +87,13 @@ export function listenStep(
     return { state: { recent, fired } };
   return { state: { recent, fired: held }, note: held };
 }
+
+const METER_FLOOR_DB = -60; // quieter than this reads as an empty meter
+const METER_CEIL_DB = -10; // a loud piano near the device fills it
+
+/** Loudness of an audio frame as 0..1 (RMS in dB, clamped), for the mic level meter. */
+export function frameLevel(samples: Float32Array): number {
+  const meanSquare = samples.reduce((sum, v) => sum + v * v, 0) / samples.length;
+  const db = 10 * Math.log10(meanSquare || 1e-12);
+  return Math.min(1, Math.max(0, (db - METER_FLOOR_DB) / (METER_CEIL_DB - METER_FLOOR_DB)));
+}
