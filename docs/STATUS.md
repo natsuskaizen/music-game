@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M5 Sequence mode (`docs/milestones/M5-sequence.md`, issues #72–#75). M4 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M6 kick-off (M5 is built; its Summary is filled in and the roadmap flips at the M6 kick-off).
+- **Phase**: M6 Timer & results (`docs/milestones/M6-timer.md`, issues #83–#86). M5 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
+- **Next issue**: M6-1 (#83) sprint clock and timer setting.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -61,17 +61,15 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✱ · M6 ○ · M7 ○ · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✱ · M7 ○ · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M6 kick-off: issues #83–#86 listed (new M6-AC5 for the results content), roadmap marks M5 Done and M6 In progress.
 - 2026-10-31: M5-4 (#75): Single / Sequence switch on Home and sequence mode in `Quiz` (M5-AC2 e2e); M5 Summary filled in.
 - 2026-10-31: M5-3 (#74): `layoutSequence` and `Staff` sequence mode (noteheads, stems, beams, barlines, per-note states); gallery example and M5-AC4 e2e (no overlap, screenshots).
 - 2026-10-31: Mic follow-ups (Stan's ask, not a roadmap issue): loudness threshold setting, play the revealed note to continue, heard note on the staff (M3-AC10–12); mic bar redesign noted in M7.
 - 2026-10-31: M5-2 (#73): sequence cursor in `core/cursor.ts` (`startRun`, `stepRun`, `sequenceNotes`; M5-AC2 unit, M5-AC3).
-- 2026-10-31: M5-1 (#72): `makeSequence` in `core/sequence.ts` (sizes by difficulty, chains the picker, fills 4/4 measures with quarters and eighth pairs; M5-AC1).
-- 2026-10-31: Update banner (not a roadmap issue, Stan's ask): a waiting new version shows "Update now" on every screen (`src/pwa/update.ts`, `UpdateBanner.svelte`); checks at launch, on return and hourly; never swaps by itself. New AC M7-AC5 (unit) in the M7 doc; M7 keeps the install hint and the e2e proof.
-- 2026-10-31: M5 kick-off: issues #72–#75 listed, roadmap marks M4 Done and M5 In progress.
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
