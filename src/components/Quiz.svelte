@@ -1,8 +1,9 @@
 <!-- The quiz screen (design §8.1): read the note on the staff (a grand staff for `both`) and answer with the active input.
      A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4).
-     The correct note sounds once the question is settled (design §14). Switching input keeps the question. -->
+     Sound follows the sound settings (`noteToPlay`, design §14). Switching input keeps the question. -->
 <script lang="ts">
-  import { needsRingerHint } from '../audio/context';
+  import { onMount } from 'svelte';
+  import { needsRingerHint, setIgnoreSilentSwitch } from '../audio/context';
   import { loadPiano, playPitch } from '../audio/piano';
   import { midiOf, pitchLabel } from '../core/pitch';
   import { notePool } from '../core/ranges';
@@ -11,11 +12,11 @@
     isSettled,
     reduce,
     startSession,
-    toneAfter,
     type Answer,
     type Session,
   } from '../core/session';
   import type { Settings } from '../core/settings';
+  import { noteToPlay } from '../core/sound';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
   import { available, inputById } from '../inputs';
@@ -39,6 +40,14 @@
   const defaultInput = () => inputById(settings.input);
   let input = $state.raw(defaultInput());
   let quiz = $state(begin());
+  const sound = (before: Session | undefined, after: Session) => {
+    const midi = noteToPlay(before, after, settings.sound);
+    if (midi !== undefined) playPitch(midi, settings.sound.volume);
+  };
+  onMount(() => {
+    setIgnoreSilentSwitch(settings.sound.ignoreSilentSwitch);
+    sound(undefined, quiz);
+  });
   let noteEl = $state<SVGGElement>();
   // Counts questions, so an animation that ends after the quiz moved on doesn't advance it again.
   let asked = 0;
@@ -60,6 +69,7 @@
 
   function showQuestion(next: Session) {
     asked++;
+    sound(quiz, next);
     quiz = next;
     if (noteEl) feedback.enter(noteEl);
   }
@@ -71,8 +81,7 @@
   async function onAnswer(answer: Answer) {
     const before = quiz;
     quiz = reduce(quiz, { type: 'answer', answer }, Math.random);
-    const tone = toneAfter(before, quiz);
-    if (tone !== undefined) playPitch(tone);
+    sound(before, quiz);
     if (quiz.phase === before.phase || !noteEl) return;
     if (quiz.phase !== 'right') {
       feedback.wrong(noteEl);

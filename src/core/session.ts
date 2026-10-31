@@ -77,11 +77,6 @@ function next(s: Session, random: Random): Session {
   return { ...s, note: pickNote(s.pool, random, s.note), phase: 'ask', misses: [] };
 }
 
-/** The note to sound when an event settles the question (right, or revealed after two misses); design §14. */
-export function toneAfter(before: Session, after: Session): number | undefined {
-  return isSettled(after.phase) && after.phase !== before.phase ? midiOf(after.note.pitch) : undefined;
-}
-
 /** First-try accuracy as a whole percentage, 0 before any answer. */
 export function firstTryPercent(s: Session): number {
   return s.total ? Math.round((100 * s.firstTry) / s.total) : 0;

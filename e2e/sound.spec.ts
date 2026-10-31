@@ -9,7 +9,11 @@ declare global {
 }
 
 // Stands in for Safari's audioSession (present or missing) on a touch device and records the MIDI note of every sound started.
-async function stubAudio(page: Page, withSession: boolean) {
+async function stubAudio(page: Page, withSession: boolean, sound?: object) {
+  if (sound)
+    await page.addInitScript((saved) => {
+      localStorage.setItem('settings', JSON.stringify({ sound: saved }));
+    }, sound);
   await page.addInitScript((present) => {
     const session = present ? { type: 'auto' } : undefined;
     Object.defineProperty(Navigator.prototype, 'audioSession', { get: () => session });
@@ -87,4 +91,32 @@ test('M1-AC5 a miss is silent until the reveal plays the correct note', async ({
 test('M1-AC5 without audioSession a touch device shows the ringer hint', async ({ page }) => {
   const { quiz } = await stubAudio(page, false);
   await expect(quiz.getByText('Turn the ringer on for sound.')).toBeVisible();
+});
+
+test('M3-AC2 with sound off nothing plays, even after a reveal', async ({ page }) => {
+  const { quiz, target, tones } = await stubAudio(page, true, { on: false, onShow: true, onWrong: true });
+  const wrong = quiz.locator(`.key:not([aria-label="${target}"])`);
+  await wrong.nth(0).click();
+  await wrong.nth(1).click();
+  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
+  expect(await tones()).toEqual([]);
+});
+
+test('M3-AC2 "when the note appears" plays the note as the question shows', async ({ page }) => {
+  const { target, tones } = await stubAudio(page, true, { onShow: true });
+  await expect.poll(tones).toEqual([midiOfLabel(target)]);
+});
+
+test('M3-AC2 "after a wrong try" plays the correct note on the first miss', async ({ page }) => {
+  const { quiz, target, tones } = await stubAudio(page, true, { onWrong: true });
+  await quiz.locator(`.key:not([aria-label="${target}"])`).first().click();
+  await expect(quiz.getByText('Not quite. One more try.')).toBeVisible();
+  expect(await tones()).toEqual([midiOfLabel(target)]);
+});
+
+test('M3-AC2 the silent-switch setting picks the audio session type', async ({ page }) => {
+  await stubAudio(page, true, { ignoreSilentSwitch: false });
+  const type = () =>
+    page.evaluate(() => (navigator as Navigator & { audioSession: { type: string } }).audioSession.type);
+  expect(await type()).not.toBe('playback');
 });

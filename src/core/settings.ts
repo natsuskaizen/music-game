@@ -1,6 +1,7 @@
 // Saved settings (design §9): small, read synchronously at startup, kept in localStorage.
 // `migrateSettings` makes any stored value safe, so an app update or a hand-edited value never breaks the app.
 import type { Difficulty } from './ranges';
+import { DEFAULT_SOUND, VOLUMES, type SoundSettings } from './sound';
 import type { ClefMode } from './staff-layout';
 
 export const CLEFS: ClefMode[] = ['treble', 'bass', 'both'];
@@ -16,6 +17,7 @@ export interface Settings {
   /** Id of the default answer input (design §3.4). */
   input: string;
   questionsPerSession: number;
+  sound: SoundSettings;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -24,9 +26,27 @@ export const DEFAULT_SETTINGS: Settings = {
   difficulty: 'medium',
   input: 'piano',
   questionsPerSession: 20,
+  sound: DEFAULT_SOUND,
 };
 
 const KEY = 'settings';
+
+// The stored boolean, else the default.
+function flag(value: unknown, fallback: boolean): boolean {
+  return typeof value === 'boolean' ? value : fallback;
+}
+
+function migrateSound(raw: unknown): SoundSettings {
+  const stored = typeof raw === 'object' && raw !== null ? (raw as Record<string, unknown>) : {};
+  const d = DEFAULT_SOUND;
+  return {
+    on: flag(stored.on, d.on),
+    onShow: flag(stored.onShow, d.onShow),
+    onWrong: flag(stored.onWrong, d.onWrong),
+    volume: oneOf(stored.volume, VOLUMES, d.volume),
+    ignoreSilentSwitch: flag(stored.ignoreSilentSwitch, d.ignoreSilentSwitch),
+  };
+}
 
 // The stored value if it is one of `allowed`, else the default.
 function oneOf<T>(value: unknown, allowed: readonly T[], fallback: T): T {
@@ -43,6 +63,7 @@ export function migrateSettings(raw: unknown): Settings {
     difficulty: oneOf(stored.difficulty, DIFFICULTIES, d.difficulty),
     input: typeof stored.input === 'string' ? stored.input : d.input,
     questionsPerSession: oneOf(stored.questionsPerSession, SESSION_LENGTHS, d.questionsPerSession),
+    sound: migrateSound(stored.sound),
   };
 }
 
