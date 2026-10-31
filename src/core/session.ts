@@ -1,7 +1,8 @@
 // The quiz session as a reducer (design §8.3, §8.4): a miss gets one retry, then the answer is revealed and the
 // session waits for the next event. It ends after `questionsPerSession` questions. Inputs only produce an `Answer` (design §3.4).
 import { midiOf, type ClefNote } from './pitch';
-import { pickStepwise, type Random } from './selector';
+import type { Picker } from './selector';
+import { statKey, type Attempt } from './stats';
 
 /** What an input reports. Every M2 input knows the octave, so an answer is an exact pitch (design §3.4, §14). */
 export interface Answer {
@@ -42,16 +43,16 @@ export type SessionEvent = { type: 'answer'; answer: Answer } | { type: 'next' }
 export function startSession(
   pool: ClefNote[],
   questionsPerSession: number | undefined,
-  random: Random,
+  pick: Picker,
 ): Session {
-  const note = pickStepwise(pool, random);
+  const note = pick(pool);
   return { pool, questionsPerSession, phase: 'ask', note, misses: [], streak: 0, firstTry: 0, total: 0 };
 }
 
 /** Applies one event. Events that don't fit the phase (an answer during a reveal, `next` while asking) change nothing. */
-export function reduce(s: Session, e: SessionEvent, random: Random): Session {
+export function reduce(s: Session, e: SessionEvent, pick: Picker): Session {
   if (e.type === 'answer') return s.phase === 'ask' || s.phase === 'retry' ? answer(s, e.answer) : s;
-  return isSettled(s.phase) ? next(s, random) : s;
+  return isSettled(s.phase) ? next(s, pick) : s;
 }
 
 function answer(s: Session, a: Answer): Session {
@@ -72,9 +73,20 @@ function scoreRight(s: Session): Session {
   };
 }
 
-function next(s: Session, random: Random): Session {
+function next(s: Session, pick: Picker): Session {
   if (s.questionsPerSession !== undefined && s.total >= s.questionsPerSession) return { ...s, phase: 'done' };
-  return { ...s, note: pickStepwise(s.pool, random, s.note), phase: 'ask', misses: [] };
+  return { ...s, note: pick(s.pool, s.note), phase: 'ask', misses: [] };
+}
+
+/** The attempt a question just settled into, or `undefined` if `after` is not a newly settled question. */
+export function settledAttempt(
+  before: Session,
+  after: Session,
+  meta: Pick<Attempt, 'ts' | 'input' | 'ms' | 'answer'>,
+): Attempt | undefined {
+  if (isSettled(before.phase) || !isSettled(after.phase)) return undefined;
+  const tries = before.phase === 'ask' ? 1 : 2;
+  return { ...meta, key: statKey(after.note), tries, correct: after.phase === 'right' };
 }
 
 /** First-try accuracy as a whole percentage, 0 before any answer. */
