@@ -230,3 +230,23 @@ test('M4-AC6 export then import restores the progress the file held', async ({ p
     .setInputFiles({ name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('nope') });
   await expect(page.getByRole('status')).toHaveText('That file is not a backup. Nothing changed.');
 });
+
+test('M7-AC6 the mic meter shows the live level, the threshold mark and when it is loud enough', async ({
+  page,
+}) => {
+  const { quiz } = await openQuiz(page, '', 'treble');
+  await quiz.getByRole('combobox', { name: 'Input' }).selectOption('scripted');
+  const meter = quiz.getByRole('meter', { name: 'Microphone level' });
+  const level = (detail: number) =>
+    page.evaluate((d) => window.dispatchEvent(new CustomEvent('scripted-level', { detail: d })), detail);
+
+  await expect(meter.locator('.threshold')).toHaveAttribute('style', /left: 50%/); // Firm, the default
+  await level(0.2);
+  await expect(meter).toHaveAttribute('aria-valuenow', '0.2');
+  await expect(meter).toHaveAttribute('aria-valuetext', 'Too quiet');
+  await expect(quiz.getByText('Too quiet')).toBeVisible();
+  await level(0.8);
+  await expect(meter).toHaveAttribute('aria-valuenow', '0.8');
+  await expect(quiz.getByText('Loud enough')).toBeVisible();
+  await expect(meter.locator('.fill')).toHaveClass(/loud/);
+});

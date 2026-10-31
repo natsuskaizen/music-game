@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M7 Polish & PWA hardening is in progress (`docs/milestones/M7-polish.md`, issues #92–#97). M6 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M7-1 (#92) mic level bar redesign.
+- **Next issue**: M7-2 (#93) update prompt proof. M7-1 (#92, mic meter) is in review.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -54,7 +54,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Sequence | `core/sequence.ts` `makeSequence(pool, difficulty, { picker, random })` returns `Measure[]` of `{ note, duration }`. Hard's 3 measures force 12–16 notes (design's 10 can't fill 3 bars). Notes split evenly over measures; each measure has `count - 4` beats of two eighths, the rest quarters (always beamable pairs) | M5-1 |
 | Cursor | `core/cursor.ts`: `SequenceRun` `{ notes, index, session }`; `stepRun` reuses `reduce` with a picker that returns the next note and `questionsPerSession = notes.length`, so retry → reveal → Continue and per-note `settledAttempt` are unchanged. The index moves only on `next`; a single note is a run of one. Quiz adopts it in M5-4 | M5-2 |
 | Sequence layout | `core/sequence-layout.ts` `layoutSequence(measures, staves, span)`: slots by duration (quarter 30, eighth 24) stretched to fill the span, stems up below the middle line, a pair of eighths on one stave beamed (slope ≤ 1 space), a cross-stave pair gets line flags (no flag glyphs in the Bravura subset). `Staff` takes `sequence`, `marks` (right/wrong per note) and `current`; the gallery shows a 16-note Hard example | M5-3 |
-| Mic follow-ups | `Settings.micLevel` (`MIC_LEVELS` Soft 0.35 / Firm 0.5 default / Loud 0.65 on the meter scale): `loudEnough` turns quieter frames into silence before the filter; `HeadlessInput.start(emit, hooks)` takes `ListenHooks` (heard, level, minLevel); the meter marks the threshold. `answerContinues`: with a listening input, playing the revealed note is Continue. `heardMark` + `writtenPitch` draw the heard note faintly on the staff. Mic bar redesign is an M7 scope item | design §4.4, §8.4; M3-AC10–12 |
+| Mic follow-ups | `Settings.micLevel` (`MIC_LEVELS` Soft 0.35 / Firm 0.5 default / Loud 0.65 on the meter scale): `loudEnough` turns quieter frames into silence before the filter; `HeadlessInput.start(emit, hooks)` takes `ListenHooks` (heard, level, minLevel); the meter marks the threshold. `answerContinues`: with a listening input, playing the revealed note is Continue. `heardMark` + `writtenPitch` draw the heard note faintly on the staff. Mic bar redesigned in M7-1 (`MicMeter.svelte`) | design §4.4, §8.4; M3-AC10–12 |
 | Sequence quiz | `Settings.mode` (`single`/`sequence`, Segmented on Home). `Quiz` in sequence mode (not review) builds `makeSequence`, walks it with `stepRun`, and draws `Staff` `sequence` with `marks` (settled notes) and `current`. A right note advances at once (no animation); reveal/Continue and `answerContinues` work per note, so a listening input plays through misses | M5-4 |
 | Sprint clock | `core/sprint.ts`: `SPRINT_SECONDS` (60/50/40 by difficulty); `SprintClock` `{ lengthMs, usedMs, runningSince }` with `startSprint`, `remaining(clock, now)`, `pause`, `resume`, all taking `now` so tests use a fake clock. `Settings.timer` is a boolean, off by default | M6-1 |
 | Sprint in quiz | `SprintBar.svelte` owns the `SprintClock`, a 100 ms tick and the `visibilitychange` pause/resume; it mounts only while the quiz runs, so Play again restarts it. At 0 it fires `timeUp`: `reduce` sets `done` from any phase and the unfinished question is never counted (nothing is recorded for it). `Quiz.advance` ignores a late right-answer animation after `done` | M6-2 |
@@ -70,11 +70,11 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M7-1 (#92): `MicMeter.svelte` (taller themed bar, tinted loud-enough zone from the threshold, "Loud enough"/"Too quiet" label, `aria-valuetext`); scripted input gains `scripted-level` (M7-AC6 e2e).
 - 2026-10-31: M7 kick-off: issues #92–#97 (mic meter redesign first; new AC6–AC8; AC4 moves from Lighthouse to axe), roadmap marks M6 Done and M7 In progress.
 - 2026-10-31: M6-4 (#86): `core/heatmap.ts` and the Stats screen with a per-note heat-map (M6-AC4 unit + e2e); M6 Summary filled in.
 - 2026-10-31: M6-3 (#85): `core/results.ts` and `Results` screen with accuracy, average time, three slowest notes, Play again and Home (M6-AC5 unit + e2e).
 - 2026-10-31: M6-2 (#84): `SprintBar` countdown in the quiz (single and sequence, not review), `timeUp` session event, pause on `visibilitychange` (M6-AC2 unit + e2e).
-- 2026-10-31: M6-1 (#83): pure sprint clock in `core/sprint.ts` and `Settings.timer` (off by default) with its checkbox in Settings (M6-AC1, AC3 unit).
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).

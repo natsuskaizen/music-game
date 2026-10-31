@@ -9,10 +9,13 @@ const EVENT = 'scripted-answer';
 /** Like `scripted-answer`, but reports a note as heard (MIDI number, or null for silence) without answering. */
 const HEARD_EVENT = 'scripted-heard';
 
-/** Listens for the two events: answers are emitted, heard notes are reported; resolves to the stop function. */
+/** Reports a mic level (0 to 1) to the meter, as the mic does each frame. */
+const LEVEL_EVENT = 'scripted-level';
+
+/** Listens for the three events: answers are emitted, heard notes and levels are reported; resolves to the stop function. */
 function listen(
   emit: (answer: Answer) => void,
-  { heard = () => undefined }: ListenHooks = {},
+  { heard = () => undefined, level = () => undefined }: ListenHooks = {},
 ): Promise<() => void> {
   const onAnswer = (e: Event) => {
     if (e instanceof CustomEvent && typeof e.detail === 'number') emit({ kind: 'pitch', midi: e.detail });
@@ -20,11 +23,16 @@ function listen(
   const onHeard = (e: Event) => {
     if (e instanceof CustomEvent) heard(typeof e.detail === 'number' ? e.detail : undefined);
   };
+  const onLevel = (e: Event) => {
+    if (e instanceof CustomEvent && typeof e.detail === 'number') level(e.detail);
+  };
   window.addEventListener(EVENT, onAnswer);
+  window.addEventListener(LEVEL_EVENT, onLevel);
   window.addEventListener(HEARD_EVENT, onHeard);
   return Promise.resolve(() => {
     window.removeEventListener(EVENT, onAnswer);
     window.removeEventListener(HEARD_EVENT, onHeard);
+    window.removeEventListener(LEVEL_EVENT, onLevel);
   });
 }
 

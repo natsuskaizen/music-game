@@ -1,6 +1,7 @@
 <!-- The quiz's current answer input (design §3.4): draws an on-screen input, or starts a headless one and stops it
      when the quiz switches away. Either way its answers go to `emit`. -->
 <script lang="ts">
+  import MicMeter from './MicMeter.svelte';
   import { pianoInput } from '../inputs/piano';
   import type { InputMethod, InputProps } from '../inputs/types';
 
@@ -65,17 +66,7 @@
   {:else}
     <p class="listening">
       Listening: {method.label}
-      <span
-        class="meter"
-        role="meter"
-        aria-label="Microphone level"
-        aria-valuemin="0"
-        aria-valuemax="1"
-        aria-valuenow={level}
-      >
-        <span class="fill" class:loud={level >= minLevel} style:width="{Math.round(level * 100)}%"></span>
-        <span class="threshold" style:left="{Math.round(minLevel * 100)}%"></span>
-      </span>
+      <MicMeter {level} {minLevel} />
     </p>
   {/if}
   <Keyboard {mode} {marks} {emit} />
@@ -92,30 +83,5 @@
   }
   .error {
     color: var(--wrong, var(--muted));
-  }
-  .meter {
-    position: relative;
-    flex: 1;
-    max-width: 12rem;
-    height: 0.6rem;
-    overflow: hidden;
-    border: 1px solid var(--muted);
-    border-radius: 0.3rem;
-  }
-  .fill {
-    display: block;
-    height: 100%;
-    background: var(--muted);
-  }
-  .fill.loud {
-    background: var(--accent);
-  }
-  /* The loudness a note needs to count (Settings). */
-  .threshold {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: var(--text);
   }
 </style>
