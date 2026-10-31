@@ -5,6 +5,7 @@
   import { KEY_RANGES } from '../core/keyboard';
   import { midiOf, pitchLabel } from '../core/pitch';
   import { answerKey, firstTryPercent, nextQuestion, startQuiz, toneAfter } from '../core/quiz';
+  import { notePool } from '../core/ranges';
   import type { ClefMode } from '../core/staff-layout';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
@@ -18,7 +19,9 @@
   const ringerHint = needsRingerHint();
 
   let mode = $state<ClefMode>('treble');
-  let quiz = $state(startQuiz('treble', Math.random));
+  // Medium is the default difficulty (design §9); M2-5 makes it a setting.
+  const pool = $derived(notePool(mode, 'medium'));
+  let quiz = $state(startQuiz(notePool('treble', 'medium'), Math.random));
   let noteEl = $state<SVGGElement>();
   // Counts questions, so an animation that ends after the quiz moved on doesn't advance it again.
   let asked = 0;
@@ -40,7 +43,7 @@
 
   function advance() {
     asked++;
-    quiz = nextQuestion(quiz, mode, Math.random);
+    quiz = nextQuestion(quiz, pool, Math.random);
     if (noteEl) feedback.enter(noteEl);
   }
 

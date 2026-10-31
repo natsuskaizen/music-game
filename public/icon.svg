@@ -1,8 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#ffffff"/>
-  <g stroke="#1f2937" stroke-width="10" stroke-linecap="round">
-    <path d="M96 176h320M96 216h320M96 256h320M96 296h320M96 336h320"/>
+  <!-- Paper & ink (M1 pick): colors match the :root tokens in src/themes.css. -->
+  <rect width="512" height="512" fill="#f3ead6"/>
+  <g stroke="#3d3126" stroke-width="7">
+    <path d="M72 176h368M72 216h368M72 256h368M72 296h368M72 336h368"/>
   </g>
-  <ellipse cx="236" cy="316" rx="44" ry="31" fill="#2563eb" transform="rotate(-20 236 316)"/>
-  <path d="M276 306V136" stroke="#2563eb" stroke-width="12" stroke-linecap="round"/>
+  <ellipse cx="238" cy="316" rx="42" ry="29" fill="#2b2118" transform="rotate(-20 238 316)"/>
+  <path d="M276.5 306V128" stroke="#2b2118" stroke-width="9"/>
+  <path d="M272 128h9c4 34 30 50 44 78c14 28 8 58-2 76c4-36-10-64-51-82z" fill="#8a3b24"/>
 </svg>

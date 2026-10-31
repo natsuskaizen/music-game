@@ -28,13 +28,33 @@ M1-4 uses a synthesized tone: the silent-switch behavior is the same for any Web
 
 ## Acceptance criteria
 - M1-AC1 Both themes render the treble, bass, and grand staff with ledger notes (Playwright screenshots attached to CI).
-- M1-AC2 Manual (iPhone + iPad): sound plays with the silent switch on, or the limitation is documented.
-- M1-AC3 Manual: works in airplane mode after install.
-- M1-AC4 You pick a theme (or a mix); the choice is recorded in the Summary.
+- [ ] M1-AC2 Manual (iPhone + iPad): sound plays with the silent switch on, or the limitation is documented.
+- [ ] M1-AC3 Manual: works in airplane mode after install.
+- [ ] M1-AC4 You pick a theme (or a mix); the choice is recorded in the Summary.
 - M1-AC5 The correct note sounds once a question is settled (right, or revealed), with the audio session set to `playback`; without `audioSession`, a touch device shows a "turn the ringer on for sound" hint.
 
 Refs: design §3 (rendering), §4 (audio), §14, [frameworks.md](../frameworks.md).
 
-## Summary (fill in at completion)
+## Device checks and theme pick (Stan)
+Open https://natsuskaizen.github.io/music-game/ from the home-screen icon. On each device, tick the AC above
+with the device and date, e.g. `- [x] M1-AC2 ... (iPhone, iPad, 2026-11-01)`, or tell Claude the result.
+- **M1-AC2 silent switch**: flip the ringer switch to silent (iPad: Control Center bell), volume up. Answer a
+  note right: the tone should play. If it's silent, note it; the app then relies on the ringer hint (design §14).
+- **M1-AC3 airplane mode**: open the app once online, close it fully, turn on airplane mode, reopen it. The
+  staff, piano and sound should all work.
+- **M1-AC4 theme**: compare `?theme=paper` and `?theme=storybook` and `?theme=arcade`. Without a
+  pick by 2026-11-01 (a day after the demo went live), M2 uses Paper & ink. The app icons and theme color are
+  already Paper & ink (`npm run icons` re-renders them from `public/icon.svg`).
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+## Summary
+- Shipped: pitch math and staff geometry in `src/core`, the `Staff` component (Bravura subset inlined, so it
+  renders offline from first paint), theme tokens for Paper & ink and Storybook with `?theme=`, a demo quiz
+  (on-screen piano, retry → reveal → Continue, GSAP feedback per theme), and a tone after each settled answer.
+- Kept for M2: `core/pitch.ts`, `core/staff-layout.ts`, `Staff.svelte`, `themes.css`, `audio/tone.ts`.
+  Throwaway: the demo `Quiz`/`Piano` and `core/quiz.ts`, which M2 replaces with the `InputMethod` registry.
+- Decisions: synthesized tone instead of piano samples (samples move to M3); `audioSession = 'playback'` for the
+  silent switch with a ringer hint fallback (new M1-AC5); Neon arcade came back as a third theme (#29); a theme
+  switch in Settings and its note-position bug (#36) are M8.
+- Icons and theme color are Paper & ink, the default pick; a re-skin only means new tokens and `npm run icons`.
+- Open: AC2–AC4 wait on Stan's device checks and pick, so M1 stays in progress while M2 starts.
+- Follow-ups: delete `prototypes/` once M1 closes (roadmap); re-render icons if the pick isn't Paper & ink.
