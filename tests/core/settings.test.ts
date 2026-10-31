@@ -28,6 +28,20 @@ describe('migrateSettings', () => {
   });
 });
 
+describe('migrateSettings sound', () => {
+  test('M3-AC2 sound fields are validated one by one', () => {
+    const sound = { on: false, onShow: 'yes', onWrong: true, volume: 0.5, ignoreSilentSwitch: false };
+    expect(migrateSettings({ sound }).sound).toEqual({
+      ...DEFAULT_SETTINGS.sound,
+      on: false,
+      onWrong: true,
+      ignoreSilentSwitch: false,
+    });
+    expect(migrateSettings({ sound: { volume: 1 } }).sound.volume).toBe(1);
+    expect(migrateSettings({ sound: 3 }).sound).toEqual(DEFAULT_SETTINGS.sound);
+  });
+});
+
 describe('loadSettings / saveSettings', () => {
   test('M2-AC6 saved settings load back', () => {
     const storage = memory();

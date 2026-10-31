@@ -1,6 +1,7 @@
-<!-- Settings (design §14): difficulty, questions per session, and the default answer input. Changes save at once. -->
+<!-- Settings (design §14): difficulty, questions per session, the default answer input, and sound. Changes save at once. -->
 <script lang="ts">
   import { DIFFICULTIES, SESSION_LENGTHS, type Settings } from '../core/settings';
+  import { VOLUMES, type SoundSettings } from '../core/sound';
   import type { Difficulty } from '../core/ranges';
   import { available } from '../inputs';
   import Segmented from './Segmented.svelte';
@@ -12,6 +13,16 @@
   }: { settings: Settings; onchange: (next: Settings) => void; onBack: () => void } = $props();
 
   const inputs = available();
+  const TOGGLES: { key: keyof Omit<SoundSettings, 'volume'>; text: string }[] = [
+    { key: 'on', text: 'Sound' },
+    { key: 'onShow', text: 'Play the note when it appears' },
+    { key: 'onWrong', text: 'Play the note after a wrong try' },
+    { key: 'ignoreSilentSwitch', text: 'Play with the silent switch on' },
+  ];
+  const VOLUME_NAMES = ['Quiet', 'Medium', 'Loud'];
+  const setSound = (change: Partial<SoundSettings>) => {
+    onchange({ ...settings, sound: { ...settings.sound, ...change } });
+  };
 </script>
 
 <section class="settings" aria-label="Settings">
@@ -51,6 +62,30 @@
       </select>
     </label>
   {/if}
+  <fieldset class="row sound">
+    <legend>Sound</legend>
+    {#each TOGGLES as toggle (toggle.key)}
+      <label class="check">
+        <input
+          type="checkbox"
+          checked={settings.sound[toggle.key]}
+          disabled={toggle.key !== 'on' && !settings.sound.on}
+          onchange={(e) => {
+            setSound({ [toggle.key]: e.currentTarget.checked });
+          }}
+        />
+        {toggle.text}
+      </label>
+    {/each}
+    <Segmented
+      label="Volume"
+      options={VOLUMES.map((value, i) => ({ value, text: VOLUME_NAMES[i] ?? '' }))}
+      value={settings.sound.volume}
+      onchange={(volume: number) => {
+        setSound({ volume });
+      }}
+    />
+  </fieldset>
   <button type="button" onclick={onBack}>Back</button>
 </section>
 
@@ -64,6 +99,17 @@
     border: var(--surface-border);
     border-radius: var(--surface-radius);
     box-shadow: var(--surface-shadow);
+  }
+  fieldset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .check {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    color: var(--text);
   }
   h2 {
     margin: 0;

@@ -6,7 +6,6 @@ import {
   gradeAnswer,
   reduce,
   startSession,
-  toneAfter,
   type Answer,
   type Session,
 } from '../../src/core/session';
@@ -120,21 +119,4 @@ test('M2-AC3 startSession begins with an empty score on a note from the pool', (
 test('M1-AC1 firstTryPercent rounds and is 0 before any answer', () => {
   expect(firstTryPercent(session())).toBe(0);
   expect(firstTryPercent(session({ firstTry: 2, total: 3 }))).toBe(67);
-});
-
-describe('toneAfter', () => {
-  test('M1-AC5 sounds the correct note when an answer settles the question', () => {
-    const ask = session();
-    expect(toneAfter(ask, press(ask, 60))).toBe(60);
-    const retry = press(ask, 62);
-    expect(toneAfter(retry, press(retry, 64))).toBe(60);
-  });
-
-  test('M1-AC5 stays quiet on a first miss and on taps after a reveal', () => {
-    const ask = session();
-    const retry = press(ask, 62);
-    expect(toneAfter(ask, retry)).toBeUndefined();
-    const reveal = press(retry, 64);
-    expect(toneAfter(reveal, press(reveal, 60))).toBeUndefined();
-  });
 });

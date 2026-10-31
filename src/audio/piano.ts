@@ -3,7 +3,6 @@ import { detuneCents, nearestSample, SAMPLE_MIDIS } from '../core/samples';
 import { audioContext } from './context';
 import { playTone } from './tone';
 
-const VOLUME = 0.8;
 const buffers = new Map<number, AudioBuffer>();
 let loading: Promise<void> | undefined;
 
@@ -26,13 +25,13 @@ export function loadPiano(): Promise<void> {
 }
 
 /** Plays a MIDI note on the piano; falls back to the synth tone while samples load. Call it from a tap handler so iOS lets audio start. */
-export function playPitch(midi: number, volume = VOLUME): void {
+export function playPitch(midi: number, volume: number): void {
   const ctx = audioContext();
   const sample = nearestSample(midi);
   const buffer = buffers.get(sample);
   if (!buffer) {
     void loadPiano();
-    playTone(ctx, midi);
+    playTone(ctx, midi, volume);
     return;
   }
   const source = new AudioBufferSourceNode(ctx, { buffer, detune: detuneCents(midi, sample) });

@@ -8,10 +8,14 @@ declare global {
   }
 }
 
-// Stands in for Safari's audioSession (present or missing) on a touch device and records the MIDI note of every sound started.
-async function stubAudio(page: Page, withSession: boolean) {
+// Stands in for Safari's audioSession (present or missing, starting as 'initial') on a touch device and records the MIDI note of every sound started.
+async function stubAudio(page: Page, withSession: boolean, sound?: object) {
+  if (sound)
+    await page.addInitScript((saved) => {
+      localStorage.setItem('settings', JSON.stringify({ sound: saved }));
+    }, sound);
   await page.addInitScript((present) => {
-    const session = present ? { type: 'auto' } : undefined;
+    const session = present ? { type: 'initial' } : undefined;
     Object.defineProperty(Navigator.prototype, 'audioSession', { get: () => session });
     // iPhone and iPad report 5 touch points; Playwright's WebKit emulation doesn't always.
     Object.defineProperty(Navigator.prototype, 'maxTouchPoints', { get: () => 5 });
@@ -87,4 +91,38 @@ test('M1-AC5 a miss is silent until the reveal plays the correct note', async ({
 test('M1-AC5 without audioSession a touch device shows the ringer hint', async ({ page }) => {
   const { quiz } = await stubAudio(page, false);
   await expect(quiz.getByText('Turn the ringer on for sound.')).toBeVisible();
+});
+
+test('M3-AC2 with sound off nothing plays, even after a reveal', async ({ page }) => {
+  const { quiz, target, tones } = await stubAudio(page, true, { on: false, onShow: true, onWrong: true });
+  const wrong = quiz.locator(`.key:not([aria-label="${target}"])`);
+  await wrong.nth(0).click();
+  await wrong.nth(1).click();
+  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
+  expect(await tones()).toEqual([]);
+});
+
+test('M3-AC2 "when the note appears" plays the note as the question shows', async ({ page }) => {
+  const { target, tones } = await stubAudio(page, true, { onShow: true });
+  await expect.poll(tones).toEqual([midiOfLabel(target)]);
+});
+
+test('M3-AC2 "after a wrong try" plays the correct note on the first miss', async ({ page }) => {
+  const { quiz, target, tones } = await stubAudio(page, true, { onWrong: true });
+  await quiz.locator(`.key:not([aria-label="${target}"])`).first().click();
+  await expect(quiz.getByText('Not quite. One more try.')).toBeVisible();
+  expect(await tones()).toEqual([midiOfLabel(target)]);
+});
+
+const sessionType = (page: Page) =>
+  page.evaluate(() => (navigator as Navigator & { audioSession: { type: string } }).audioSession.type);
+
+test('M3-AC2 playing with the silent switch on asks for a playback audio session', async ({ page }) => {
+  await stubAudio(page, true, { ignoreSilentSwitch: true });
+  expect(await sessionType(page)).toBe('playback');
+});
+
+test('M3-AC2 turning the silent-switch setting off leaves the audio session on auto', async ({ page }) => {
+  await stubAudio(page, true, { ignoreSilentSwitch: false });
+  expect(await sessionType(page)).toBe('auto');
 });
