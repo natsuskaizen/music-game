@@ -19,7 +19,8 @@
     justify-content: center;
     align-items: center;
     gap: 1rem;
-    padding: 0.6rem 1rem;
+    padding: max(0.6rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right)) 0.6rem
+      max(1rem, env(safe-area-inset-left));
     background: var(--accent);
     color: var(--on-accent);
     font-weight: 700;

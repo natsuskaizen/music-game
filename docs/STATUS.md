@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M7 Polish & PWA hardening is in progress (`docs/milestones/M7-polish.md`, issues #92–#97). M6 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M7-3 (#94) iOS shell. M7-2 (#93, update prompt proof) is in review.
+- **Next issue**: M7-4 (#95) streak and celebration. M7-3 (#94, iOS shell) is in review; its AC7 (notch and home indicator on devices) is manual, for Stan.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -63,6 +63,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | App updates | `registerType: 'prompt'`, registered by `watchForUpdates()` in `App.svelte`: the new service worker waits until the person taps **Update now** (`UpdateBanner`), which reloads into it. Needed because an installed PWA otherwise keeps the old build until every window closes | design §5.2 |
 | Stats screen | `core/heatmap.ts` (`heatOf`: unseen / weak <50% / fair <80% / strong by `ewmaAcc`; `heatRows` groups a pool into single-clef rows of eight quarters; `seenNotes` weakest first). `StatsScreen.svelte` draws each row with `Staff` `sequence` + heat `marks` (theme tokens only) and lists seen notes with accuracy and time; Home has a Stats button. One staff per clef row, not a grand staff (44 hard notes won't fit) | M6-4 |
 | Accessibility gate | M7-AC4 uses `@axe-core/playwright` on every screen instead of Lighthouse (Lighthouse 12 dropped the PWA category; its a11y audit is axe on one page) | M7 doc |
+| Install hint | `core/install.ts` `shouldShowInstallHint(env, dismissed)`: iOS (iPhone/iPad/iPod, or a touch Mac for iPadOS) and not `navigator.standalone`; dismissal in localStorage `install-hint-dismissed`. `App.svelte` main and `UpdateBanner` use `max(base, env(safe-area-inset-*))` padding | M7-3 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -70,6 +71,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M7-3 (#94): `core/install.ts` decides the install hint (iOS tab, not standalone, not dismissed), `InstallHint.svelte` on Home saves the dismissal, and the shell, update banner pad with `env(safe-area-inset-*)` (M7-AC2 unit + e2e; AC7 manual).
 - 2026-10-31: M7-2 (#93): `e2e/update-prompt.spec.ts` serves a v1 build, swaps in v2 mid-quiz, and checks the banner shows, the question stays, and Update now reloads into v2 (M7-AC1 e2e).
 - 2026-10-31: M7-1 (#92): `MicMeter.svelte` (taller themed bar, tinted loud-enough zone from the threshold, "Loud enough"/"Too quiet" label, `aria-valuetext`); scripted input gains `scripted-level` (M7-AC6 e2e).
 - 2026-10-31: M7 kick-off: issues #92–#97 (mic meter redesign first; new AC6–AC8; AC4 moves from Lighthouse to axe), roadmap marks M6 Done and M7 In progress.
