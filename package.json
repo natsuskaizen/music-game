@@ -19,7 +19,8 @@
     "ac-report": "node scripts/ac-report/main.ts",
     "size": "node scripts/size-budget/main.ts",
     "icons": "node scripts/icons/main.ts",
-    "piano-samples": "node scripts/piano-samples/main.ts"
+    "piano-samples": "node scripts/piano-samples/main.ts",
+    "piano-fixtures": "node scripts/piano-fixtures/main.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -47,6 +48,7 @@
     "vitest": "^5.0.5"
   },
   "dependencies": {
-    "gsap": "^3.15.0"
+    "gsap": "^3.15.0",
+    "pitchy": "^4.1.0"
   }
 }
