@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M1 look & feel spike (`docs/milestones/M1-look-and-feel.md`). Issues M1-1…M1-5 are #19–#23; M1-1 (pitch math + `Staff`) is done.
-- **Next issue**: M1-2 (#20) theme tokens + `?theme=` switch (Paper & ink, Storybook), with CI screenshots of both themes.
+- **Phase**: M1 look & feel spike (`docs/milestones/M1-look-and-feel.md`). Issues M1-1…M1-5 are #19–#23; M1-1 (pitch math + `Staff`) and M1-2 (theme tokens) are done.
+- **Next issue**: M1-3 (#21) demo quiz: on-screen piano answers, retry → reveal → Continue, GSAP feedback per theme.
 - **Blocked on Stan**: nothing. Q&A answers are recorded in design §14; milestone ends and pending device checks no longer stop the loop (CLAUDE.md).
 
 ## Decisions so far
@@ -29,6 +29,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Sound / timer | Note always plays after answer (master off switch); timer is a sprint (one bar per session, 60/50/40 s by difficulty) | design §14 |
 | Themes | Paper & ink and Storybook (Neon arcade dropped) | M1 doc |
 | Staff | `src/core/pitch.ts` + `staff-layout.ts` (pure geometry), `components/Staff.svelte` draws it; Bravura subset inlined by Vite (offline from first paint); grand staff middle lines 10 spaces apart | M1-1 |
+| Theme tokens | `src/themes.css` CSS variables; Paper & ink on `:root`, Storybook overrides via `data-theme`; `?theme=` read by `core/theme.ts`; components use only tokens | M1-2 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -36,6 +37,7 @@ M0 ✓ · M1 ✱ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M1-2 (#20): theme tokens for Paper & ink and Storybook, `?theme=` switch with nav links; CI uploads per-theme staff screenshots as the `theme-screenshots` artifact (M1-AC1).
 - 2026-10-31: M1 started: issue list in the M1 doc, issues #19–#23. M1-1 (#19): pitch math, staff geometry and the `Staff` component (treble, bass, grand staff with ledger notes); the home page shows all three (M1-AC1 e2e with a screenshot).
 - 2026-10-31: Q&A with Stan replaces the working sessions: design §14; roadmap reordered (mic + sound to M3, tracking + ordering M4, sequence M5); letter pad dropped (F3 later).
 - 2026-10-31: M0-4 CI (#12, #13): `ci.yml` runs `npm run check`, WebKit e2e and `scripts/ac-report` (per-AC table in the job summary) on PRs and `main`; a `STATUS.md updated` job fails PRs that touch `src/` without this file. AC2, AC3, AC7, AC10 proven by seeded CI runs (links in the M0 doc). #12 merged on a seed commit; #13 removed it.

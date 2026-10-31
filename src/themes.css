@@ -1,0 +1,43 @@
+/* Theme tokens (M1-2). Components read only these variables; `main.ts` sets `data-theme` from `?theme=`.
+   Paper & ink is the default, so its tokens sit on :root and Storybook overrides them. */
+:root {
+  --page: #f3ead6;
+  --surface: #fbf6ea;
+  --surface-border: 1px solid #d8cbb0;
+  --surface-radius: 3px;
+  --surface-shadow: 0 1px 2px rgb(60 45 25 / 12%);
+  --text: #2b2118;
+  --muted: #7a6a55;
+  --accent: #8a3b24;
+  --ink: #2b2118;
+  --note: #2b2118;
+  --staff-line: #3d3126;
+  --staff-line-width: 1.3;
+  --staff-line-cap: butt;
+  --font: 'Iowan Old Style', Palatino, 'Palatino Linotype', Georgia, serif;
+  color-scheme: light;
+}
+
+:root[data-theme='storybook'] {
+  --page: #fff1d6;
+  --surface: #ffffff;
+  --surface-border: 3px solid #3b2f73;
+  --surface-radius: 24px;
+  --surface-shadow: 0 6px 0 #3b2f73;
+  --text: #3b2f73;
+  --muted: #6f64b0;
+  --accent: #ff6f59;
+  --ink: #3b2f73;
+  --note: #ff6f59;
+  --staff-line: #8a7fd0;
+  --staff-line-width: 2;
+  --staff-line-cap: round;
+  --font: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--text);
+  font-family: var(--font);
+}

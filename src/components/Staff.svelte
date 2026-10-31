@@ -75,11 +75,15 @@
     height: auto;
   }
   .staff-line {
-    stroke: var(--ink, #1d2433);
-    stroke-width: 1.3;
+    stroke: var(--staff-line);
+    stroke-width: var(--staff-line-width);
+    stroke-linecap: var(--staff-line-cap);
   }
   .glyph {
     font-family: Bravura;
-    fill: var(--ink, #1d2433);
+    fill: var(--ink);
+  }
+  .note .glyph {
+    fill: var(--note);
   }
 </style>
