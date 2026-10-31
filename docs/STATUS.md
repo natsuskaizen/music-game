@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M6 Timer & results is built (`docs/milestones/M6-timer.md`, issues #83–#86); its roadmap status flips with the M7 kick-off. M5 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M7 kick-off (write the issue list; include the mic level bar redesign).
+- **Phase**: M7 Polish & PWA hardening is in progress (`docs/milestones/M7-polish.md`, issues #92–#97). M6 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
+- **Next issue**: M7-1 (#92) mic level bar redesign.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -62,18 +62,19 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
 | App updates | `registerType: 'prompt'`, registered by `watchForUpdates()` in `App.svelte`: the new service worker waits until the person taps **Update now** (`UpdateBanner`), which reloads into it. Needed because an installed PWA otherwise keeps the old build until every window closes | design §5.2 |
 | Stats screen | `core/heatmap.ts` (`heatOf`: unseen / weak <50% / fair <80% / strong by `ewmaAcc`; `heatRows` groups a pool into single-clef rows of eight quarters; `seenNotes` weakest first). `StatsScreen.svelte` draws each row with `Staff` `sequence` + heat `marks` (theme tokens only) and lists seen notes with accuracy and time; Home has a Stats button. One staff per clef row, not a grand staff (44 hard notes won't fit) | M6-4 |
+| Accessibility gate | M7-AC4 uses `@axe-core/playwright` on every screen instead of Lighthouse (Lighthouse 12 dropped the PWA category; its a11y audit is axe on one page) | M7 doc |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ built · M7 ○ · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✱ · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M7 kick-off: issues #92–#97 (mic meter redesign first; new AC6–AC8; AC4 moves from Lighthouse to axe), roadmap marks M6 Done and M7 In progress.
 - 2026-10-31: M6-4 (#86): `core/heatmap.ts` and the Stats screen with a per-note heat-map (M6-AC4 unit + e2e); M6 Summary filled in.
 - 2026-10-31: M6-3 (#85): `core/results.ts` and `Results` screen with accuracy, average time, three slowest notes, Play again and Home (M6-AC5 unit + e2e).
 - 2026-10-31: M6-2 (#84): `SprintBar` countdown in the quiz (single and sequence, not review), `timeUp` session event, pause on `visibilitychange` (M6-AC2 unit + e2e).
 - 2026-10-31: M6-1 (#83): pure sprint clock in `core/sprint.ts` and `Settings.timer` (off by default) with its checkbox in Settings (M6-AC1, AC3 unit).
-- 2026-10-31: M6 kick-off: issues #83–#86 listed (new M6-AC5 for the results content), roadmap marks M5 Done and M6 In progress.
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
