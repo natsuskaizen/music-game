@@ -4,13 +4,16 @@ import { notePool } from '../../src/core/ranges';
 import {
   firstTryPercent,
   gradeAnswer,
+  settledAttempt,
   reduce,
   startSession,
   type Answer,
   type Session,
 } from '../../src/core/session';
 
-const first = () => 0;
+import { stepwisePicker } from '../../src/core/selector';
+
+const first = stepwisePicker(() => 0);
 const C4: ClefNote = { pitch: { letter: 'C', octave: 4 }, clef: 'treble' };
 const C6: ClefNote = { pitch: { letter: 'C', octave: 6 }, clef: 'treble' };
 const pool = notePool('treble', 'medium');
@@ -119,4 +122,45 @@ test('M2-AC3 startSession begins with an empty score on a note from the pool', (
 test('M1-AC1 firstTryPercent rounds and is 0 before any answer', () => {
   expect(firstTryPercent(session())).toBe(0);
   expect(firstTryPercent(session({ firstTry: 2, total: 3 }))).toBe(67);
+});
+
+describe('settledAttempt', () => {
+  const meta = { ts: 5, input: 'piano', ms: 900 };
+  const target = midiOf(C4.pitch);
+  const hit = key(target);
+  const miss = key(target + 1);
+  const attempt = (before: Session, a: Answer) =>
+    settledAttempt(before, reduceTo(before, a), { ...meta, answer: a });
+  const reduceTo = (s: Session, a: Answer) => reduce(s, { type: 'answer', answer: a }, first);
+
+  test('M4-4 a first-try hit is one try and correct', () => {
+    expect(attempt(session(), hit)).toEqual({
+      ...meta,
+      key: 'treble:C4',
+      answer: hit,
+      tries: 1,
+      correct: true,
+    });
+  });
+
+  test('M4-4 a second-try hit is two tries and correct', () => {
+    expect(attempt(session({ phase: 'retry', misses: [miss] }), hit)).toMatchObject({
+      tries: 2,
+      correct: true,
+    });
+  });
+
+  test('M4-4 a second miss is two tries and not correct', () => {
+    expect(attempt(session({ phase: 'retry', misses: [miss] }), miss)).toMatchObject({
+      tries: 2,
+      correct: false,
+    });
+  });
+
+  test('M4-4 a first miss, or any answer after the question settled, records nothing', () => {
+    expect(attempt(session(), miss)).toBeUndefined();
+    expect(
+      settledAttempt(session({ phase: 'right' }), session({ phase: 'right' }), { ...meta, answer: hit }),
+    ).toBeUndefined();
+  });
 });

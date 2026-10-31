@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M4 Tracking, review & ordering (`docs/milestones/M4-tracking.md`, issues #58–#63). M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M4-4 (#61) Dexie storage and `recordAttempt`; then the session can use `pickWeighted` over `candidates`.
+- **Next issue**: M4-5 (#62) Review weak notes (weak-note pool in `core`, button on Home).
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -48,6 +48,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Note stats | `core/stats.ts`: `NoteStat`, `Attempt` (ts, key, input, answer, tries, correct, ms; no `exactOctave`/`mode` yet), `statKey` (`treble:C6`), `newStat`, `credit` (1 / 0.5 / 0), `applyAttempt`: EWMA α 0.3 on credit and ms (first attempt replaces the 0.5 start), box +1 only on a first-try hit, 0 on a miss, streak counts first-try hits | M4-1 |
 | Weighted pick | `core/selector.ts` `weight` (ledger × weakness × slowness × staleness, unseen ×2) and `pickWeighted(pool, ctx, previous)`: 15% of picks explore uniformly, never repeats. `weightsFor(difficulty)` turns the ledger boost on for Hard only. `weaknessGain` is 6, not design's 3, so 40% vs 95% accuracy gives ≥3× (M4-AC2); design §7.3 updated. Not wired into the session yet (M4-3, M4-4) | M4-2 |
 | Stepwise order | `core/selector.ts` `candidates(pool, random, previous)`: 90% same clef 1–3 steps away, 10% one jump kind (other clef, octave, octave ± 1–2) chosen uniformly among kinds that fit; falls back to the whole pool. `pickStepwise` picks uniformly among them and drives the session. M4-4 will weight within `candidates` | M4-3 |
+| Storage | `storage/db.ts` (Dexie `sight-reading`: `stats` by key, `attempts` log): `recordAttempt` folds the attempt into its stat and appends it in one transaction; `loadStats`; `requestPersistence`. `Session` takes a `Picker` (`selector.ts`) instead of `random`: `learnedPicker` weights within `candidates`, `stepwisePicker` is the stats-free one for tests. `settledAttempt` builds the `Attempt` when a question settles (first miss records nothing). `Quiz` keeps a live stats map, merges stored stats in on mount, and ignores storage errors. M4-AC6's reload part is tagged M4-4 so AC6 stays pending until the M4-6 round trip | M4-4 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
@@ -56,6 +57,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✱ · M5 ○
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M4-4 (#61): Dexie storage, `recordAttempt`, and `learnedPicker` (weighted, stepwise) drive the quiz; stats survive a reload.
 - 2026-10-31: M4-3 (#60): `pickStepwise` (steps of 1–3, ~10% jumps of three kinds) now drives the session (M4-AC4); doc nits from the M4-2 review fixed.
 - 2026-10-31: M4-2 (#59): `pickWeighted` and `weight` in `core/selector.ts` (M4-AC2, AC3).
 - 2026-10-31: M4-1 (#58): `core/stats.ts` with `applyAttempt`, `credit` and `statKey` (M4-AC1).

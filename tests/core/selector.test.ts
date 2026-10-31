@@ -3,7 +3,8 @@ import { pitchLabel, staffPos, type ClefNote } from '../../src/core/pitch';
 import { notePool } from '../../src/core/ranges';
 import {
   pickNote,
-  pickStepwise,
+  learnedPicker,
+  stepwisePicker,
   pickWeighted,
   weight,
   weightsFor,
@@ -138,7 +139,7 @@ describe('stepwise ordering', () => {
     let note = pickNote(mixed, () => 0);
     const moves: { from: ClefNote; to: ClefNote }[] = [];
     for (let i = 0; i < steps; i++) {
-      const to = pickStepwise(mixed, random, note);
+      const to = stepwisePicker(random)(mixed, note);
       moves.push({ from: note, to });
       note = to;
     }
@@ -166,6 +167,28 @@ describe('stepwise ordering', () => {
   test('M4-AC4 never repeats, and a single-note pool still answers', () => {
     expect(walk(500).every(({ from, to }) => statKey(from) !== statKey(to))).toBe(true);
     const two = pool.slice(0, 2);
-    expect(pickStepwise(two, () => 0.5, two[0])).toBe(two[1]);
+    expect(stepwisePicker(() => 0.5)(two, two[0])).toBe(two[1]);
   });
+});
+
+test('M4-4 learnedPicker favours the weak note among stepwise candidates and never repeats', () => {
+  const pool = notePool('treble', 'easy');
+  const [previous, weak, strong] = pool.slice(3, 6) as [ClefNote, ClefNote, ClefNote];
+  const stat = (note: ClefNote, ewmaAcc: number): NoteStat => ({
+    ...newStat(statKey(note)),
+    attempts: 20,
+    ewmaAcc,
+    ewmaMs: 2500,
+    lastSeen: 1000,
+  });
+  const stats = new Map([weak, strong].map((n) => [statKey(n), stat(n, n === weak ? 0.4 : 0.95)]));
+  const random = seeded(3);
+  const pick = learnedPicker(() => ({ stats, cfg: weightsFor('easy'), now: 1000, random }));
+  const counts = new Map<string, number>();
+  for (let i = 0; i < 500; i++) {
+    const note = pick([previous, weak, strong], previous);
+    counts.set(statKey(note), (counts.get(statKey(note)) ?? 0) + 1);
+  }
+  expect(counts.has(statKey(previous))).toBe(false);
+  expect(counts.get(statKey(weak))).toBeGreaterThan(2 * (counts.get(statKey(strong)) ?? 1));
 });

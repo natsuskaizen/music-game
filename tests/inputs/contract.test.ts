@@ -3,12 +3,15 @@
 import { flushSync, mount, unmount } from 'svelte';
 import { describe, expect, test } from 'vitest';
 import { notePool } from '../../src/core/ranges';
+import { stepwisePicker } from '../../src/core/selector';
 import { reduce, startSession, type Answer, type Session } from '../../src/core/session';
 import { available, inputById } from '../../src/inputs';
 import { register } from '../../src/inputs/registry';
 import type { InputMethod } from '../../src/inputs/types';
 import type { ClefNote } from '../../src/core/pitch';
 import { fakeInput } from './fake-input';
+
+const random = stepwisePicker(Math.random);
 
 const E4: ClefNote = { pitch: { letter: 'E', octave: 4 }, clef: 'treble' };
 const fake = fakeInput();
@@ -84,8 +87,8 @@ describe('M2-AC7 registry', () => {
 
 describe('M2-AC8 switching input mid-quiz', () => {
   test('M2-AC8 keeps the question and its attempt state', async () => {
-    let s: Session = { ...startSession(notePool('treble', 'medium'), undefined, () => 0), note: E4 };
-    const answer = (a: Answer) => (s = reduce(s, { type: 'answer', answer: a }, Math.random));
+    let s: Session = { ...startSession(notePool('treble', 'medium'), undefined, random), note: E4 };
+    const answer = (a: Answer) => (s = reduce(s, { type: 'answer', answer: a }, random));
 
     const stop = await fake.start(answer);
     fake.play(60);

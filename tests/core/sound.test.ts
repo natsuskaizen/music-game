@@ -4,7 +4,9 @@ import { notePool } from '../../src/core/ranges';
 import { reduce, startSession, type Session } from '../../src/core/session';
 import { DEFAULT_SOUND, noteToPlay, type SoundSettings } from '../../src/core/sound';
 
-const first = () => 0;
+import { stepwisePicker } from '../../src/core/selector';
+
+const first = stepwisePicker(() => 0);
 const ask = startSession(notePool('treble', 'medium'), 20, first);
 const target = midiOf(ask.note.pitch);
 const press = (s: Session, midi: number) =>
