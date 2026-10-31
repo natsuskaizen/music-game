@@ -24,8 +24,8 @@ Svelte 5 + SVG (Bravura glyphs) + GSAP, Vite, TypeScript, Dexie (IndexedDB), Web
 - Only the `docs/design.md` sections that the milestone doc references. Don't read it end to end.
 
 ## Workflow
-- Milestone → issues → **one branch and one PR per issue** (branch `m2-3-short-name`). The PR body links the issue and its ACs.
-- At a milestone's start, write its issue list in the milestone doc, then create the GitHub issues.
+- Milestone → issues → **one branch and one PR per issue** (branch `m2-3-short-name`). The PR body follows `.github/pull_request_template.md`: it links the issue and its ACs.
+- At a milestone's start, write its issue list in the milestone doc, then create the GitHub issues from `.github/ISSUE_TEMPLATE/roadmap-issue.md`. The issue body names its milestone (there are no GitHub milestone objects).
 - Before opening a PR: run `npm run check`, then run the **code-reviewer** agent (`.claude/agents/code-reviewer.md`) on the diff and fix every blocking finding.
 - A PR merges only when all CI gates pass, including the AI review in `review.yml` (same agent, runs on Stan's subscription).
 - **Every PR updates `docs/STATUS.md`**: Now, Recent (one line), and new decisions or known issues.
@@ -39,7 +39,7 @@ Each issue gets its own fresh thread, so context stays small. A run does **one i
 4. Merging: once branch protection requires the CI and review checks (after M0-4/M0-5), enable **auto-merge**, and GitHub merges only when every check is green. Before that, leave the PR for Stan to merge.
 Never merge by hand, never use `review-override`, and never change gates to make a PR pass.
 
-## Commands (created in M0)
+## Commands
 - `npm run check`: types, lint, quality rules, unit, build, size budget. Run before every push.
 - `npm test` runs unit tests with coverage (Vitest); `npm run e2e` builds, serves, and runs Playwright (WebKit iPhone/iPad).
 

@@ -19,7 +19,7 @@ project guidance Claude reads, so each later issue just adds code and tests and 
     Claude runs it locally before each PR, and CI runs the same file.
 - `.github/pull_request_template.md` (issue link, ACs, "STATUS.md updated" checkbox) and an issue template.
 - Status-file gate: a CI step fails a PR that changes `src/` without changing `docs/STATUS.md`.
-- Create the GitHub milestones and this milestone's issues from the docs.
+- Create this milestone's issues from the docs. (GitHub milestone objects were dropped: no tool creates them, and each issue body names its milestone.)
 
 ## Issues
 | Id | Issue | ACs |
@@ -36,12 +36,12 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 - M0-AC1 `npm run check` passes locally on a clean clone.
 - [x] M0-AC2 CI runs on a PR and shows the AC table in the job summary. ([run](https://github.com/natsuskaizen/music-game/actions/runs/41165518171), 2026-10-31)
 - [x] M0-AC3 A deliberately failing test turns CI red (verified once, then removed). ([run](https://github.com/natsuskaizen/music-game/actions/runs/41165646526), 2026-10-31)
-- M0-AC4 Merge to `main` deploys to `https://natsuskaizen.github.io/music-game/`.
+- [x] M0-AC4 Merge to `main` deploys to `https://natsuskaizen.github.io/music-game/`. ([deploy run](https://github.com/natsuskaizen/music-game/actions/runs/41169387631), commit 908d8c5, 2026-10-31)
 - M0-AC5 Playwright: the page loads offline after first visit (service worker).
 - M0-AC6 Manual: it installs to the iPad/iPhone home screen and opens full-screen.
 - [x] M0-AC7 A seeded violation of each static rule (complex function, duplicated block, unused export) fails CI. ([complex](https://github.com/natsuskaizen/music-game/actions/runs/41165719488), [duplicate](https://github.com/natsuskaizen/music-game/actions/runs/41165842359), [unused](https://github.com/natsuskaizen/music-game/actions/runs/41165947254), 2026-10-31)
 - [x] M0-AC8 A seeded PR with a needlessly repeated, undocumented function gets a `fail` verdict; the clean version passes. ([fail](https://github.com/natsuskaizen/music-game/actions/runs/41167653514), [pass](https://github.com/natsuskaizen/music-game/actions/runs/41167730502), 2026-10-31)
-- M0-AC9 A new session reading only `CLAUDE.md` (with STATUS.md auto-loaded) can state the project goal, current state, workflow, and commands.
+- [x] M0-AC9 A new session reading only `CLAUDE.md` (with STATUS.md auto-loaded) can state the project goal, current state, workflow, and commands. (fresh M0-7 session, 2026-10-31)
 - [x] M0-AC10 A PR that changes `src/` but not `docs/STATUS.md` fails CI. ([run](https://github.com/natsuskaizen/music-game/actions/runs/41165646526), 2026-10-31)
 - [x] M0-AC11 Every new push re-runs the review; a docs-only PR skips it. (push re-runs: [seed](https://github.com/natsuskaizen/music-game/actions/runs/41167653514), [revert](https://github.com/natsuskaizen/music-game/actions/runs/41167730502); docs-only skip: `M0-AC11` unit tests, 2026-10-31)
 
@@ -54,4 +54,10 @@ Refs: design §5 (PWA), §11 (layout), roadmap "Workflow" and "Quality gates".
 
 ## Summary (fill in at completion)
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+- Shipped: Vite 7 + Svelte 5 + strict TS scaffold; `npm run check` (format, svelte-check, ESLint strict + sonarjs + jsdoc, `jscpd`, `knip`, Vitest ≥ 90% core coverage, build, 250 KB gz budget).
+- CI (`ci.yml`): check, WebKit e2e, per-AC table in the job summary, STATUS.md-updated gate. `review.yml` runs the code-reviewer agent on every push; `deploy.yml` publishes to Pages after CI passes on `main`.
+- PWA shell with prompt-to-update service worker, offline e2e test, placeholder icons.
+- Guidance: `CLAUDE.md` + auto-loaded `docs/STATUS.md`, PR and issue templates, autonomous one-issue-per-thread loop with auto-merge.
+- Every gate was proven by a seeded failing run (links in the ACs above).
+- Deviations: no GitHub milestone objects (issue bodies name the milestone); cloud sessions run e2e on Chromium, CI is the WebKit source of truth; #12 merged on a seed commit, fixed by #13.
+- Follow-ups: icons and theme at the M1 pick; iOS mic and silent-switch checks in M1.
