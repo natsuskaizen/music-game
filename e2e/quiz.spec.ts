@@ -15,7 +15,7 @@ async function setup(page: Page, theme: string) {
   };
 }
 
-for (const theme of ['paper', 'storybook']) {
+for (const theme of ['paper', 'storybook', 'arcade']) {
   test(`M1-AC1 ${theme}: two misses reveal the note and wait for Continue`, async ({ page }, testInfo) => {
     const { quiz, target, staffName, keys, key } = await setup(page, theme);
     await keys.nth(0).click();

@@ -8,6 +8,7 @@ technical risks early.
   on-screen piano for answering, right/wrong feedback animation):
   1. *Paper & ink*: warm cream paper, engraved look, subtle motion.
   2. *Storybook*: rounded, colorful, playful character feedback (SVG + CSS + GSAP; no extra framework).
+  3. *Neon arcade* (added by Stan, PR #29): dark CRT page, neon glow, flicker/glitch/burst feedback.
 - Risk checks on device: Bravura glyph alignment incl. 3 ledger lines and grand staff;
   piano sample plays with the **silent switch on**; works offline after install.
 - Spike code is throwaway except the theme tokens and the staff component.
@@ -41,7 +42,7 @@ with the device and date, e.g. `- [x] M1-AC2 ... (iPhone, iPad, 2026-11-01)`, or
   note right: the tone should play. If it's silent, note it; the app then relies on the ringer hint (design §14).
 - **M1-AC3 airplane mode**: open the app once online, close it fully, turn on airplane mode, reopen it. The
   staff, piano and sound should all work.
-- **M1-AC4 theme**: compare `?theme=paper` and `?theme=storybook` (and Neon arcade if its demo PR lands). Without a
+- **M1-AC4 theme**: compare `?theme=paper` and `?theme=storybook` and `?theme=arcade`. Without a
   pick by 2026-11-01 (a day after the demo went live), M2 uses Paper & ink. The app icons and theme color are
   already Paper & ink (`npm run icons` re-renders them from `public/icon.svg`).
 
@@ -52,8 +53,8 @@ with the device and date, e.g. `- [x] M1-AC2 ... (iPhone, iPad, 2026-11-01)`, or
 - Kept for M2: `core/pitch.ts`, `core/staff-layout.ts`, `Staff.svelte`, `themes.css`, `audio/tone.ts`.
   Throwaway: the demo `Quiz`/`Piano` and `core/quiz.ts`, which M2 replaces with the `InputMethod` registry.
 - Decisions: synthesized tone instead of piano samples (samples move to M3); `audioSession = 'playback'` for the
-  silent switch with a ringer hint fallback (new M1-AC5); Neon arcade was dropped from the plan; a separate
-  Neon arcade demo is being built so Stan can weigh it in the pick.
+  silent switch with a ringer hint fallback (new M1-AC5); Neon arcade came back as a third theme (#29); a theme
+  switch in Settings and its note-position bug (#36) are M8.
 - Icons and theme color are Paper & ink, the default pick; a re-skin only means new tokens and `npm run icons`.
 - Open: AC2–AC4 wait on Stan's device checks and pick, so M1 stays in progress while M2 starts.
 - Follow-ups: delete `prototypes/` once M1 closes (roadmap); re-render icons if the pick isn't Paper & ink.

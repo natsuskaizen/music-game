@@ -1,5 +1,5 @@
 /* Theme tokens (M1-2). Components read only these variables; `main.ts` sets `data-theme` from `?theme=`.
-   Paper & ink is the default, so its tokens sit on :root and Storybook overrides them. */
+   Paper & ink is the default, so its tokens sit on :root and the other themes override them. */
 :root {
   --page: #f3ead6;
   --surface: #fbf6ea;
@@ -23,6 +23,9 @@
   --key-black: #2b2118;
   --key-label: #7a6a55;
   --key-radius: 2px;
+  --page-art: none;
+  --text-glow: none;
+  --mark-glow: 0;
   --font: 'Iowan Old Style', Palatino, 'Palatino Linotype', Georgia, serif;
   color-scheme: light;
 }
@@ -53,9 +56,43 @@
   --font: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif;
 }
 
+/* Neon arcade: dark CRT page, neon outlines, and glow on text, panels, and marked keys. */
+:root[data-theme='arcade'] {
+  --page: #0b0620;
+  --page-art:
+    repeating-linear-gradient(transparent 0 2px, rgb(255 255 255 / 3%) 2px 3px),
+    radial-gradient(ellipse at top, #2a0f57, transparent 70%);
+  --surface: #120a2e;
+  --surface-border: 2px solid #ff2bd6;
+  --surface-radius: 6px;
+  --surface-shadow: 0 0 14px rgb(255 43 214 / 55%), inset 0 0 10px rgb(255 43 214 / 25%);
+  --text: #eaf8ff;
+  --muted: #9aa8e0;
+  --accent: #00e5ff;
+  --ink: #00e5ff;
+  --note: #fff35c;
+  --staff-line: #b18cff;
+  --staff-line-width: 1.6;
+  --staff-line-cap: round;
+  --on-accent: #0b0620;
+  --right: #39ff88;
+  --wrong: #ff3860;
+  --piano-case: #05020e;
+  --key-white: #221a4d;
+  --key-white-edge: #00e5ff;
+  --key-black: #05020e;
+  --key-label: #9aa8e0;
+  --key-radius: 4px;
+  --text-glow: 0 0 6px rgb(0 229 255 / 70%);
+  --mark-glow: 16px;
+  --font: ui-monospace, Menlo, 'Courier New', monospace;
+  color-scheme: dark;
+}
+
 body {
   margin: 0;
-  background: var(--page);
+  background: var(--page-art) var(--page);
+  text-shadow: var(--text-glow);
   color: var(--text);
   font-family: var(--font);
 }
