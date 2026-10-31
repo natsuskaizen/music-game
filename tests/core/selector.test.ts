@@ -1,7 +1,16 @@
-import { expect, test } from 'vitest';
-import { pitchLabel } from '../../src/core/pitch';
+import { describe, expect, test } from 'vitest';
+import { pitchLabel, type ClefNote } from '../../src/core/pitch';
 import { notePool } from '../../src/core/ranges';
-import { pickNote } from '../../src/core/selector';
+import {
+  pickNote,
+  pickWeighted,
+  weight,
+  weightsFor,
+  type PickContext,
+  type Random,
+  type WeightConfig,
+} from '../../src/core/selector';
+import { newStat, statKey, type NoteStat } from '../../src/core/stats';
 
 const pool = notePool('treble', 'easy'); // C4 D4 E4 F4 G4 A4 B4 C5
 const label = (random: number, previous = pool[0]) =>
@@ -20,4 +29,103 @@ test('M2-AC2 never repeats the previous note', () => {
 
 test('M2-AC2 an empty pool is an error, not a silent undefined', () => {
   expect(() => pickNote([], () => 0)).toThrow('No notes');
+});
+
+describe('weighted pick', () => {
+  const NOW = 1_000_000_000_000;
+  const hardPool = notePool('treble', 'hard');
+  const named = (label: string): ClefNote => {
+    const found = hardPool.find((n) => pitchLabel(n.pitch) === label);
+    if (!found) throw new Error(`${label} not in pool`);
+    return found;
+  };
+  const onStaff = named('G4');
+  const ledger3 = named('F6');
+  const stat = (note: ClefNote, ewmaAcc: number): NoteStat => ({
+    ...newStat(statKey(note)),
+    attempts: 10,
+    ewmaAcc,
+    ewmaMs: 2500,
+    lastSeen: NOW,
+  });
+
+  /** Seeded generator so simulations are repeatable. */
+  function seeded(seed: number): Random {
+    let s = seed;
+    return () => (s = (s * 1664525 + 1013904223) % 2 ** 32) / 2 ** 32;
+  }
+
+  const context = (
+    stats: Map<string, NoteStat>,
+    cfg: WeightConfig,
+    random: Random = seeded(7),
+  ): PickContext => ({
+    stats,
+    cfg,
+    now: NOW,
+    random,
+  });
+
+  function counts(ctx: PickContext, picks = 1000) {
+    const seen = new Map<string, number>();
+    for (let i = 0; i < picks; i++) {
+      const key = statKey(pickWeighted(hardPool, ctx));
+      seen.set(key, (seen.get(key) ?? 0) + 1);
+    }
+    return (note: ClefNote) => seen.get(statKey(note)) ?? 0;
+  }
+
+  test('M4-AC2 a note at 40% accuracy appears at least 3x as often as one at 95%', () => {
+    const [weak, strong] = [onStaff, named('D5')];
+    const stats = new Map(hardPool.map((n) => [statKey(n), stat(n, 0.95)]));
+    stats.set(statKey(weak), stat(weak, 0.4));
+    stats.set(statKey(strong), stat(strong, 0.95));
+    const seen = counts(context(stats, weightsFor('medium')));
+    expect(seen(weak)).toBeGreaterThanOrEqual(3 * seen(strong));
+  });
+
+  test('M4-AC3 on Hard a 3-ledger-line note appears at least 2x as often as an on-staff note', () => {
+    const stats = new Map(hardPool.map((n) => [statKey(n), stat(n, 0.8)]));
+    const seen = counts(context(stats, weightsFor('hard')));
+    expect(seen(ledger3)).toBeGreaterThanOrEqual(2 * seen(onStaff));
+  });
+
+  test('M4-AC3 off Hard the ledger boost is zero', () => {
+    expect(weightsFor('medium').ledgerBoost).toBe(0);
+    expect(weightsFor('hard').ledgerBoost).toBeGreaterThan(0);
+  });
+
+  test('M4-AC2 an unseen note weighs double, and a mastered, on-time note weighs 1', () => {
+    const cfg = weightsFor('easy');
+    expect(weight(onStaff, undefined, context(new Map(), cfg))).toBe(2);
+    expect(weight(onStaff, stat(onStaff, 1), context(new Map(), cfg))).toBe(1);
+  });
+
+  test('M4-AC2 staleness raises the weight by up to 50% after a week', () => {
+    const cfg = weightsFor('easy');
+    const s = stat(onStaff, 1);
+    const ctx = context(new Map(), cfg);
+    const fresh = weight(onStaff, s, ctx);
+    expect(weight(onStaff, { ...s, lastSeen: NOW - 30 * 86_400_000 }, ctx)).toBeCloseTo(fresh * 1.5);
+  });
+
+  test('M4-AC2 never repeats the previous note, exploring or not', () => {
+    const random = seeded(3);
+    for (const exploration of [0, 1]) {
+      const cfg = { ...weightsFor('easy'), exploration };
+      for (let i = 0; i < 200; i++) {
+        const next = pickWeighted(pool, context(new Map(), cfg, random), onStaff);
+        expect(statKey(next)).not.toBe(statKey(onStaff));
+      }
+    }
+  });
+
+  test('M4-AC2 an empty pool is an error', () => {
+    expect(() =>
+      pickWeighted(
+        [],
+        context(new Map(), weightsFor('easy'), () => 0.9),
+      ),
+    ).toThrow('No notes');
+  });
 });
