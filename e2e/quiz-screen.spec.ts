@@ -45,7 +45,14 @@ test('M2-AC4 a second miss reveals the note and only Continue moves on', async (
   await expect(quiz.getByRole('img')).not.toHaveAttribute('aria-label', staffName);
 });
 
+// Stepwise ordering (M4-3) changes clef only ~3% of the time, so a seeded Math.random makes this walk reach both clefs.
+const SEED = 7;
+
 test('M2-AC5 both shows a grand staff with each note on its own stave', async ({ page }) => {
+  await page.addInitScript((seed) => {
+    let state = seed;
+    Math.random = () => (state = (state * 1664525 + 1013904223) % 2 ** 32) / 2 ** 32;
+  }, SEED);
   const { quiz, key } = await openQuiz(page, '', 'both');
   const staff = quiz.getByRole('img');
   // Two staves of five lines plus the system's left barline.
