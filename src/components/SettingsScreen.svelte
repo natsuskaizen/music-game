@@ -4,6 +4,7 @@
   import { VOLUMES, type SoundSettings } from '../core/sound';
   import type { Difficulty } from '../core/ranges';
   import { available } from '../inputs';
+  import { exportProgress, importProgress } from '../storage/backup-file';
   import Segmented from './Segmented.svelte';
 
   let {
@@ -20,6 +21,22 @@
     { key: 'ignoreSilentSwitch', text: 'Play with the silent switch on' },
   ];
   const VOLUME_NAMES = ['Quiet', 'Medium', 'Loud'];
+  let backupMessage = $state('');
+  async function runBackup(task: () => Promise<string>) {
+    try {
+      backupMessage = await task();
+    } catch {
+      backupMessage = 'That did not work. Your progress on this device is unchanged.';
+    }
+  }
+  const exportClicked = () => runBackup(async () => ((await exportProgress()) ? 'Backup ready.' : ''));
+  const importPicked = (file: File) =>
+    runBackup(async () => {
+      const count = await importProgress(file);
+      return count === null
+        ? 'That file is not a backup. Nothing changed.'
+        : `Restored ${String(count)} answers.`;
+    });
   const setSound = (change: Partial<SoundSettings>) => {
     onchange({ ...settings, sound: { ...settings.sound, ...change } });
   };
@@ -86,6 +103,23 @@
       }}
     />
   </fieldset>
+  <fieldset class="row backup">
+    <legend>Backup</legend>
+    <button type="button" onclick={exportClicked}>Export progress</button>
+    <label class="file">
+      Restore from backup (replaces progress on this device)
+      <input
+        type="file"
+        accept="application/json,.json"
+        onchange={(e) => {
+          const file = e.currentTarget.files?.[0];
+          e.currentTarget.value = '';
+          if (file) void importPicked(file);
+        }}
+      />
+    </label>
+    <p role="status">{backupMessage}</p>
+  </fieldset>
   <button type="button" onclick={onBack}>Back</button>
 </section>
 
@@ -110,6 +144,13 @@
     gap: 0.5rem;
     align-items: center;
     color: var(--text);
+  }
+  .file {
+    display: grid;
+    gap: 0.4rem;
+  }
+  p {
+    margin: 0;
   }
   h2 {
     margin: 0;
