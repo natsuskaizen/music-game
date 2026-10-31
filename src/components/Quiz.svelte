@@ -31,6 +31,7 @@
   import { noteToPlay } from '../core/sound';
   import { applyAttempt, newStat, weakNotes, type Attempt, type NoteStat } from '../core/stats';
   import type { Theme } from '../core/theme';
+  import { celebrates } from '../core/streak';
   import { FEEDBACK } from './feedback';
   import { available, inputById } from '../inputs';
   import { loadStats, recordAttempt, requestPersistence } from '../storage/db';
@@ -54,6 +55,7 @@
   } = $props();
 
   const feedback = $derived(FEEDBACK[theme]);
+  let streakEl = $state<HTMLElement>();
   const ringerHint = needsRingerHint();
   void loadPiano(); // the Start tap that opened this screen lets iOS start audio
   const inputs = available();
@@ -197,6 +199,7 @@
     quiz = step({ type: 'answer', answer });
     record(before, quiz, answer);
     sound(before, quiz);
+    if (streakEl && celebrates(before.streak, quiz.streak)) feedback.celebrate(streakEl);
     if (quiz.phase !== before.phase) await respond();
   }
 </script>
@@ -215,7 +218,7 @@
         {#each inputs as option (option.id)}<option value={option.id}>{option.label}</option>{/each}
       </select>
     {/if}
-    <span>Streak <b>{quiz.streak}</b></span>
+    <span>Streak <b bind:this={streakEl}>{quiz.streak}</b></span>
     <span>First try <b>{firstTryPercent(quiz)}%</b></span>
   </div>
   {#if settings.timer && !review && quiz.phase !== 'done'}
