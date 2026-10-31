@@ -6,9 +6,9 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M1 look & feel spike (`docs/milestones/M1-look-and-feel.md`). Issues M1-1…M1-5 are #19–#23; M1-1 (pitch math + `Staff`), M1-2 (theme tokens), M1-3 (demo quiz) and M1-4 (sound) are done.
-- **Next issue**: M1-5 (#23) device checks + theme pick: M1-AC2 (sound with the silent switch on) and M1-AC3 (airplane mode) on iPhone and iPad are Stan's manual checks; leave them open and keep building.
-- **Blocked on Stan**: nothing. Q&A answers are recorded in design §14; milestone ends and pending device checks no longer stop the loop (CLAUDE.md).
+- **Phase**: M1 built (Summary filled in); it stays in progress until Stan's device checks and theme pick. M2 single-note MVP starts next (`docs/milestones/M2-single-note.md`).
+- **Next issue**: M2 start: write the M2 issue list in its doc, create the issues, then M2-1. Build on Paper & ink unless Stan picks another theme.
+- **Blocked on Stan** (not stop points; steps in the M1 doc "Device checks and theme pick"): M1-AC2 silent switch and M1-AC3 airplane mode on iPhone and iPad; M1-AC4 theme pick, which defaults to Paper & ink on 2026-11-01. Issue #23 stays open until these are ticked.
 
 ## Decisions so far
 | Topic | Decision | Where |
@@ -27,11 +27,12 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Difficulty | Easy / Medium / Hard sets range, ledger weighting, sequence size, timer; ledger counts never shown | design §14 |
 | Ordering | Mostly within a third, ~10% jumps (clef, octave) | design §14 |
 | Sound / timer | Note always plays after answer (master off switch); timer is a sprint (one bar per session, 60/50/40 s by difficulty) | design §14 |
-| Themes | Paper & ink and Storybook (Neon arcade dropped) | M1 doc |
+| Themes | Paper & ink and Storybook in M1; a separate Neon arcade demo may join the pick; Paper & ink is the default | M1 doc |
 | Staff | `src/core/pitch.ts` + `staff-layout.ts` (pure geometry), `components/Staff.svelte` draws it; Bravura subset inlined by Vite (offline from first paint); grand staff middle lines 10 spaces apart | M1-1 |
 | Theme tokens | `src/themes.css` CSS variables; Paper & ink on `:root`, Storybook overrides via `data-theme`; `?theme=` read by `core/theme.ts`; components use only tokens | M1-2 |
 | Demo quiz | `core/quiz.ts` reducer (ask → retry → reveal, exact octave) and `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. Spike: M2 replaces it with the `InputMethod` registry and §8.3 session | M1-3 |
 | Answer sound | `audio/tone.ts`: one shared `AudioContext` made on the first tap, `audioSession.type = 'playback'`, a triangle tone with a 1.2 s decay; `core/quiz.ts` `toneAfter` plays the correct note on right or reveal (not on the first miss). Without `audioSession` a touch device shows a ringer hint. Added M1-AC5 for the automated part; AC2 stays manual | M1-4 |
+| Icons | Paper & ink icons and theme color (default pick); `npm run icons` renders the PNGs from `public/icon.svg` via Playwright | M1-5 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -39,6 +40,7 @@ M0 ✓ · M1 ✱ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M1-5 (#23): device-check steps for Stan, Paper & ink app icons + `npm run icons`, M1 Summary. AC2–AC4 pending on Stan; M2 starts.
 - 2026-10-31: M1-4 (#22): the correct note plays (synthesized tone) once a question is settled; `audioSession` set to `playback` for the silent switch; ringer hint when it's unsupported on a touch device. New M1-AC5 (unit + e2e); M1-AC2 waits for the device check.
 - 2026-10-31: M1-3 (#21): demo quiz above the staff gallery: on-screen piano (scrolls a revealed key into view), retry → reveal → Continue, GSAP feedback (Paper & ink: subtle slide/shake; Storybook: bounce, wobble, sparkles); e2e for both themes with reveal screenshots.
 - 2026-10-31: M1-2 (#20): theme tokens for Paper & ink and Storybook, `?theme=` switch with nav links; CI uploads per-theme staff screenshots as the `theme-screenshots` artifact (M1-AC1).
@@ -53,7 +55,6 @@ M0 ✓ · M1 ✱ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 ## Known issues / open questions
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
 - WebKit can't be downloaded in the cloud sessions, so e2e runs there on Chromium as a smoke test; CI is the WebKit source of truth.
-- App icons (`public/icon*.png`, rendered from `public/icon.svg`) are placeholders until the M1 theme pick.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
-- Look and feel is open until the M1 spike (2 themes to try on device).
-- iOS: mic permission may re-prompt per launch; silent switch handling must be confirmed on device (M1).
+- Theme pick (M1-AC4) is open until 2026-11-01; Paper & ink is the default.
+- iOS: mic permission may re-prompt per launch (M3); silent switch handling waits on the M1-AC2 device check.
