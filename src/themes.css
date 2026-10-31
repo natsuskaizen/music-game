@@ -25,7 +25,6 @@
   --key-radius: 2px;
   --page-art: none;
   --text-glow: none;
-  --staff-glow: none;
   --mark-glow: 0;
   --font: 'Iowan Old Style', Palatino, 'Palatino Linotype', Georgia, serif;
   color-scheme: light;
@@ -57,7 +56,7 @@
   --font: ui-rounded, 'SF Pro Rounded', 'Nunito', system-ui, sans-serif;
 }
 
-/* Neon arcade: dark CRT page, neon outlines, and glow on text, staff, and marked keys. */
+/* Neon arcade: dark CRT page, neon outlines, and glow on text, panels, and marked keys. */
 :root[data-theme='arcade'] {
   --page: #0b0620;
   --page-art:
@@ -85,7 +84,6 @@
   --key-label: #9aa8e0;
   --key-radius: 4px;
   --text-glow: 0 0 6px rgb(0 229 255 / 70%);
-  --staff-glow: drop-shadow(0 0 3px rgb(0 229 255 / 80%));
   --mark-glow: 16px;
   --font: ui-monospace, Menlo, 'Courier New', monospace;
   color-scheme: dark;

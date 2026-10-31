@@ -93,7 +93,6 @@
     display: block;
     width: 100%;
     height: auto;
-    filter: var(--staff-glow);
   }
   .staff-line {
     stroke: var(--staff-line);

@@ -39,7 +39,7 @@ M0 ✓ · M1 ✱ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
-- 2026-10-31: Neon arcade trial theme (`?theme=arcade`, not a roadmap issue): dark CRT page, glow tokens (`--page-art`, `--text-glow`, `--staff-glow`, `--mark-glow`, `none` elsewhere), flicker/glitch/burst GSAP feedback; e2e and screenshots cover it.
+- 2026-10-31: Neon arcade trial theme (`?theme=arcade`, not a roadmap issue): dark CRT page, glow tokens (`--page-art`, `--text-glow`, `--mark-glow`, `none` elsewhere; no CSS filter on the staff SVG, it made WebKit repaint too slowly for the GSAP feedback), flicker/glitch/burst GSAP feedback; e2e and screenshots cover it.
 - 2026-10-31: M1-4 (#22): the correct note plays (synthesized tone) once a question is settled; `audioSession` set to `playback` for the silent switch; ringer hint when it's unsupported on a touch device. New M1-AC5 (unit + e2e); M1-AC2 waits for the device check.
 - 2026-10-31: M1-3 (#21): demo quiz above the staff gallery: on-screen piano (scrolls a revealed key into view), retry → reveal → Continue, GSAP feedback (Paper & ink: subtle slide/shake; Storybook: bounce, wobble, sparkles); e2e for both themes with reveal screenshots.
 - 2026-10-31: M1-2 (#20): theme tokens for Paper & ink and Storybook, `?theme=` switch with nav links; CI uploads per-theme staff screenshots as the `theme-screenshots` artifact (M1-AC1).
