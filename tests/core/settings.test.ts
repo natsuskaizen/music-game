@@ -22,6 +22,11 @@ describe('migrateSettings', () => {
     });
   });
 
+  test('M5-AC2 the quiz mode is validated and defaults to single', () => {
+    expect(migrateSettings({ mode: 'sequence' }).mode).toBe('sequence');
+    expect(migrateSettings({ mode: 'duet' }).mode).toBe('single');
+  });
+
   test('M2-AC6 invalid values fall back to the default for that field', () => {
     const migrated = migrateSettings({ clef: 'alto', difficulty: 'hard', input: 5, questionsPerSession: 7 });
     expect(migrated).toEqual({ ...DEFAULT_SETTINGS, difficulty: 'hard' });

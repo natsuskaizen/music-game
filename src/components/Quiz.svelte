@@ -1,6 +1,8 @@
 <!-- The quiz screen (design §8.1): read the note on the staff (a grand staff for `both`) and answer with the active input.
      A miss gets one retry, then the answer is revealed and the quiz waits for Continue; with a listening input,
      playing the revealed note is Continue too (design §8.4).
+     Sequence mode (settings.mode, not review) reads a run of notes through the cursor: a right note moves on by itself,
+     and the same Continue rules apply per note, so a listening input can play on through misses (design §8.4).
      Sound follows the sound settings (`noteToPlay`, design §14). Switching input keeps the question. -->
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -9,6 +11,8 @@
   import { loadPiano, playPitch } from '../audio/piano';
   import { midiOf, pitchLabel } from '../core/pitch';
   import { notePool } from '../core/ranges';
+  import { sequenceNotes, startRun, stepRun, type SequenceRun } from '../core/cursor';
+  import { makeSequence, type Measure } from '../core/sequence';
   import {
     answerContinues,
     firstTryPercent,
@@ -19,6 +23,7 @@
     withPool,
     type Answer,
     type Session,
+    type SessionEvent,
   } from '../core/session';
   import type { Settings } from '../core/settings';
   import { learnedPicker, weightsFor } from '../core/selector';
@@ -61,10 +66,30 @@
   }));
   const fullPool = () => notePool(settings.clef, settings.difficulty);
   // Review draws only weak notes and runs until none remain; a normal quiz runs for the chosen question count.
+  // Sequence mode: the measures on the staff, the run walking them, and how each settled note went.
+  // svelte-ignore state_referenced_locally
+  const sequenced = !review && settings.mode === 'sequence';
+  let measures = $state.raw<Measure[]>([]);
+  let run = $state.raw<SequenceRun>();
+  let outcomes = $state.raw<('right' | 'wrong')[]>([]);
+  function beginSequence() {
+    measures = makeSequence(fullPool(), settings.difficulty, { picker: pick, random: Math.random });
+    outcomes = [];
+    run = startRun(sequenceNotes(measures));
+    return run.session;
+  }
   const begin = () =>
     review
       ? startSession(weakNotes(fullPool(), stats), undefined, pick)
-      : startSession(fullPool(), settings.questionsPerSession || undefined, pick);
+      : sequenced
+        ? beginSequence()
+        : startSession(fullPool(), settings.questionsPerSession || undefined, pick);
+  // One event through the cursor in sequence mode, else straight through the session.
+  function step(event: SessionEvent): Session {
+    if (!run) return reduce(quiz, event, pick);
+    run = stepRun(run, event);
+    return run.session;
+  }
   // The default input starts; the switcher changes it for this quiz only.
   const defaultInput = () => inputById(settings.input);
   let input = $state.raw(defaultInput());
@@ -103,6 +128,11 @@
     if (review) quiz = withPool(quiz, weakNotes(fullPool(), stats));
   }
 
+  // Settled notes in order, then the one in play once it has settled.
+  const sequenceMarks = $derived([
+    ...outcomes,
+    ...(quiz.phase === 'right' ? (['right'] as const) : quiz.phase === 'reveal' ? (['wrong'] as const) : []),
+  ]);
   const target = $derived(midiOf(quiz.note.pitch));
   const name = $derived(pitchLabel(quiz.note.pitch));
   const showsAnswer = $derived(isSettled(quiz.phase));
@@ -130,19 +160,17 @@
   }
 
   function advance() {
-    showQuestion(reduce(quiz, { type: 'next' }, pick));
+    if (run && isSettled(quiz.phase)) outcomes = [...outcomes, quiz.phase === 'right' ? 'right' : 'wrong'];
+    showQuestion(step({ type: 'next' }));
   }
 
-  async function onAnswer(answer: Answer) {
-    if (listening && answerContinues(quiz, answer)) {
-      advance();
+  // Feedback for a changed phase: a sequence has no single note to animate, so a right note moves on at once.
+  async function respond() {
+    if (run) {
+      if (quiz.phase === 'right') advance();
       return;
     }
-    const before = quiz;
-    quiz = reduce(quiz, { type: 'answer', answer }, pick);
-    record(before, quiz, answer);
-    sound(before, quiz);
-    if (quiz.phase === before.phase || !noteEl) return;
+    if (!noteEl) return;
     if (quiz.phase !== 'right') {
       feedback.wrong(noteEl);
       return;
@@ -151,6 +179,18 @@
     await feedback.right(noteEl);
     // Play again during the animation has already moved on.
     if (asked === answered) advance();
+  }
+
+  async function onAnswer(answer: Answer) {
+    if (listening && answerContinues(quiz, answer)) {
+      advance();
+      return;
+    }
+    const before = quiz;
+    quiz = step({ type: 'answer', answer });
+    record(before, quiz, answer);
+    sound(before, quiz);
+    if (quiz.phase !== before.phase) await respond();
   }
 </script>
 
@@ -194,14 +234,18 @@
       {/if}
     </div>
   {:else}
-    <Staff
-      mode={settings.clef}
-      note={quiz.note}
-      mark={quiz.phase === 'right' ? 'right' : quiz.phase === 'ask' ? undefined : 'wrong'}
-      revealed={quiz.phase === 'reveal'}
-      {heard}
-      bind:noteEl
-    />
+    {#if run}
+      <Staff mode={settings.clef} sequence={measures} marks={sequenceMarks} current={run.index} />
+    {:else}
+      <Staff
+        mode={settings.clef}
+        note={quiz.note}
+        mark={quiz.phase === 'right' ? 'right' : quiz.phase === 'ask' ? undefined : 'wrong'}
+        revealed={quiz.phase === 'reveal'}
+        {heard}
+        bind:noteEl
+      />
+    {/if}
     <ActiveInput
       method={input}
       mode={settings.clef}

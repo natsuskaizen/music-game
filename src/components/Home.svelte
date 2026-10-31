@@ -1,10 +1,10 @@
-<!-- Home (design §14): pick the clef, open Settings, or Start with the last settings. -->
+<!-- Home (design §14): pick the clef and Single or Sequence, open Settings, or Start with the last settings. -->
 <script lang="ts">
   import { onMount } from 'svelte';
   import { notePool } from '../core/ranges';
   import { weakNotes, type NoteStat } from '../core/stats';
   import { loadStats } from '../storage/db';
-  import { CLEFS, type Settings } from '../core/settings';
+  import { CLEFS, MODES, type QuizMode, type Settings } from '../core/settings';
   import type { ClefMode } from '../core/staff-layout';
   import Segmented from './Segmented.svelte';
 
@@ -41,6 +41,14 @@
     value={settings.clef}
     onchange={(clef: ClefMode) => {
       onchange({ ...settings, clef });
+    }}
+  />
+  <Segmented
+    label="Mode"
+    options={MODES.map((value) => ({ value, text: value }))}
+    value={settings.mode}
+    onchange={(mode: QuizMode) => {
+      onchange({ ...settings, mode });
     }}
   />
   <button type="button" class="link" onclick={onSettings}>Settings</button>
