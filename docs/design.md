@@ -179,7 +179,7 @@ export function gradeAnswer(s: QuizState, a: Answer, exactOctave: boolean): Quiz
 |---|---|---|
 | Letter pad (A–G) | letter | M2 |
 | On-screen piano | pitch | M5 |
-| Mic (real piano) | pitch | F2 |
+| Mic (real piano) | pitch | M3 |
 | Hardware keyboard (A–G keys on an iPad keyboard) | letter | Cheap add-on, any milestone |
 | Letter + octave picker | pitch | M5 |
 | Solfège pad (Do Re Mi) | letter | Idea |
@@ -251,6 +251,8 @@ export function preferPlaybackSession() {
 
 ### 4.3 When to play (setting)
 
+Superseded by §14: the note always plays after the answer when sound is on, and "on show" and "on wrong" are extra toggles.
+
 | Option | Behavior | Why you'd pick it |
 |---|---|---|
 | `off` | Silent | Practicing in public |
@@ -262,7 +264,7 @@ In sequence mode, `afterAnswer` plays each note as it's tapped, so a correct run
 sounds like the melody, which is a nice reward. **While the mic is listening, playback is
 always muted** so the app never hears itself.
 
-### 4.4 Listening to a real piano (mic input, roadmap F2)
+### 4.4 Listening to a real piano (mic input, roadmap M3)
 
 The mic shares the playback `AudioContext`. An `AnalyserNode` feeds `pitchy` about 60 times
 a second. A note counts once it holds for 4 frames (~65 ms) with clarity > 0.9. The same
@@ -666,34 +668,32 @@ export const credit = (tries: 1 | 2, correct: boolean) => (!correct ? 0 : tries 
 
 ## 9. Settings
 
+Updated by §14 (difficulty, single input, sound toggles, timer).
+
 ```ts
 // src/core/settings.ts
 export interface Settings {
   clef: 'treble' | 'bass' | 'both';
-  range: RangeLevel;               // how far beyond the staff, default 'ledger3'
+  difficulty: 'easy' | 'medium' | 'hard';   // sets range, ledger weighting, sequence length, timer (§14)
   mode: 'single' | 'sequence';
-  sequenceLength: number;          // 4–8
   questionsPerSession: number;     // e.g. 20, or 0 = endless
-  timer:
-    | { kind: 'off' }
-    | { kind: 'perNote'; seconds: number }     // countdown per question; timeout = miss
-    | { kind: 'session'; seconds: number };    // sprint: as many as you can in N seconds
-  inputs: string[];                // enabled input ids from the registry (3.4), e.g. ['piano', 'mic']
-  exactOctave: boolean;            // octave-aware inputs: must the octave match? (on by default)
+  timer: boolean;                  // countdown bar per screen, length from difficulty (§14)
+  input: string;                   // default input id from the registry (3.4); switchable mid-quiz
   showKeyNames: boolean;           // label every key, not just the Cs
   showOctaveOnFeedback: boolean;   // "C6" vs "C"
-  ledgerBoost: number;             // exposes WeightConfig.ledgerBoost as a slider
   sound: {
-    when: 'off' | 'afterAnswer' | 'onShow' | 'onWrong';   // see 4.3
+    on: boolean;                   // when on, the note always plays after the answer
+    onShow: boolean;               // also play when the note appears
+    onWrong: boolean;              // also play after a wrong try
     volume: number;                                        // 0..1
     ignoreSilentSwitch: boolean;                           // sets navigator.audioSession.type
   };
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-  clef: 'treble', range: 'ledger3', mode: 'single', sequenceLength: 6,
-  questionsPerSession: 20, timer: { kind: 'off' }, inputs: ['letters'], exactOctave: true, showKeyNames: false, showOctaveOnFeedback: true, ledgerBoost: 0.6,
-  sound: { when: 'afterAnswer', volume: 0.8, ignoreSilentSwitch: true },
+  clef: 'treble', difficulty: 'medium', mode: 'single', questionsPerSession: 20, timer: false,
+  input: 'piano', showKeyNames: false, showOctaveOnFeedback: true,
+  sound: { on: true, onShow: false, onWrong: false, volume: 0.8, ignoreSilentSwitch: true },
 };
 ```
 
@@ -780,8 +780,51 @@ See [docs/roadmap.md](roadmap.md) for the milestones, one doc each, and the qual
 |---|---|
 | Hosting | GitHub Pages, deployed by GitHub Actions only when all gates are green |
 | Sequence errors | Retry once, then reveal, then wait for Continue; applies to both modes (8.4) |
-| Look and feel | Early spike (M1) shows several themes on device; pick one there |
+| Look and feel | Early spike (M1) shows two themes on device (§14); pick one there |
 | Answer precision | Configurable per input via `exactOctave` (sections 3.4, 9) |
-| Answer input | Pluggable (3.4): letter pad fallback, on-screen piano, mic from a real piano (F2), more later |
+| Answer input | Pluggable (3.4): on-screen piano, then mic from a real piano (M3); letter pad dropped (§14) |
 | Framework | Svelte 5 + SVG + GSAP ([frameworks.md](frameworks.md)); Phaser 4 evaluated and not chosen |
 | Accidentals / key signatures | A later feature (F1 in the roadmap) |
+
+## 14. Decisions from the Q&A with Stan (2026-10-31)
+
+These replace the M2–M4 working sessions and override earlier sections where they differ.
+
+**Difficulty** (a setting, never automatic) replaces the ledger-line range. The UI never shows ledger-line counts.
+
+| Difficulty | Treble | Bass | Ledger notes |
+|---|---|---|---|
+| Easy | C4 – C5 | C3 – C4 | none beyond these |
+| Medium | ≤ 1 ledger line (B3 – B5) | ≤ 1 ledger line (D2 – D4) | normal weight |
+| Hard | ≤ 3 ledger lines (E3 – F6, §6.1) | ≤ 3 ledger lines (G1 – A4) | weighted up (§7.3 `ledgerBoost`) |
+
+With `both`, each stave uses its own column.
+
+**Ordering**: the next note is usually within a third, meaning 1, 2 or 3 steps up or down from the current note.
+About 10% of the time it jumps: to the other clef (on a grand staff), an octave away, or an octave ± 1–2 steps.
+Weakness weighting (§7.3) still applies within the candidates.
+
+**Sequences** (length set by difficulty; notes are grouped into 4/4 measures with barlines; rhythm is visual only and isn't graded):
+
+| Difficulty | Measures | Notes |
+|---|---|---|
+| Easy | 1 | 4 |
+| Medium | 1–2 | ≤ 10 |
+| Hard | 3 | 10–16 |
+
+**Inputs**: priority is the on-screen piano, then the mic (real piano). The letter pad is dropped. Writing or saying
+a letter may come later (F3). The default input is set in Settings, and the quiz screen has a switcher for changing
+input mid-quiz. The octave must always match.
+
+**Sound**: a master on/off switch. When sound is on, the correct note **always plays after the answer**, and two optional
+toggles add "when the note appears" and "after a wrong try". Volume and "play with the silent switch on" sit in the same group.
+
+**Timer**: off by default. When on, a countdown bar runs for the whole screen (one note, or the whole sequence),
+not per note. Seconds = base for the difficulty (Easy 6, Medium 5, Hard 4) + 1 per 3 notes on screen, rounded up.
+Timeout counts as a miss on the current note, then reveal (§8.4). There's no separate sprint mode.
+
+**Home**: mode (single / sequence), clef (treble / bass / both), Review weak notes (once M4 lands), a Settings button,
+and **Start at the bottom**, which starts with the last settings. No progress glance. Everything else is in Settings.
+Session length: 20 by default (10 / 20 / 50 / endless).
+
+**Look**: two themes, *Paper & ink* and *Storybook* (Neon arcade dropped). Both are plain SVG + CSS + GSAP.
