@@ -25,6 +25,8 @@ export interface Settings {
   sound: SoundSettings;
   /** How loud a note must be for the mic to hear it, one of `MIC_LEVELS`. */
   micLevel: number;
+  /** Race the clock: one countdown for the whole session (design §14). Off by default. */
+  timer: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -36,6 +38,7 @@ export const DEFAULT_SETTINGS: Settings = {
   questionsPerSession: 20,
   sound: DEFAULT_SOUND,
   micLevel: DEFAULT_MIC_LEVEL,
+  timer: false,
 };
 
 const KEY = 'settings';
@@ -75,6 +78,7 @@ export function migrateSettings(raw: unknown): Settings {
     questionsPerSession: oneOf(stored.questionsPerSession, SESSION_LENGTHS, d.questionsPerSession),
     sound: migrateSound(stored.sound),
     micLevel: oneOf(stored.micLevel, MIC_LEVELS, d.micLevel),
+    timer: flag(stored.timer, d.timer),
   };
 }
 

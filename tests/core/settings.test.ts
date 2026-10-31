@@ -86,3 +86,11 @@ describe('migrateSettings micLevel', () => {
     expect(migrateSettings({ micLevel: 0.9 }).micLevel).toBe(0.5);
   });
 });
+
+describe('migrateSettings timer', () => {
+  test('M6-AC1 the timer is off by default and keeps a stored choice', () => {
+    expect(DEFAULT_SETTINGS.timer).toBe(false);
+    expect(migrateSettings({ timer: true }).timer).toBe(true);
+    expect(migrateSettings({ timer: 'yes' }).timer).toBe(false);
+  });
+});

@@ -1,7 +1,8 @@
-<!-- Settings (design §14): difficulty, questions per session, the default answer input, mic loudness, and sound. Changes save at once. -->
+<!-- Settings (design §14): difficulty, questions per session, timer, the default answer input, mic loudness, and sound. Changes save at once. -->
 <script lang="ts">
   import { MIC_LEVELS } from '../core/listen';
   import { DIFFICULTIES, SESSION_LENGTHS, type Settings } from '../core/settings';
+  import { SPRINT_SECONDS } from '../core/sprint';
   import { VOLUMES, type SoundSettings } from '../core/sound';
   import type { Difficulty } from '../core/ranges';
   import { available } from '../inputs';
@@ -69,6 +70,16 @@
       }}
     />
   </div>
+  <label class="check">
+    <input
+      type="checkbox"
+      checked={settings.timer}
+      onchange={(e) => {
+        onchange({ ...settings, timer: e.currentTarget.checked });
+      }}
+    />
+    Timer: race the clock ({SPRINT_SECONDS[settings.difficulty]} s for the session)
+  </label>
   {#if inputs.length > 1}
     <label class="row">
       <span>Default input</span>
