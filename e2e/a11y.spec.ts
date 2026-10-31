@@ -31,10 +31,7 @@ for (const theme of THEMES) {
     await page.getByRole('radio', { name: '10' }).click();
     const { quiz, target, key } = await openQuiz(page, `?theme=${theme}`);
     await expectNoViolations(page);
-    await quiz
-      .locator('.key:not([aria-label="' + target + '"])')
-      .first()
-      .click();
+    await quiz.locator(`.key:not([aria-label="${target}"])`).first().click();
     await expectNoViolations(page);
     const playAgain = quiz.getByRole('button', { name: 'Play again' });
     const staff = quiz.getByRole('img');

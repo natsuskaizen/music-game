@@ -31,8 +31,8 @@ Milestone doc (scope + ACs + issue list)
 | M4 | [Tracking, review & ordering](milestones/M4-tracking.md) | Stats in IndexedDB, weighted stepwise ordering, review mode, backup | Done |
 | M5 | [Sequence mode](milestones/M5-sequence.md) | Multi-note quiz in measures, sized by difficulty | Done |
 | M6 | [Timer & results](milestones/M6-timer.md) | Sprint timer, results and stats screens | Done |
-| M7 | [Polish & PWA hardening](milestones/M7-polish.md) | Mic meter redesign, update proof, install hint, effects, accessibility | In progress |
-| M8 | [Themes in Settings](milestones/M8-themes.md) | Theme switch in Settings (Paper & ink default), Neon arcade fixed | Not started |
+| M7 | [Polish & PWA hardening](milestones/M7-polish.md) | Mic meter redesign, update proof, install hint, effects, accessibility | Built, device checks open |
+| M8 | [Themes in Settings](milestones/M8-themes.md) | Theme switch in Settings (Paper & ink default), Neon arcade fixed | In progress |
 | F1 | [Accidentals & key signatures](milestones/F1-accidentals.md) | Later feature | Backlog |
 | F3 | [Write or say the letter](milestones/F3-letter-inputs.md) | Handwriting and voice letter inputs | Backlog |
 

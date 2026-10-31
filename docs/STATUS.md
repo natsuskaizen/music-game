@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M7 Polish & PWA hardening is built (`docs/milestones/M7-polish.md`, issues #92–#97); its device AC7 is open for Stan, as are M3's AC6 and AC7. M6 is done.
-- **Next issue**: M8 kick-off (themes in Settings, Neon arcade fix), then F1/F3 backlog.
+- **Next issue**: M8 kick-off (marked In progress in the roadmap) (themes in Settings, Neon arcade fix), then F1/F3 backlog.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
