@@ -87,7 +87,7 @@ test('M2-AC8 switching input mid-quiz keeps the question and its tries', async (
   await expect(quiz.locator('.key.wrong')).toHaveCount(1); // the keyboard stays, to show the heard key
   await expect(quiz.getByText(RETRY)).toBeVisible();
   await scriptedAnswer(page, secondMiss);
-  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
+  await expect(quiz.getByText(`It's ${target}. Play it or tap Continue.`)).toBeVisible();
   await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', staffName);
 
   await switcher.selectOption('piano');
@@ -109,6 +109,52 @@ test('M2-AC8 a miss on one input and a hit on the other is a second-try answer',
   await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
   await expect(quiz.getByText('First try 0%')).toBeVisible();
   await expect(quiz.getByText('Streak 0')).toBeVisible();
+});
+
+test('M3-AC11 with a listening input, playing the revealed note moves on and a miss does not', async ({
+  page,
+}) => {
+  const { quiz, staffName, target, wrongKeys } = await openQuiz(page);
+  await quiz.getByRole('combobox', { name: 'Input' }).selectOption('scripted');
+  await expect(quiz.getByText('Play this note.')).toBeVisible();
+  const miss = (await wrongKeys.nth(0).getAttribute('aria-label')) ?? '';
+  await scriptedAnswer(page, miss);
+  await scriptedAnswer(page, miss);
+  await expect(quiz.getByText(`It's ${target}. Play it or tap Continue.`)).toBeVisible();
+  await scriptedAnswer(page, miss);
+  await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', staffName);
+
+  await scriptedAnswer(page, target);
+  await expect(quiz.getByText('Play this note.')).toBeVisible();
+  await expect(quiz.getByRole('img')).not.toHaveAttribute('aria-label', staffName);
+  await expect(quiz.getByText('First try 0%')).toBeVisible();
+});
+
+test('M3-AC12 the heard note shows on the staff at its position, and leaves with silence', async ({
+  page,
+}) => {
+  const { quiz } = await openQuiz(page, '', 'treble');
+  await quiz.getByRole('combobox', { name: 'Input' }).selectOption('scripted');
+  const heard = (detail: number | null) =>
+    page.evaluate((d) => window.dispatchEvent(new CustomEvent('scripted-heard', { detail: d })), detail);
+  const mark = quiz.locator('.heard text.glyph');
+  const [treble] = stavesFor('treble');
+  if (!treble) throw new Error('No treble stave');
+
+  await heard(midiOf(pitchOfLabel('E4')));
+  await expect(mark).toHaveAttribute(
+    'y',
+    String(yOf(treble, staffPos({ pitch: pitchOfLabel('E4'), clef: 'treble' }))),
+  );
+  await expect(quiz.locator('.heard .sharp')).toHaveCount(0);
+  await heard(midiOf(pitchOfLabel('F4')) + 1);
+  await expect(mark).toHaveAttribute(
+    'y',
+    String(yOf(treble, staffPos({ pitch: pitchOfLabel('F4'), clef: 'treble' }))),
+  );
+  await expect(quiz.locator('.heard .sharp')).toHaveCount(1);
+  await heard(null);
+  await expect(mark).toHaveCount(0);
 });
 
 test('M4-4 answers are kept on the device and survive a reload', async ({ page }) => {

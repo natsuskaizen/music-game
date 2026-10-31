@@ -1,5 +1,6 @@
 // Saved settings (design §9): small, read synchronously at startup, kept in localStorage.
 // `migrateSettings` makes any stored value safe, so an app update or a hand-edited value never breaks the app.
+import { DEFAULT_MIC_LEVEL, MIC_LEVELS } from './listen';
 import type { Difficulty } from './ranges';
 import { DEFAULT_SOUND, VOLUMES, type SoundSettings } from './sound';
 import type { ClefMode } from './staff-layout';
@@ -18,6 +19,8 @@ export interface Settings {
   input: string;
   questionsPerSession: number;
   sound: SoundSettings;
+  /** How loud a note must be for the mic to hear it, one of `MIC_LEVELS`. */
+  micLevel: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -27,6 +30,7 @@ export const DEFAULT_SETTINGS: Settings = {
   input: 'piano',
   questionsPerSession: 20,
   sound: DEFAULT_SOUND,
+  micLevel: DEFAULT_MIC_LEVEL,
 };
 
 const KEY = 'settings';
@@ -64,6 +68,7 @@ export function migrateSettings(raw: unknown): Settings {
     input: typeof stored.input === 'string' ? stored.input : d.input,
     questionsPerSession: oneOf(stored.questionsPerSession, SESSION_LENGTHS, d.questionsPerSession),
     sound: migrateSound(stored.sound),
+    micLevel: oneOf(stored.micLevel, MIC_LEVELS, d.micLevel),
   };
 }
 

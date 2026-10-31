@@ -8,6 +8,7 @@ import {
   staffPos,
   type Clef,
   type Pitch,
+  writtenPitch,
 } from '../../src/core/pitch';
 
 const note = (letter: Pitch['letter'], octave: number, clef: Clef) => ({ pitch: { letter, octave }, clef });
@@ -67,4 +68,21 @@ test('M1-AC5 hzOf tunes A4 to 440 Hz and doubles per octave', () => {
   expect(hzOf(69)).toBe(440);
   expect(hzOf(81)).toBe(880);
   expect(hzOf(60)).toBeCloseTo(261.63, 2);
+});
+
+describe('writtenPitch', () => {
+  test('M3-AC12 a white key is its natural and a black key the natural below with a sharp', () => {
+    expect(writtenPitch(60)).toEqual({ pitch: { letter: 'C', octave: 4 }, sharp: false });
+    expect(writtenPitch(61)).toEqual({ pitch: { letter: 'C', octave: 4 }, sharp: true });
+    expect(writtenPitch(70)).toEqual({ pitch: { letter: 'A', octave: 4 }, sharp: true });
+    expect(writtenPitch(71)).toEqual({ pitch: { letter: 'B', octave: 4 }, sharp: false });
+    expect(writtenPitch(21)).toEqual({ pitch: { letter: 'A', octave: 0 }, sharp: false });
+  });
+
+  test('M3-AC12 every natural maps back to its own MIDI number', () => {
+    for (let midi = 21; midi <= 108; midi++) {
+      const { pitch, sharp } = writtenPitch(midi);
+      expect(midiOf(pitch) + (sharp ? 1 : 0)).toBe(midi);
+    }
+  });
 });

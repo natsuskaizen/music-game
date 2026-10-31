@@ -30,18 +30,22 @@ export interface OnScreenInput extends InputBase {
 }
 
 /**
- * An input with no UI, e.g. the mic: it starts listening and resolves to a stop function.
- * `heard` reports the note sounding right now (`undefined` for none), so the keyboard can show it;
- * `level` reports the loudness 0..1 each frame, so the screen can show that the mic is working.
+ * What a headless input reports besides answers, and how loud a sound must be to count.
+ * `heard` is the note sounding right now (`undefined` for none), so the keyboard and staff can show it;
+ * `level` is the loudness 0..1 each frame, so the screen can show the mic is working;
+ * sounds quieter than `minLevel` (same scale, a setting) are ignored.
  */
+export interface ListenHooks {
+  heard?: (midi: number | undefined) => void;
+  level?: (level: number) => void;
+  minLevel?: number;
+}
+
+/** An input with no UI, e.g. the mic: it starts listening and resolves to a stop function. */
 export interface HeadlessInput extends InputBase {
   /** True when it listens to the room, so the app must not play notes (design §4.3). */
   listens?: boolean;
-  start: (
-    emit: (answer: Answer) => void,
-    heard?: (midi: number | undefined) => void,
-    level?: (level: number) => void,
-  ) => Promise<() => void>;
+  start: (emit: (answer: Answer) => void, hooks?: ListenHooks) => Promise<() => void>;
 }
 
 /** One answer input, on screen or headless, so it can't be both or neither. */

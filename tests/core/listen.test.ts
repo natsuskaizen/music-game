@@ -6,6 +6,7 @@ import {
   initialListen,
   hzToMidi,
   listenStep,
+  loudEnough,
   type ListenState,
   type PitchFrame,
 } from '../../src/core/listen';
@@ -99,5 +100,18 @@ describe('M3-AC9 mic level meter', () => {
 
   test('M3-AC9 a louder frame reads higher than a quieter one', () => {
     expect(frameLevel(frame(0.1))).toBeGreaterThan(frameLevel(frame(0.01)));
+  });
+});
+
+describe('M3-AC10 mic loudness threshold', () => {
+  const frame = clear(60);
+
+  test('M3-AC10 a frame at or above the threshold passes, a quieter one is silence', () => {
+    expect(loudEnough(frame, 0.5, 0.5)).toBe(frame);
+    expect(loudEnough(frame, 0.49, 0.5)).toBeUndefined();
+  });
+
+  test('M3-AC10 a quiet held note never answers', () => {
+    expect(heard(Array.from({ length: 8 }, () => loudEnough(frame, 0.3, 0.5)))).toEqual([]);
   });
 });

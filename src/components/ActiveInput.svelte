@@ -10,7 +10,13 @@
     marks,
     emit,
     onHeard,
-  }: InputProps & { method: InputMethod; onHeard: (midi: number | undefined) => void } = $props();
+    minLevel,
+  }: InputProps & {
+    method: InputMethod;
+    onHeard: (midi: number | undefined) => void;
+    /** Loudness a headless input needs to hear a note (meter scale), marked on the meter. */
+    minLevel: number;
+  } = $props();
 
   let level = $state(0);
   let failed = $state(false);
@@ -22,8 +28,12 @@
     failed = false;
     // A switch can land before `start` resolves: stop the input as soon as it has started.
     method
-      .start(emit, onHeard, (value) => {
-        level = value;
+      .start(emit, {
+        heard: onHeard,
+        level: (value) => {
+          level = value;
+        },
+        minLevel,
       })
       .then(
         (stopInput) => {
@@ -63,7 +73,8 @@
         aria-valuemax="1"
         aria-valuenow={level}
       >
-        <span class="fill" style:width="{Math.round(level * 100)}%"></span>
+        <span class="fill" class:loud={level >= minLevel} style:width="{Math.round(level * 100)}%"></span>
+        <span class="threshold" style:left="{Math.round(minLevel * 100)}%"></span>
       </span>
     </p>
   {/if}
@@ -83,6 +94,7 @@
     color: var(--wrong, var(--muted));
   }
   .meter {
+    position: relative;
     flex: 1;
     max-width: 12rem;
     height: 0.6rem;
@@ -94,5 +106,16 @@
     display: block;
     height: 100%;
     background: var(--muted);
+  }
+  .fill.loud {
+    background: var(--accent);
+  }
+  /* The loudness a note needs to count (Settings). */
+  .threshold {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--text);
   }
 </style>

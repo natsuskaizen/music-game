@@ -1,14 +1,17 @@
-<!-- Draws one whole note on a treble, bass, or grand staff, with its ledger lines (design §3.1). Kept after the M1 spike. -->
+<!-- Draws one whole note on a treble, bass, or grand staff, with its ledger lines (design §3.1). Kept after the M1 spike.
+     A listening input's heard note shows as a faint notehead beside it, so the player sees where their playing lands. -->
 <script lang="ts">
   import { ledgerPositions, pitchLabel, staffPos, type ClefNote } from '../core/pitch';
   import {
     SPACE,
     STAFF_LINES,
     clefLinePos,
+    heardMark,
     stavesFor,
     systemBounds,
     yOf,
     type ClefMode,
+    type Stave,
   } from '../core/staff-layout';
 
   let {
@@ -16,6 +19,7 @@
     note,
     mark,
     revealed = false,
+    heard,
     noteEl = $bindable(),
   }: {
     mode: ClefMode;
@@ -24,6 +28,8 @@
     mark?: 'right' | 'wrong';
     /** Writes the note's name beside it (design §8.4 reveal). */
     revealed?: boolean;
+    /** MIDI note a listening input hears right now, drawn as a faint notehead; `undefined` for silence. */
+    heard?: number;
     /** The note's group, for feedback animations. */
     noteEl?: SVGGElement;
   } = $props();
@@ -35,6 +41,7 @@
   const LEFT = 56;
   const RIGHT = 616;
   const NOTE_X = 340;
+  const HEARD_X = NOTE_X - 3.5 * SPACE;
   const LEDGER_HALF = 1.35 * SPACE;
 
   const staves = $derived(stavesFor(mode));
@@ -44,7 +51,24 @@
   const noteStave = $derived(staves.find((stave) => stave.clef === note.clef));
   const pos = $derived(staffPos(note));
   const label = $derived(`${pitchLabel(note.pitch)} on the ${note.clef} staff`);
+  const heardAt = $derived.by(() => {
+    const mark = heard === undefined ? undefined : heardMark(heard, mode);
+    const stave = staves.find((s) => s.clef === mark?.note.clef);
+    return mark && stave ? { ...mark, stave, pos: staffPos(mark.note) } : undefined;
+  });
 </script>
+
+{#snippet ledgers(x: number, stave: Stave, at: number)}
+  {#each ledgerPositions(at) as p (p)}
+    <line
+      class="staff-line ledger"
+      x1={x - LEDGER_HALF}
+      x2={x + LEDGER_HALF}
+      y1={yOf(stave, p)}
+      y2={yOf(stave, p)}
+    />
+  {/each}
+{/snippet}
 
 <svg viewBox="0 0 {WIDTH} {bounds.height}" role="img" aria-label={label}>
   {#each staves as stave (stave.clef)}
@@ -67,15 +91,7 @@
   {/if}
   {#if noteStave}
     <g class="note {mark ?? ''}" bind:this={noteEl}>
-      {#each ledgerPositions(pos) as p (p)}
-        <line
-          class="staff-line ledger"
-          x1={NOTE_X - LEDGER_HALF}
-          x2={NOTE_X + LEDGER_HALF}
-          y1={yOf(noteStave, p)}
-          y2={yOf(noteStave, p)}
-        />
-      {/each}
+      {@render ledgers(NOTE_X, noteStave, pos)}
       <text class="glyph" x={NOTE_X} y={yOf(noteStave, pos)} text-anchor="middle" font-size={GLYPH_SIZE}
         >{GLYPH.wholeNote}</text
       >
@@ -84,6 +100,23 @@
           >{pitchLabel(note.pitch)}</text
         >
       {/if}
+    </g>
+  {/if}
+  {#if heardAt}
+    <g class="heard" aria-hidden="true">
+      {@render ledgers(HEARD_X, heardAt.stave, heardAt.pos)}
+      {#if heardAt.sharp}
+        <text class="sharp" x={HEARD_X - 1.4 * SPACE} y={yOf(heardAt.stave, heardAt.pos) + SPACE / 2.5}
+          >♯</text
+        >
+      {/if}
+      <text
+        class="glyph"
+        x={HEARD_X}
+        y={yOf(heardAt.stave, heardAt.pos)}
+        text-anchor="middle"
+        font-size={GLYPH_SIZE}>{GLYPH.wholeNote}</text
+      >
     </g>
   {/if}
 </svg>
@@ -115,5 +148,16 @@
   }
   .name {
     font: 700 20px var(--font);
+  }
+  .heard {
+    opacity: 0.45;
+  }
+  .heard .glyph,
+  .sharp {
+    fill: var(--accent);
+  }
+  .sharp {
+    font: 700 22px var(--font);
+    text-anchor: middle;
   }
 </style>

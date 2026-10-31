@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { SPACE, clefLinePos, stavesFor, systemBounds, yOf } from '../../src/core/staff-layout';
+import { SPACE, clefLinePos, heardMark, stavesFor, systemBounds, yOf } from '../../src/core/staff-layout';
 
 describe('stavesFor', () => {
   test('M1-AC1 a single clef draws one stave', () => {
@@ -45,4 +45,19 @@ test('M1-AC1 yOf moves half a space per staff position, upward for positive posi
 test('M1-AC1 clefs sit on their line: G clef on G4 (-2 treble), F clef on F3 (+2 bass)', () => {
   expect(clefLinePos('treble')).toBe(-2);
   expect(clefLinePos('bass')).toBe(2);
+});
+
+describe('heardMark', () => {
+  test('M3-AC12 a heard note lands on the shown clef, or on a grand staff by middle C', () => {
+    expect(heardMark(64, 'bass')?.note).toEqual({ pitch: { letter: 'E', octave: 4 }, clef: 'bass' });
+    expect(heardMark(60, 'both')?.note.clef).toBe('treble');
+    expect(heardMark(59, 'both')?.note.clef).toBe('bass');
+    expect(heardMark(66, 'treble')?.sharp).toBe(true);
+  });
+
+  test('M3-AC12 a note too far off the staff is not drawn', () => {
+    expect(heardMark(108, 'treble')).toBeUndefined();
+    expect(heardMark(21, 'treble')).toBeUndefined();
+    expect(heardMark(40, 'bass')).toBeDefined();
+  });
 });
