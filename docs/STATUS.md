@@ -2,7 +2,7 @@
 
 The living summary of where the project stands. It's auto-loaded into every Claude session via
 `CLAUDE.md`, so a new session starts here instead of from old chat history.
-**Update it in every PR** ("Now", new decisions and known issues, plus a new file in `docs/recent/`), and refresh all of it when a milestone closes.
+**Update it in every PR** (the "Now" and "Recent" sections), and refresh all of it when a milestone closes.
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
@@ -56,8 +56,16 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✱ · M5 ○
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
-One line per PR in `docs/recent/` (`<date>-<issue>.md`), so PRs never edit the same lines. Latest 5:
-`cat $(ls docs/recent/*.md | sort -r | head -5)`. Old entries stay as history.
+- 2026-10-31: Mic fix from Stan's iPhone test (M3-AC9): audio session `play-and-record` while listening (iOS refused the mic under `playback`, so no prompt), error message when the mic is blocked, level meter, context resumes on return to the app. Needs re-test on the iPhone.
+- 2026-10-31: M4-3 (#60): `pickStepwise` (steps of 1–3, ~10% jumps of three kinds) now drives the session (M4-AC4); doc nits from the M4-2 review fixed.
+- 2026-10-31: M4-2 (#59): `pickWeighted` and `weight` in `core/selector.ts` (M4-AC2, AC3).
+- 2026-10-31: M4-1 (#58): `core/stats.ts` with `applyAttempt`, `credit` and `statKey` (M4-AC1).
+- 2026-10-31: M4 kick-off: issue list #58–#63 in the M4 doc; roadmap shows M3 "Built, device checks open" and M4 In progress.
+- 2026-10-31: M3-6 (#50): playback muted while listening, heard key highlighted (M3-AC8), `prototypes/` deleted, M3 Summary written; AC6 and AC7 stay open for Stan.
+- 2026-10-31: M3-5 (#49): `mic` input registered (raw `getUserMedia`, `pitchy` per frame through `listenStep`); AC6 latency check on a real piano still open for Stan.
+- 2026-10-31: M3-4 (#48): `pitchy` + 59 recorded-piano fixtures G1–F6 (`npm run piano-fixtures`); accuracy test at 100% letter and octave with the M3-3 defaults, so no tuning (M3-AC5).
+- 2026-10-31: M3-3 (#47): `core/listen.ts` pitch-to-note filter (Hz → MIDI ±30 cents, stability, octave majority, re-fire rule; M3-AC3, AC4).
+- 2026-10-31: M3-2 (#46): sound settings (master, on show, on wrong, volume, silent switch) and the pure `noteToPlay` rule replacing `toneAfter` (M3-AC2).
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
