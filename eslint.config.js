@@ -9,7 +9,7 @@ import svelteConfig from './svelte.config.js';
 
 // Strict profile from the roadmap "Code-quality standards": small functions, no duplication, documented exports.
 export default defineConfig(
-  { ignores: ['dist', 'coverage', 'test-results', 'playwright-report', 'reports', 'prototypes'] },
+  { ignores: ['dist', 'dist-e2e', 'coverage', 'test-results', 'playwright-report', 'reports', 'prototypes'] },
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,

@@ -1,5 +1,6 @@
-<!-- Demo quiz (M1, on the M2 session reducer): read the note, tap its key. A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4).
-     The correct note sounds once the question is settled (design §14). -->
+<!-- The quiz screen (design §8.1): read the note on the staff (a grand staff for `both`) and answer with the active input.
+     A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4).
+     The correct note sounds once the question is settled (design §14). Switching input keeps the question. -->
 <script lang="ts">
   import { needsRingerHint, playTone } from '../audio/tone';
   import { midiOf, pitchLabel } from '../core/pitch';
@@ -16,8 +17,9 @@
   import type { ClefMode } from '../core/staff-layout';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
-  import { inputById } from '../inputs';
+  import { available, inputById } from '../inputs';
   import type { KeyMark } from '../inputs/types';
+  import ActiveInput from './ActiveInput.svelte';
   import Staff from './Staff.svelte';
 
   let { theme }: { theme: Theme } = $props();
@@ -25,9 +27,9 @@
   const CLEFS: ClefMode[] = ['treble', 'bass', 'both'];
   const feedback = $derived(FEEDBACK[theme]);
   const ringerHint = needsRingerHint();
-  // M2-4 adds the input switcher and M2-5 the default-input setting; until then the piano answers.
-  const piano = inputById('piano');
-  const Input = 'component' in piano ? piano.component : undefined;
+  const inputs = available();
+  // M2-5 makes the starting input a setting (the default input); until then it's the piano.
+  let input = $state.raw(inputById('piano'));
 
   let mode = $state<ClefMode>('treble');
   // Medium is the default difficulty and the demo is endless; M2-5 makes both settings.
@@ -99,6 +101,17 @@
         >
       {/each}
     </div>
+    {#if inputs.length > 1}
+      <select
+        aria-label="Input"
+        value={input.id}
+        onchange={(e) => {
+          input = inputById(e.currentTarget.value);
+        }}
+      >
+        {#each inputs as option (option.id)}<option value={option.id}>{option.label}</option>{/each}
+      </select>
+    {/if}
     <span>Streak <b>{quiz.streak}</b></span>
     <span>First try <b>{firstTryPercent(quiz)}%</b></span>
   </div>
@@ -116,7 +129,7 @@
     revealed={quiz.phase === 'reveal'}
     bind:noteEl
   />
-  {#if Input}<Input {mode} {marks} emit={onAnswer} />{/if}
+  <ActiveInput method={input} {mode} {marks} emit={onAnswer} />
   <div class="continue">
     {#if quiz.phase === 'reveal'}<button type="button" onclick={advance}>Continue</button>{/if}
   </div>
@@ -147,6 +160,7 @@
     overflow: hidden;
     margin-right: auto;
   }
+  select,
   .seg button,
   .continue button {
     font: 700 0.95rem var(--font);
@@ -154,6 +168,15 @@
     border: 0;
     cursor: pointer;
     touch-action: manipulation;
+  }
+  select {
+    padding: 0.35rem 0.6rem;
+    background: none;
+    color: var(--text);
+    border: var(--surface-border);
+    border-radius: var(--surface-radius);
+    font-size: 1rem;
+    text-transform: none;
   }
   .seg button {
     padding: 0.35rem 0.9rem;
