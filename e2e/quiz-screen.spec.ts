@@ -1,5 +1,8 @@
 // The M2 quiz screen (design §8.1, §8.4): retry, reveal, Continue, the grand staff, and switching input mid-quiz.
 // The e2e build adds a scripted headless input (src/inputs/scripted.ts) as the second input.
+import { readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { expect, test, type Page } from '@playwright/test';
 import { openQuiz, pitchOfLabel, staffTarget } from './quiz-page';
 import { midiOf, staffPos } from '../src/core/pitch';
@@ -108,7 +111,6 @@ test('M2-AC8 a miss on one input and a hit on the other is a second-try answer',
   await expect(quiz.getByText('Streak 0')).toBeVisible();
 });
 
-// M4-4 only: the round trip (export → import) that completes M4-AC6 comes with M4-6, so this is not tagged AC6.
 test('M4-4 answers are kept on the device and survive a reload', async ({ page }) => {
   const { quiz, target, key } = await openQuiz(page);
   await key(target).click();
@@ -152,4 +154,33 @@ test('M4-AC5 review draws only the weak note and ends when it is learned', async
     await key(target).click();
   }
   await expect(done).toBeVisible();
+});
+
+test('M4-AC6 export then import restores the progress the file held', async ({ page }) => {
+  const { quiz, target, key } = await openQuiz(page);
+  await key(target).click();
+  await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
+  await quiz.getByRole('button', { name: 'Home' }).click();
+  await page.getByRole('button', { name: 'Settings' }).click();
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Export progress' }).click();
+  const backup = join(tmpdir(), `backup-${String(Date.now())}.json`);
+  await (await download).saveAs(backup);
+  expect((JSON.parse(readFileSync(backup, 'utf8')) as { attempts: unknown[] }).attempts).toHaveLength(1);
+
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.getByRole('button', { name: 'Start' }).click();
+  const again = await staffTarget(quiz);
+  await key(again.target).click();
+  await expect(quiz.getByText(`Yes, ${again.target}!`)).toBeVisible();
+  await quiz.getByRole('button', { name: 'Home' }).click();
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByLabel(/Restore from backup/).setInputFiles(backup);
+  await expect(page.getByRole('status')).toHaveText('Restored 1 answers.');
+
+  await page
+    .getByLabel(/Restore from backup/)
+    .setInputFiles({ name: 'x.json', mimeType: 'application/json', buffer: Buffer.from('nope') });
+  await expect(page.getByRole('status')).toHaveText('That file is not a backup. Nothing changed.');
 });

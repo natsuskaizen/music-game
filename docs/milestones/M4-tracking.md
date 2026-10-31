@@ -30,4 +30,9 @@ Refs: design §7, §10, §14.
 
 ## Summary (fill in at completion)
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+Shipped: per-note stats and scoring (`core/stats.ts`), weighted and stepwise picking (`core/selector.ts`), Dexie storage with an attempt log (`storage/db.ts`), Review weak notes on Home, and JSON backup in Settings (`core/backup.ts`, `storage/backup-file.ts`).
+- The backup file is the attempt log only (`{ v: 1, attempts }`); stats are rebuilt by replaying it, so the file can't disagree with itself.
+- Restore replaces the device's progress (all or nothing in one transaction); a bad file changes nothing and says so.
+- Export uses the share sheet where the browser has one (iOS) and a download otherwise.
+- `weaknessGain` is 6, not design's 3, to meet AC2 (design §7.3 updated).
+- Follow-up: Home and Quiz each load stats; a shared loader could replace both (M4-5 review suggestion).

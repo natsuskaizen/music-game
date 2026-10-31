@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto';
 import { expect, test } from 'vitest';
-import { loadStats, recordAttempt } from '../../src/storage/db';
+import { loadAttempts, loadStats, recordAttempt, replaceAttempts } from '../../src/storage/db';
 import type { Attempt } from '../../src/core/stats';
 
 const attempt = (over: Partial<Attempt> = {}): Attempt => ({
@@ -26,4 +26,16 @@ test('M4-4 notes are stored apart by clef', async () => {
   const stats = await loadStats();
   expect(stats.get('bass:C4')).toMatchObject({ attempts: 1, correct: 0, box: 0 });
   expect(stats.get('treble:C4')?.attempts).toBe(2);
+});
+
+test('M4-AC6 replacing attempts swaps the log and rebuilds the stats from it', async () => {
+  const before = await loadAttempts();
+  expect(before.length).toBeGreaterThan(0);
+  await replaceAttempts([attempt({ key: 'treble:G4', ts: 5000 })]);
+  expect((await loadAttempts()).map((a) => a.key)).toEqual(['treble:G4']);
+  const stats = await loadStats();
+  expect([...stats.keys()]).toEqual(['treble:G4']);
+  await replaceAttempts(before);
+  expect(await loadAttempts()).toHaveLength(before.length);
+  expect(stats.size).toBe(1);
 });
