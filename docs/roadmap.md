@@ -81,6 +81,7 @@ locally by Claude and in CI.
   passes and the override is logged in the PR. Only Stan uses it.
 - Manual ACs (device checks) are recorded in the milestone doc as `- [x] M1-AC2 (iPad, 2026-11-02)`. The AC report reads them.
 - `prototypes/` is excluded from lint, `jscpd`, `knip`, and coverage. It's reference code and is deleted after M1.
+- Tests (`tests/`, `e2e/`) are exempt from `max-lines-per-function` and `sonarjs/no-duplicate-string`; `jscpd` still scans them.
 
 **AC tagging convention**: a test's title starts with its AC id, e.g.
 `test('M2-AC3 wrong answer allows a second try', ...)`. The report matches ids from
