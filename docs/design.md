@@ -677,7 +677,7 @@ export interface Settings {
   difficulty: 'easy' | 'medium' | 'hard';   // sets range, ledger weighting, sequence length, timer (§14)
   mode: 'single' | 'sequence';
   questionsPerSession: number;     // e.g. 20, or 0 = endless
-  timer: boolean;                  // countdown bar per screen, length from difficulty (§14)
+  timer: boolean;                  // sprint: one countdown bar per session, length from difficulty (§14)
   input: string;                   // default input id from the registry (3.4); switchable mid-quiz
   showKeyNames: boolean;           // label every key, not just the Cs
   showOctaveOnFeedback: boolean;   // "C6" vs "C"
@@ -819,9 +819,9 @@ input mid-quiz. The octave must always match.
 **Sound**: a master on/off switch. When sound is on, the correct note **always plays after the answer**, and two optional
 toggles add "when the note appears" and "after a wrong try". Volume and "play with the silent switch on" sit in the same group.
 
-**Timer**: off by default. When on, a countdown bar runs for the whole screen (one note, or the whole sequence),
-not per note. Seconds = base for the difficulty (Easy 6, Medium 5, Hard 4) + 1 per 3 notes on screen, rounded up.
-Timeout counts as a miss on the current note, then reveal (§8.4). There's no separate sprint mode.
+**Timer**: off by default. When on, it's a **sprint**: one countdown bar for the whole session, answering as many
+notes (or sequences) as you can. Length by difficulty: Easy 60 s, Medium 75 s, Hard 90 s. There's no per-note timer.
+When the bar runs out, the current question ends without counting as a miss, and results show.
 
 **Home**: mode (single / sequence), clef (treble / bass / both), Review weak notes (once M4 lands), a Settings button,
 and **Start at the bottom**, which starts with the last settings. No progress glance. Everything else is in Settings.

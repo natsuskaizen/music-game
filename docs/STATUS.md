@@ -26,7 +26,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | GitHub milestones | Not used; each issue body names its milestone (`.github/ISSUE_TEMPLATE/roadmap-issue.md`) | M0-7 |
 | Difficulty | Easy / Medium / Hard sets range, ledger weighting, sequence size, timer; ledger counts never shown | design §14 |
 | Ordering | Mostly within a third, ~10% jumps (clef, octave) | design §14 |
-| Sound / timer | Note always plays after answer (master off switch); timer is one countdown bar per screen | design §14 |
+| Sound / timer | Note always plays after answer (master off switch); timer is a sprint (one bar per session, 60/75/90 s by difficulty) | design §14 |
 | Themes | Paper & ink and Storybook (Neon arcade dropped) | M1 doc |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 

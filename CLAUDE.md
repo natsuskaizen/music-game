@@ -5,7 +5,7 @@ A sight-reading trainer for piano, for Stan. It's an offline web app (PWA) insta
 - **Modes**: single note (treble, bass, or both on a grand staff) and multi-note sequences.
 - **Answering**: pluggable inputs (on-screen piano, mic listening to a real piano; writing or saying the letter later).
 - **Learning**: tracks every answer and brings weak notes back more often. Notes mostly move stepwise; difficulty (easy/medium/hard) sets the range and how often ledger notes appear.
-- **Settings**: clef, mode, difficulty, timer (off / countdown bar), sound, default input. Decisions: `docs/design.md` §14.
+- **Settings**: clef, mode, difficulty, timer (off / sprint), sound, default input. Decisions: `docs/design.md` §14.
 - **Feedback rule**: never auto-advance after a miss. Retry once, then reveal, then wait for Continue.
 
 Stan is a lead engineer with a Python background who learns codebases through code examples. He wants
