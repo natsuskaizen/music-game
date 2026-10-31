@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M0 (foundation & quality gates) in progress. M0 issues are #2–#8.
-- **Next issue**: M0-4 CI workflow (#5), after the M0-3 static-gate PR merges.
+- **Next issue**: M0-5 AI review gate (#6).
 - **Blocked on Stan**: merge M0 PRs until branch protection is on (M0-4/M0-5). Later in M0: branch protection on `main` and Settings → Pages → Source: GitHub Actions. GitHub milestones weren't created (no tool for it); create "M0 Foundation" in the UI or leave it to M0-7.
 
 ## Decisions so far
@@ -20,6 +20,8 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Answer precision | `exactOctave` setting for octave-aware inputs | design §9 |
 | Note selection | Weighted: ledger lines, weakness, slowness, staleness | design §7.3 |
 | Workflow | Milestone → issues → one PR per issue; code-reviewer agent + static quality gates on every PR | roadmap |
+| AC report | Failing AC turns CI red; an AC with no test or `- [x]` check yet is *pending*, and a milestone can't close with any pending | roadmap |
+| Gate proofs | Seeded-violation commits go on a **draft** PR and are reverted before it's marked ready | M0-4 |
 | Later | Accidentals/key signatures (F1), mic input (F2) | roadmap |
 
 ## Milestones
@@ -31,8 +33,10 @@ M0 ✱ · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 - 2026-10-31: M0-1 scaffold: Vite 7 + Svelte 5 + TS (strict), Prettier; `npm run check` = format, svelte-check, build. `src/` folders from design §11 are created with their first file, not as empty placeholders.
 - 2026-10-31: M0-2 test harness: Vitest (coverage ≥ 90% on `src/core`, part of `npm run check`) and Playwright on WebKit iPhone 15 / iPad gen 11 (`npm run e2e`). CI must run `npx playwright install --with-deps webkit` (M0-4). Each issue now runs in a fresh thread, chained by the coordinator; the 2-hour scheduled task is the backup.
 - 2026-10-31: M0-3 static gate: ESLint 10 (typescript-eslint strict type-checked, sonarjs, jsdoc, svelte), `jscpd` (≤ 1%), `knip`, all in `npm run check`. Seeded complex function, duplicate block, and unused export each fail locally (M0-AC7); CI proof comes with M0-4.
+- 2026-10-31: M0-4 CI (#12, #13): `ci.yml` runs `npm run check`, WebKit e2e and `scripts/ac-report` (per-AC table in the job summary) on PRs and `main`; a `STATUS.md updated` job fails PRs that touch `src/` without this file. AC2, AC3, AC7, AC10 proven by seeded CI runs (links in the M0 doc). #12 merged on a seed commit; #13 removed it.
 
 ## Known issues / open questions
+- The build size budget (JS ≤ 250 KB gz) isn't in `npm run check` yet, and no M0 issue owns it. Add it in M0-6 (PWA/deploy) unless Stan prefers otherwise.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
 - **Home screen** (before a game starts) gets a working session with Stan at the start of M2, with 2–3 mock-ups to react to. See the M2 doc.
 - **Note selection and ordering**: hold a working session with Stan at the start of M3 (difficulty tiers by register around C4 / C3–C5 / C2–C6, less random ordering). See M3 and M4 docs.

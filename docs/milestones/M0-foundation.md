@@ -34,15 +34,15 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 
 ## Acceptance criteria
 - M0-AC1 `npm run check` passes locally on a clean clone.
-- M0-AC2 CI runs on a PR and shows the AC table in the job summary.
-- M0-AC3 A deliberately failing test turns CI red (verified once, then removed).
+- [x] M0-AC2 CI runs on a PR and shows the AC table in the job summary. ([run](https://github.com/natsuskaizen/music-game/actions/runs/41165518171), 2026-10-31)
+- [x] M0-AC3 A deliberately failing test turns CI red (verified once, then removed). ([run](https://github.com/natsuskaizen/music-game/actions/runs/41165646526), 2026-10-31)
 - M0-AC4 Merge to `main` deploys to `https://natsuskaizen.github.io/music-game/`.
 - M0-AC5 Playwright: the page loads offline after first visit (service worker).
 - M0-AC6 Manual: it installs to the iPad/iPhone home screen and opens full-screen.
-- M0-AC7 A seeded violation of each static rule (complex function, duplicated block, unused export) fails CI.
+- [x] M0-AC7 A seeded violation of each static rule (complex function, duplicated block, unused export) fails CI. ([complex](https://github.com/natsuskaizen/music-game/actions/runs/41165719488), [duplicate](https://github.com/natsuskaizen/music-game/actions/runs/41165842359), [unused](https://github.com/natsuskaizen/music-game/actions/runs/41165947254), 2026-10-31)
 - M0-AC8 A seeded PR with a needlessly repeated, undocumented function gets a `fail` verdict; the clean version passes.
 - M0-AC9 A new session reading only `CLAUDE.md` (with STATUS.md auto-loaded) can state the project goal, current state, workflow, and commands.
-- M0-AC10 A PR that changes `src/` but not `docs/STATUS.md` fails CI.
+- [x] M0-AC10 A PR that changes `src/` but not `docs/STATUS.md` fails CI. ([run](https://github.com/natsuskaizen/music-game/actions/runs/41165646526), 2026-10-31)
 - M0-AC11 Every new push re-runs the review; a docs-only PR skips it.
 
 ## Setup Stan does once
