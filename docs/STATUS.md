@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M6 Timer & results (`docs/milestones/M6-timer.md`, issues #83–#86). M5 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M6-3 (#85) results screen (`core/results.ts`, `Results` with Again and Home).
+- **Next issue**: M6-4 (#86) stats screen (per-note heat-map) and the M6 Summary.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -58,6 +58,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Sequence quiz | `Settings.mode` (`single`/`sequence`, Segmented on Home). `Quiz` in sequence mode (not review) builds `makeSequence`, walks it with `stepRun`, and draws `Staff` `sequence` with `marks` (settled notes) and `current`. A right note advances at once (no animation); reveal/Continue and `answerContinues` work per note, so a listening input plays through misses | M5-4 |
 | Sprint clock | `core/sprint.ts`: `SPRINT_SECONDS` (60/50/40 by difficulty); `SprintClock` `{ lengthMs, usedMs, runningSince }` with `startSprint`, `remaining(clock, now)`, `pause`, `resume`, all taking `now` so tests use a fake clock. `Settings.timer` is a boolean, off by default | M6-1 |
 | Sprint in quiz | `SprintBar.svelte` owns the `SprintClock`, a 100 ms tick and the `visibilitychange` pause/resume; it mounts only while the quiz runs, so Play again restarts it. At 0 it fires `timeUp`: `reduce` sets `done` from any phase and the unfinished question is never counted (nothing is recorded for it). `Quiz.advance` ignores a late right-answer animation after `done` | M6-2 |
+| Results | `core/results.ts` `summarize(attempts)` (first-try count and %, mean ms, slowest 3 notes, one per note) over the session's settled attempts, which `Quiz` collects in `record`; `Results.svelte` replaces the inline done block (Play again except in review, and Home, which leaves the top bar when done). A timed-out question has no attempt, so it is not counted | M6-3 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
 | App updates | `registerType: 'prompt'`, registered by `watchForUpdates()` in `App.svelte`: the new service worker waits until the person taps **Update now** (`UpdateBanner`), which reloads into it. Needed because an installed PWA otherwise keeps the old build until every window closes | design §5.2 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
@@ -67,11 +68,11 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M6-3 (#85): `core/results.ts` and `Results` screen with accuracy, average time, three slowest notes, Play again and Home (M6-AC5 unit + e2e).
 - 2026-10-31: M6-2 (#84): `SprintBar` countdown in the quiz (single and sequence, not review), `timeUp` session event, pause on `visibilitychange` (M6-AC2 unit + e2e).
 - 2026-10-31: M6-1 (#83): pure sprint clock in `core/sprint.ts` and `Settings.timer` (off by default) with its checkbox in Settings (M6-AC1, AC3 unit).
 - 2026-10-31: M6 kick-off: issues #83–#86 listed (new M6-AC5 for the results content), roadmap marks M5 Done and M6 In progress.
 - 2026-10-31: M5-4 (#75): Single / Sequence switch on Home and sequence mode in `Quiz` (M5-AC2 e2e); M5 Summary filled in.
-- 2026-10-31: M5-3 (#74): `layoutSequence` and `Staff` sequence mode (noteheads, stems, beams, barlines, per-note states); gallery example and M5-AC4 e2e (no overlap, screenshots).
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).

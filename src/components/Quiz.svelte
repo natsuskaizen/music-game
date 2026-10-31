@@ -27,14 +27,16 @@
   } from '../core/session';
   import type { Settings } from '../core/settings';
   import { learnedPicker, weightsFor } from '../core/selector';
+  import { summarize } from '../core/results';
   import { noteToPlay } from '../core/sound';
-  import { applyAttempt, newStat, weakNotes, type NoteStat } from '../core/stats';
+  import { applyAttempt, newStat, weakNotes, type Attempt, type NoteStat } from '../core/stats';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
   import { available, inputById } from '../inputs';
   import { loadStats, recordAttempt, requestPersistence } from '../storage/db';
   import type { KeyMark } from '../inputs/types';
   import ActiveInput from './ActiveInput.svelte';
+  import Results from './Results.svelte';
   import SprintBar from './SprintBar.svelte';
   import Staff from './Staff.svelte';
 
@@ -116,6 +118,8 @@
   let noteEl = $state<SVGGElement>();
   // Counts questions, so an animation that ends after the quiz moved on doesn't advance it again.
   let asked = 0;
+  // Every settled question of this session, for the results.
+  let attempts = $state.raw<Attempt[]>([]);
   // When the current question appeared, to time the answer.
   let shownAt = Date.now();
 
@@ -123,6 +127,7 @@
     const ts = Date.now();
     const attempt = settledAttempt(before, after, { ts, input: input.id, ms: ts - shownAt, answer });
     if (!attempt) return;
+    attempts = [...attempts, attempt];
     stats.set(attempt.key, applyAttempt(stats.get(attempt.key) ?? newStat(attempt.key), attempt));
     recordAttempt(attempt).catch(() => undefined);
     // A note that is no longer weak drops out of the review pool, and the session ends when the pool is empty.
@@ -198,7 +203,7 @@
 
 <section class="quiz" aria-label="Quiz">
   <div class="bar">
-    <button type="button" class="home" onclick={onHome}>Home</button>
+    {#if quiz.phase !== 'done'}<button type="button" class="home" onclick={onHome}>Home</button>{/if}
     {#if inputs.length > 1}
       <select
         aria-label="Input"
@@ -229,20 +234,15 @@
     {:else}{listening ? 'Play this note.' : 'Find this note on the keyboard.'}{/if}
   </p>
   {#if quiz.phase === 'done'}
-    <div class="results">
-      <p class="msg right">
-        {review ? 'No weak notes left. ' : ''}Session done: {quiz.firstTry} of {quiz.total} right on the first try
-        ({firstTryPercent(quiz)}%).
-      </p>
-      {#if !review}
-        <button
-          type="button"
-          onclick={() => {
-            showQuestion(begin());
-          }}>Play again</button
-        >
-      {/if}
-    </div>
+    <Results
+      results={summarize(attempts)}
+      review={review !== undefined}
+      onAgain={() => {
+        attempts = [];
+        showQuestion(begin());
+      }}
+      {onHome}
+    />
   {:else}
     {#if run}
       <Staff mode={settings.clef} sequence={measures} marks={sequenceMarks} current={run.index} />
@@ -295,7 +295,6 @@
   }
   select,
   .home,
-  .results button,
   .continue button {
     font: 700 0.95rem var(--font);
     text-transform: capitalize;
@@ -317,13 +316,6 @@
     background: none;
     color: var(--muted);
   }
-  .results {
-    display: grid;
-    justify-items: center;
-    gap: 1rem;
-    padding: 1rem 0;
-  }
-  .results button,
   .continue button {
     background: var(--accent);
     color: var(--on-accent);
@@ -352,7 +344,6 @@
     display: flex;
     justify-content: center;
   }
-  .results button,
   .continue button {
     padding: 0.75rem 2rem;
     border-radius: var(--surface-radius);
