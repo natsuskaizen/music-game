@@ -1,11 +1,11 @@
-<!-- M1 demo quiz: read the note, tap its key. A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4).
+<!-- Demo quiz (M1, on the M2 session reducer): read the note, tap its key. A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4).
      The correct note sounds once the question is settled (design §14). -->
 <script lang="ts">
   import { needsRingerHint, playTone } from '../audio/tone';
   import { KEY_RANGES } from '../core/keyboard';
   import { midiOf, pitchLabel } from '../core/pitch';
-  import { answerKey, firstTryPercent, nextQuestion, startQuiz, toneAfter } from '../core/quiz';
   import { notePool } from '../core/ranges';
+  import { firstTryPercent, isSettled, reduce, startSession, toneAfter, type Session } from '../core/session';
   import type { ClefMode } from '../core/staff-layout';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
@@ -19,19 +19,19 @@
   const ringerHint = needsRingerHint();
 
   let mode = $state<ClefMode>('treble');
-  // Medium is the default difficulty (design §9); M2-5 makes it a setting.
-  const pool = $derived(notePool(mode, 'medium'));
-  let quiz = $state(startQuiz(notePool('treble', 'medium'), Math.random));
+  // Medium is the default difficulty and the demo is endless; M2-5 makes both settings.
+  const begin = (clef: ClefMode) => startSession(notePool(clef, 'medium'), undefined, Math.random);
+  let quiz = $state(begin('treble'));
   let noteEl = $state<SVGGElement>();
   // Counts questions, so an animation that ends after the quiz moved on doesn't advance it again.
   let asked = 0;
 
   const target = $derived(midiOf(quiz.note.pitch));
   const name = $derived(pitchLabel(quiz.note.pitch));
-  const showsAnswer = $derived(quiz.phase === 'right' || quiz.phase === 'reveal');
+  const showsAnswer = $derived(isSettled(quiz.phase));
   const marks = $derived(
     new Map<number, 'right' | 'wrong'>([
-      ...quiz.wrongKeys.map((m) => [m, 'wrong'] as const),
+      ...quiz.misses.map((a) => [a.midi, 'wrong'] as const),
       ...(showsAnswer ? [[target, 'right'] as const] : []),
     ]),
   );
@@ -41,20 +41,25 @@
     if (noteEl) feedback.enter(noteEl);
   });
 
-  function advance() {
+  function showQuestion(next: Session) {
     asked++;
-    quiz = nextQuestion(quiz, pool, Math.random);
+    quiz = next;
     if (noteEl) feedback.enter(noteEl);
   }
 
+  function advance() {
+    showQuestion(reduce(quiz, { type: 'next' }, Math.random));
+  }
+
+  // A clef change starts a fresh session on that clef's pool.
   function setMode(next: ClefMode) {
     mode = next;
-    advance();
+    showQuestion(begin(next));
   }
 
   async function press(midi: number) {
     const before = quiz;
-    quiz = answerKey(quiz, midi);
+    quiz = reduce(quiz, { type: 'answer', answer: { kind: 'pitch', midi } }, Math.random);
     const tone = toneAfter(before, quiz);
     if (tone !== undefined) playTone(tone);
     if (quiz.phase === before.phase || !noteEl) return;

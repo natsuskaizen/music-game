@@ -25,7 +25,7 @@ Milestone doc (scope + ACs + issue list)
 | # | Milestone | Outcome | Status |
 |---|---|---|---|
 | M0 | [Foundation & quality gates](milestones/M0-foundation.md) | Scaffold, CI gates, AC status report, Pages deploy, installable PWA shell | Done |
-| M1 | [Look & feel spike](milestones/M1-look-and-feel.md) | 2 themes on device; staff/audio/offline risks retired; theme picked | In progress |
+| M1 | [Look & feel spike](milestones/M1-look-and-feel.md) | 2 themes on device; staff/audio/offline risks retired; theme picked | Done |
 | M2 | [Single-note MVP](milestones/M2-single-note.md) | Playable single-note quiz on the on-screen piano, retry/reveal/continue, difficulty, home | In progress |
 | M3 | [Real piano & sound](milestones/M3-mic-and-sound.md) | Mic input from a real piano, piano samples, sound settings | Not started |
 | M4 | [Tracking, review & ordering](milestones/M4-tracking.md) | Stats in IndexedDB, weighted stepwise ordering, review mode, backup | Not started |
@@ -81,7 +81,7 @@ locally by Claude and in CI.
 - AI review escape hatch: if the reviewer is wrong, Stan can add the `review-override` label. The check then
   passes and the override is logged in the PR. Only Stan uses it.
 - Manual ACs (device checks) are recorded in the milestone doc as `- [x] M1-AC2 (iPad, 2026-11-02)`. The AC report reads them.
-- `prototypes/` is excluded from lint, `jscpd`, `knip`, and coverage. It's reference code and is deleted after M1.
+- `prototypes/` is excluded from lint, `jscpd`, `knip`, and coverage. It's reference code and is deleted after M3 (which reuses its mic code).
 - Tests (`tests/`, `e2e/`) are exempt from `max-lines-per-function` and `sonarjs/no-duplicate-string`; `jscpd` still scans them.
 
 **AC tagging convention**: a test's title starts with its AC id, e.g.
