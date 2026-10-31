@@ -3,3 +3,6 @@ dist
 prototypes
 docs
 *.md
+coverage
+test-results
+playwright-report
