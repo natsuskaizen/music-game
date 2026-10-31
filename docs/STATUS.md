@@ -6,9 +6,9 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M0 (foundation & quality gates) is built; all M0 issues (#2–#8) are closed. It closes once M0-AC6 is checked.
-- **Next**: M1 look & feel spike (`docs/milestones/M1-look-and-feel.md`), starting after Stan's go-ahead.
-- **Blocked on Stan**: M0-AC6 device check. Install `https://natsuskaizen.github.io/music-game/` to the iPhone and iPad home screen and confirm it opens full-screen, then record `- [x] M0-AC6 (iPhone, iPad, date)` in the M0 doc and set the roadmap row to Done.
+- **Phase**: M0 (foundation & quality gates) is done. M1 look & feel spike (`docs/milestones/M1-look-and-feel.md`) is the active milestone in the roadmap, so the AC report tracks its ACs.
+- **Next issue**: the first M1 issue. At M1's start, write its issue list in the M1 doc and create the GitHub issues.
+- **Blocked on Stan**: go-ahead to start M1 (milestone boundary).
 
 ## Decisions so far
 | Topic | Decision | Where |
@@ -27,7 +27,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Later | Accidentals/key signatures (F1), mic input (F2) | roadmap |
 
 ## Milestones
-M0 ✱ (AC6 left) · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1 backlog · F2 after M5
+M0 ✓ · M1 ✱ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1 backlog · F2 after M5
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
@@ -35,7 +35,8 @@ M0 ✱ (AC6 left) · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ ·
 - 2026-10-31: M0-4 CI (#12, #13): `ci.yml` runs `npm run check`, WebKit e2e and `scripts/ac-report` (per-AC table in the job summary) on PRs and `main`; a `STATUS.md updated` job fails PRs that touch `src/` without this file. AC2, AC3, AC7, AC10 proven by seeded CI runs (links in the M0 doc). #12 merged on a seed commit; #13 removed it.
 - 2026-10-31: M0-5 AI review (#14): `review.yml` runs the code-reviewer agent (Sonnet, read-only tools, JSON-schema verdict) on every PR push; findings are inline annotations plus one PR comment (edited on each push), and blocking ones fail the check. Docs-only PRs and the `review-override` label pass without calling Claude. AC8, AC11 proven by seeded runs.
 - 2026-10-31: M0-6 PWA + deploy (#7): `vite-plugin-pwa` (prompt-to-update, precaches everything), manifest + apple-touch icon, offline e2e test (M0-AC5), `deploy.yml` publishes to Pages after CI passes on `main` (M0-AC4), and the 250 KB gz JS budget in `npm run check`.
-- 2026-10-31: M0-7 guidance: PR and issue templates, CLAUDE.md workflow points to them, M0-AC4 and M0-AC9 recorded, M0 Summary filled in. M0 waits only on the AC6 device check.
+- 2026-10-31: M0-7 guidance: PR and issue templates, CLAUDE.md workflow points to them, M0-AC4 and M0-AC9 recorded, M0 Summary filled in.
+- 2026-10-31: M0-AC6 passed on iPhone and iPad (installs, opens full-screen). M0 done; M1 is the active milestone.
 
 ## Known issues / open questions
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
