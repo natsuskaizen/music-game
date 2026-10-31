@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest';
-import { pitchLabel, type ClefNote } from '../../src/core/pitch';
+import { pitchLabel, staffPos, type ClefNote } from '../../src/core/pitch';
 import { notePool } from '../../src/core/ranges';
 import {
   pickNote,
+  pickStepwise,
   pickWeighted,
   weight,
   weightsFor,
@@ -11,6 +12,12 @@ import {
   type WeightConfig,
 } from '../../src/core/selector';
 import { newStat, statKey, type NoteStat } from '../../src/core/stats';
+
+/** Seeded generator so simulations are repeatable. */
+function seeded(seed: number): Random {
+  let s = seed;
+  return () => (s = (s * 1664525 + 1013904223) % 2 ** 32) / 2 ** 32;
+}
 
 const pool = notePool('treble', 'easy'); // C4 D4 E4 F4 G4 A4 B4 C5
 const label = (random: number, previous = pool[0]) =>
@@ -48,12 +55,6 @@ describe('weighted pick', () => {
     ewmaMs: 2500,
     lastSeen: NOW,
   });
-
-  /** Seeded generator so simulations are repeatable. */
-  function seeded(seed: number): Random {
-    let s = seed;
-    return () => (s = (s * 1664525 + 1013904223) % 2 ** 32) / 2 ** 32;
-  }
 
   const context = (
     stats: Map<string, NoteStat>,
@@ -127,5 +128,44 @@ describe('weighted pick', () => {
         context(new Map(), weightsFor('easy'), () => 0.9),
       ),
     ).toThrow('No notes');
+  });
+});
+
+describe('stepwise ordering', () => {
+  const mixed = notePool('both', 'medium');
+  const random = seeded(11);
+  const walk = (steps: number) => {
+    let note = pickNote(mixed, () => 0);
+    const moves: { from: ClefNote; to: ClefNote }[] = [];
+    for (let i = 0; i < steps; i++) {
+      const to = pickStepwise(mixed, random, note);
+      moves.push({ from: note, to });
+      note = to;
+    }
+    return moves;
+  };
+  const isStep = ({ from, to }: { from: ClefNote; to: ClefNote }) =>
+    from.clef === to.clef && Math.abs(staffPos(to) - staffPos(from)) <= 3;
+
+  test('M4-AC4 85–95% of moves are within a third', () => {
+    const moves = walk(2000);
+    const share = moves.filter(isStep).length / moves.length;
+    expect(share).toBeGreaterThan(0.85);
+    expect(share).toBeLessThan(0.95);
+  });
+
+  test('M4-AC4 jumps cover the other clef, the octave, and octave ± 1–2 steps', () => {
+    const kinds = new Set<string>();
+    for (const move of walk(3000).filter((m) => !isStep(m))) {
+      const distance = Math.abs(staffPos(move.to) - staffPos(move.from));
+      kinds.add(move.from.clef !== move.to.clef ? 'clef' : distance === 7 ? 'octave' : 'octave±');
+    }
+    expect([...kinds].sort()).toEqual(['clef', 'octave', 'octave±']);
+  });
+
+  test('M4-AC4 never repeats, and a single-note pool still answers', () => {
+    expect(walk(500).every(({ from, to }) => statKey(from) !== statKey(to))).toBe(true);
+    const two = pool.slice(0, 2);
+    expect(pickStepwise(two, () => 0.5, two[0])).toBe(two[1]);
   });
 });
