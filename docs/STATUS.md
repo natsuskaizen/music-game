@@ -7,8 +7,8 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M0 (foundation & quality gates) in progress. M0 issues are #2–#8.
-- **Next issue**: M0-6 PWA shell + Pages deploy (#7).
-- **Blocked on Stan**: squash-merge #14, then turn on branch protection for `main` requiring the checks **Gates**, **STATUS.md updated** and **AI review**. After that the loop uses auto-merge. Later in M0: Settings → Pages → Source: GitHub Actions. GitHub milestones weren't created (no tool for it); create "M0 Foundation" in the UI or leave it to M0-7.
+- **Next issue**: M0-7 CLAUDE.md, PR/issue templates, milestones (#8), the last M0 issue. Then M0 closes (stop point: M0-AC6 device install check).
+- **Blocked on Stan**: nothing right now. Branch protection and Pages are on; the loop uses auto-merge. GitHub milestones weren't created (no tool for it); create "M0 Foundation" in the UI or leave it to M0-7.
 
 ## Decisions so far
 | Topic | Decision | Where |
@@ -21,6 +21,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Note selection | Weighted: ledger lines, weakness, slowness, staleness | design §7.3 |
 | Workflow | Milestone → issues → one PR per issue; code-reviewer agent + static quality gates on every PR | roadmap |
 | AC report | Failing AC turns CI red; an AC with no test or `- [x]` check yet is *pending*, and a milestone can't close with any pending | roadmap |
+| Build budget | `npm run size`: all gzipped JS in `dist/` (incl. service worker) ≤ 250 KB, part of `npm run check` | M0-6 |
 | Gate proofs | Seeded-violation commits go on a **draft** PR and are reverted before it's marked ready | M0-4 |
 | Later | Accidentals/key signatures (F1), mic input (F2) | roadmap |
 
@@ -35,10 +36,12 @@ M0 ✱ · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 - 2026-10-31: M0-3 static gate: ESLint 10 (typescript-eslint strict type-checked, sonarjs, jsdoc, svelte), `jscpd` (≤ 1%), `knip`, all in `npm run check`. Seeded complex function, duplicate block, and unused export each fail locally (M0-AC7); CI proof comes with M0-4.
 - 2026-10-31: M0-4 CI (#12, #13): `ci.yml` runs `npm run check`, WebKit e2e and `scripts/ac-report` (per-AC table in the job summary) on PRs and `main`; a `STATUS.md updated` job fails PRs that touch `src/` without this file. AC2, AC3, AC7, AC10 proven by seeded CI runs (links in the M0 doc). #12 merged on a seed commit; #13 removed it.
 - 2026-10-31: M0-5 AI review (#14): `review.yml` runs the code-reviewer agent (Sonnet, read-only tools, JSON-schema verdict) on every PR push; findings are inline annotations plus one PR comment (edited on each push), and blocking ones fail the check. Docs-only PRs and the `review-override` label pass without calling Claude. AC8, AC11 proven by seeded runs.
+- 2026-10-31: M0-6 PWA + deploy (#7): `vite-plugin-pwa` (prompt-to-update, precaches everything), manifest + apple-touch icon, offline e2e test (M0-AC5), `deploy.yml` publishes to Pages after CI passes on `main` (M0-AC4), and the 250 KB gz JS budget in `npm run check`.
 
 ## Known issues / open questions
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
-- The build size budget (JS ≤ 250 KB gz) isn't in `npm run check` yet, and no M0 issue owns it. Add it in M0-6 (PWA/deploy) unless Stan prefers otherwise.
+- WebKit can't be downloaded in the cloud sessions, so e2e runs there on Chromium as a smoke test; CI is the WebKit source of truth.
+- App icons (`public/icon*.png`, rendered from `public/icon.svg`) are placeholders until the M1 theme pick.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
 - **Home screen** (before a game starts) gets a working session with Stan at the start of M2, with 2–3 mock-ups to react to. See the M2 doc.
 - **Note selection and ordering**: hold a working session with Stan at the start of M3 (difficulty tiers by register around C4 / C3–C5 / C2–C6, less random ordering). See M3 and M4 docs.

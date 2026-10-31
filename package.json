@@ -10,13 +10,14 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "svelte-check --tsconfig ./tsconfig.json --fail-on-warnings",
-    "check": "npm run format:check && npm run typecheck && npm run lint && npm run dupes && npm run knip && npm test && npm run build",
+    "check": "npm run format:check && npm run typecheck && npm run lint && npm run dupes && npm run knip && npm test && npm run build && npm run size",
     "test": "vitest run --coverage",
     "e2e": "playwright test",
     "lint": "eslint . --max-warnings 0",
     "dupes": "jscpd",
     "knip": "knip",
-    "ac-report": "node scripts/ac-report/main.ts"
+    "ac-report": "node scripts/ac-report/main.ts",
+    "size": "node scripts/size-budget/main.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -39,6 +40,7 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.72.1",
     "vite": "^7.3.7",
+    "vite-plugin-pwa": "^2.0.0",
     "vitest": "^5.0.5"
   }
 }
