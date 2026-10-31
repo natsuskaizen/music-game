@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Svelte vs Phaser Trial</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+  /* Layout: a practice-room bench. Two music stands side by side on wide screens, tabbed on phones. */
+  :root {
+    --bg: #eaeef1; --fg: #17202a; --muted: #566170; --line: #d3dae0; --surface: #f8fafb; --accent: #0e6e74;
+    --display: 'Bricolage Grotesque', 'Avenir Next', system-ui, sans-serif;
+    --body: 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
+    /* The stage is a sheet of music paper in both themes. */
+    --paper: #fdfdfb; --stage-ink: #1d2433; --stage-muted: #5b6475; --stage-line: #c9ced6;
+    --stage-key: #f3f5f7; --stage-key-down: #e4e8ec; --stage-accent: #0e6e74; --right: #1f7a3a; --wrong: #b8432a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #0f151b; --fg: #e6ebef; --muted: #9ba6b2; --line: #26313b; --surface: #161e26; --accent: #5cc3c9; color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: #0f151b; --fg: #e6ebef; --muted: #9ba6b2; --line: #26313b; --surface: #161e26; --accent: #5cc3c9; color-scheme: dark; }
+
+  html, body { background: var(--bg); color: var(--fg); }
+  body { font: 16px/1.5 var(--body); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid; gap: 22px; }
+  header { display: grid; gap: 6px; }
+  .eyebrow { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  h1 { font: 700 clamp(28px, 4.4vw, 44px)/1.05 var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+  .lede { margin: 0; color: var(--muted); max-width: 64ch; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+  .seg { display: inline-flex; border: 1.5px solid var(--line); border-radius: 999px; padding: 3px; background: var(--surface); }
+  .seg legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .seg { margin: 0; }
+  .seg label { position: relative; }
+  .seg input { position: absolute; opacity: 0; inset: 0; }
+  .seg span { display: block; padding: 6px 14px; border-radius: 999px; font-weight: 700; font-size: 14px; color: var(--muted); cursor: pointer; }
+  .seg input:checked + span { background: var(--accent); color: var(--surface); }
+  .seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .toggle { display: inline-flex; gap: 8px; align-items: center; font-weight: 700; font-size: 14px; color: var(--muted); cursor: pointer; }
+  .toggle input { width: 18px; height: 18px; accent-color: var(--accent); }
+
+  .tabs { display: none; gap: 6px; }
+  .tabs button { flex: 1; font: 700 15px var(--body); padding: 10px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: var(--surface); color: var(--muted); cursor: pointer; }
+  .tabs button[aria-selected="true"] { border-color: var(--accent); color: var(--fg); box-shadow: inset 0 -3px 0 var(--accent); }
+
+  #panels { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .panel { display: grid; gap: 12px; align-content: start; min-width: 0; }
+  .panel h2 { margin: 0; font: 700 22px/1.2 var(--display); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+  .panel h2 small { font: 400 14px var(--body); color: var(--muted); }
+  .facts { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .facts li { font-size: 13px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); }
+  .facts b { color: var(--fg); font-variant-numeric: tabular-nums; }
+  .stage { background: var(--paper); border-radius: 14px; padding: 14px; box-shadow: 0 1px 0 var(--line), 0 10px 28px -18px rgb(0 0 0 / 0.45); color: var(--stage-ink); min-width: 0; }
+  #phaser-stage { padding: 0; overflow: hidden; }
+  #phaser-stage canvas { display: block; width: 100% !important; height: auto !important; }
+  .loading { color: var(--stage-muted); padding: 40px 0; text-align: center; }
+
+  .compare { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .compare h3 { margin: 0; font: 700 18px var(--display); }
+  .compare ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 80ch; color: var(--muted); }
+  .compare strong { color: var(--fg); }
+
+  @media (max-width: 999px) {
+    .tabs { display: flex; }
+    #panels { grid-template-columns: 1fr; }
+    #panels[data-active="svelte"] .panel[data-panel="phaser"],
+    #panels[data-active="phaser"] .panel[data-panel="svelte"] { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Sight-reading quiz · framework trial</div>
+    <h1>Same quiz, two builds</h1>
+    <p class="lede">Tap the letter for the note. Miss once and you get one more try. Miss twice and the answer stays up until you tap Continue. Both builds share the same quiz logic; only the drawing and animation differ.</p>
+  </header>
+
+  <div class="controls">
+    <fieldset class="seg">
+      <legend>Clef</legend>
+      <label><input type="radio" name="clef" id="clef-treble" value="treble" checked><span>Treble</span></label>
+      <label><input type="radio" name="clef" id="clef-bass" value="bass"><span>Bass</span></label>
+      <label><input type="radio" name="clef" id="clef-both" value="both"><span>Both</span></label>
+    </fieldset>
+    <label class="toggle"><input type="checkbox" id="sound" checked> Play the note</label>
+  </div>
+
+  <div class="tabs" role="tablist">
+    <button type="button" role="tab" id="tab-svelte" data-panel="svelte" aria-selected="true">Svelte 5 · SVG</button>
+    <button type="button" role="tab" id="tab-phaser" data-panel="phaser" aria-selected="false">Phaser 4 · Canvas</button>
+  </div>
+
+  <div id="panels" data-active="svelte">
+    <section class="panel" data-panel="svelte">
+      <h2>Svelte 5 <small>SVG + GSAP, page elements</small></h2>
+      <ul class="facts">
+        <li>Library code <b>~40 KB</b> gzipped</li>
+        <li>Notes are vector, sharp at any zoom</li>
+        <li>Buttons are real HTML</li>
+      </ul>
+      <div class="stage" id="svelte-stage"></div>
+    </section>
+    <section class="panel" data-panel="phaser">
+      <h2>Phaser 4 <small>WebGL canvas, game engine</small></h2>
+      <ul class="facts">
+        <li>Library code <b>~374 KB</b> gzipped</li>
+        <li>Drawn as pixels at your screen's resolution</li>
+        <li>Particles, flash and shake built in</li>
+      </ul>
+      <div class="stage" id="phaser-stage"></div>
+    </section>
+  </div>
+
+  <section class="compare">
+    <h3>What to compare</h3>
+    <ul>
+      <li><strong>Sharpness.</strong> Pinch-zoom into each staff. SVG stays crisp at any zoom; the canvas is drawn for your screen and softens when zoomed past it.</li>
+      <li><strong>Feedback feel.</strong> Get one right and one wrong in each. Phaser's spark burst, flash and shake come from the engine; the Svelte version recreates them with a few lines of GSAP.</li>
+      <li><strong>Taps.</strong> Try fast answers on your iPad. Both should register instantly with no zoom on double-tap.</li>
+      <li><strong>Size.</strong> The numbers above are what each version adds to the offline download.</li>
+    </ul>
+  </section>
+</div>
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>
