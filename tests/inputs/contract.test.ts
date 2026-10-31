@@ -22,7 +22,7 @@ const isWellFormed = (a: Answer) =>
 function tapEnds(input: InputMethod): Answer[] {
   const answers: Answer[] = [];
   const target = document.createElement('div');
-  if (!input.component) return answers;
+  if (!('component' in input)) return answers;
   const app = mount(input.component, {
     target,
     props: { mode: 'both', marks: new Map(), emit: (a: Answer) => answers.push(a) },
@@ -38,9 +38,10 @@ function tapEnds(input: InputMethod): Answer[] {
 // Starts a headless input, has the fake play C4, then stops it.
 async function playHeadless(input: InputMethod): Promise<Answer[]> {
   const answers: Answer[] = [];
-  const stop = await input.start?.((a) => answers.push(a));
+  if (!('start' in input)) return answers;
+  const stop = await input.start((a) => answers.push(a));
   if (input === fake) fake.play(60);
-  stop?.();
+  stop();
   return answers;
 }
 
@@ -50,12 +51,8 @@ describe.each(available().map((input) => [input.id, input] as const))('M2-AC7 in
     expect(input.label).not.toBe('');
   });
 
-  test('M2-AC7 answers one way: an on-screen component or a headless start', () => {
-    expect(input.component === null).toBe(input.start !== undefined);
-  });
-
   test('M2-AC7 emits well-formed pitch answers', async () => {
-    const answers = input.component ? tapEnds(input) : await playHeadless(input);
+    const answers = 'component' in input ? tapEnds(input) : await playHeadless(input);
     expect(answers.length).toBeGreaterThan(0);
     expect(answers.every(isWellFormed)).toBe(true);
   });
@@ -77,9 +74,11 @@ describe('M2-AC7 registry', () => {
   });
 
   test('M2-AC7 a stopped headless input emits nothing', async () => {
-    const stop = await fake.start?.(() => undefined);
-    stop?.();
-    expect(fake.listening()).toBe(false);
+    const answers: Answer[] = [];
+    const stop = await fake.start((a) => answers.push(a));
+    stop();
+    fake.play(60);
+    expect(answers).toEqual([]);
   });
 });
 
@@ -88,9 +87,9 @@ describe('M2-AC8 switching input mid-quiz', () => {
     let s: Session = { ...startSession(notePool('treble', 'medium'), undefined, () => 0), note: E4 };
     const answer = (a: Answer) => (s = reduce(s, { type: 'answer', answer: a }, Math.random));
 
-    const stop = await fake.start?.(answer);
+    const stop = await fake.start(answer);
     fake.play(60);
-    stop?.();
+    stop();
     expect(s.phase).toBe('retry');
 
     const [lowestKey] = tapEnds(inputById('piano'));

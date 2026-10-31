@@ -35,7 +35,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Icons | Paper & ink icons and theme color (default pick); `npm run icons` renders the PNGs from `public/icon.svg` via Playwright | M1-5 |
 | Note pool | `core/ranges.ts` `notePool(mode, difficulty)` from the §14 table (bounds written as pitches); `core/selector.ts` `pickNote` is uniform and never repeats, until M4's weighted ordering. The demo quiz uses Medium | M2-1 |
 | Session | `core/session.ts`: `reduce(session, event, random)` with `answer` / `next` events; phases ask → retry → reveal or right → `next` → done after `questionsPerSession` (undefined = endless). `Answer` is `{ kind: 'pitch', midi }` only (letter answers are F3); `gradeAnswer` is exact pitch. Timer events wait for the sprint timer | M2-2 |
-| Inputs (code) | `src/inputs/`: `types.ts` (`InputMethod`: id, label, `isAvailable`, an on-screen `component` taking `InputProps` *or* a headless `start(emit)`); `registry.ts` (`register` refuses duplicate ids, `inputById` falls back to the first available); `index.ts` is the only list. No `octaveAware`: every input is exact pitch (§14). Contract suite mounts components in happy-dom | M2-3 |
+| Inputs (code) | `src/inputs/`: `types.ts` (`InputMethod`: id, label, `isAvailable`, a union of an on-screen input with a `component` taking `InputProps`, or a headless one with `start(emit)`); `registry.ts` (`register` refuses duplicate ids, `inputById` falls back to the first available); `index.ts` is the only list. No `octaveAware`: every input is exact pitch (§14). Contract suite mounts components in happy-dom | M2-3 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones

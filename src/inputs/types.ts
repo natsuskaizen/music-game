@@ -14,15 +14,25 @@ export interface InputProps {
   emit: (answer: Answer) => void;
 }
 
-/** One answer input. It answers through its `component` (on screen) or through `start` (headless, e.g. the mic). */
-export interface InputMethod {
+/** What every input has: its settings id, the label people see, and a feature check. */
+interface InputBase {
   /** Stored in settings, e.g. 'piano'. */
   id: string;
   /** Shown in Settings and the quiz switcher. */
   label: string;
   /** Feature check, e.g. the mic needs getUserMedia. Unavailable inputs are hidden. */
   isAvailable: () => boolean;
-  component: Component<InputProps> | null;
-  /** Headless inputs start listening here and resolve to a stop function. */
-  start?: (emit: (answer: Answer) => void) => Promise<() => void>;
 }
+
+/** An input drawn on screen, e.g. the piano: the quiz renders its component. */
+export interface OnScreenInput extends InputBase {
+  component: Component<InputProps>;
+}
+
+/** An input with no UI, e.g. the mic: it starts listening and resolves to a stop function. */
+export interface HeadlessInput extends InputBase {
+  start: (emit: (answer: Answer) => void) => Promise<() => void>;
+}
+
+/** One answer input, on screen or headless, so it can't be both or neither. */
+export type InputMethod = OnScreenInput | HeadlessInput;

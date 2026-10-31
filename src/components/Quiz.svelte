@@ -26,7 +26,8 @@
   const feedback = $derived(FEEDBACK[theme]);
   const ringerHint = needsRingerHint();
   // M2-4 adds the input switcher and M2-5 the default-input setting; until then the piano answers.
-  const Input = inputById('piano').component;
+  const piano = inputById('piano');
+  const Input = 'component' in piano ? piano.component : undefined;
 
   let mode = $state<ClefMode>('treble');
   // Medium is the default difficulty and the demo is endless; M2-5 makes both settings.
