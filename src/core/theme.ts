@@ -1,5 +1,5 @@
-/** The M1 look-and-feel themes and their display names (design §14). The first one is the default. */
-export const THEME_NAMES = { paper: 'Paper & ink', storybook: 'Storybook' } as const;
+/** The look-and-feel themes and their display names (design §14). The first one is the default. */
+export const THEME_NAMES = { paper: 'Paper & ink', storybook: 'Storybook', arcade: 'Neon arcade' } as const;
 
 /** A theme id. It is also the `data-theme` value on `<html>` that selects the CSS tokens in `themes.css`. */
 export type Theme = keyof typeof THEME_NAMES;

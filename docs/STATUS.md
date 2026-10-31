@@ -27,7 +27,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Difficulty | Easy / Medium / Hard sets range, ledger weighting, sequence size, timer; ledger counts never shown | design §14 |
 | Ordering | Mostly within a third, ~10% jumps (clef, octave) | design §14 |
 | Sound / timer | Note always plays after answer (master off switch); timer is a sprint (one bar per session, 60/50/40 s by difficulty) | design §14 |
-| Themes | Paper & ink and Storybook in M1; a separate Neon arcade demo may join the pick; Paper & ink is the default | M1 doc |
+| Themes | Paper & ink (default), Storybook and Neon arcade (`?theme=arcade`, back by Stan's call); a theme switch in Settings is M8 | design §14, M8 doc |
 | Staff | `src/core/pitch.ts` + `staff-layout.ts` (pure geometry), `components/Staff.svelte` draws it; Bravura subset inlined by Vite (offline from first paint); grand staff middle lines 10 spaces apart | M1-1 |
 | Theme tokens | `src/themes.css` CSS variables; Paper & ink on `:root`, Storybook overrides via `data-theme`; `?theme=` read by `core/theme.ts`; components use only tokens | M1-2 |
 | Demo quiz | `core/quiz.ts` reducer (ask → retry → reveal, exact octave) and `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. Spike: M2 replaces it with the `InputMethod` registry and §8.3 session | M1-3 |
@@ -41,6 +41,8 @@ M0 ✓ · M1 ✱ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M8 Themes in Settings added to the roadmap (near the end): theme switch in Settings, Paper & ink default, and the arcade note-position bug (#36).
+- 2026-10-31: Neon arcade theme (#29, `?theme=arcade`, not a roadmap issue): dark CRT page, glow tokens (`--page-art`, `--text-glow`, `--mark-glow`, `none` elsewhere; no CSS filter on the staff SVG, it made WebKit repaint too slowly for the GSAP feedback), flicker/glitch/burst GSAP feedback with unit tests (GSAP on a stand-in object); e2e and screenshots cover it.
 - 2026-10-31: M2 started: issue list in the M2 doc, issues #30–#34. M2-1 (#30): difficulty note pools (`core/ranges.ts`), uniform `pickNote` (`core/selector.ts`), full-range staff position and ledger tests (M2-AC1, AC2); the demo quiz now asks Medium-range notes.
 - 2026-10-31: M1-5 (#23): device-check steps for Stan, Paper & ink app icons + `npm run icons`, M1 Summary. AC2–AC4 pending on Stan; M2 starts.
 - 2026-10-31: M1-4 (#22): the correct note plays (synthesized tone) once a question is settled; `audioSession` set to `playback` for the silent switch; ringer hint when it's unsupported on a touch device. New M1-AC5 (unit + e2e); M1-AC2 waits for the device check.
@@ -55,6 +57,7 @@ M0 ✓ · M1 ✱ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 - 2026-10-31: M0-AC6 passed on iPhone and iPad (installs, opens full-screen). M0 done; M1 is the active milestone.
 
 ## Known issues / open questions
+- Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
 - WebKit can't be downloaded in the cloud sessions, so e2e runs there on Chromium as a smoke test; CI is the WebKit source of truth.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.

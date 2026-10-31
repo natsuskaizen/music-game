@@ -827,4 +827,4 @@ When the bar runs out, the current question ends without counting as a miss, and
 and **Start at the bottom**, which starts with the last settings. No progress glance. Everything else is in Settings.
 Session length: 20 by default (10 / 20 / 50 / endless).
 
-**Look**: two themes, *Paper & ink* and *Storybook* (Neon arcade dropped). Both are plain SVG + CSS + GSAP.
+**Look**: three themes, *Paper & ink*, *Storybook* and *Neon arcade* (`?theme=arcade`, added back by Stan on 2026-10-31). All are plain SVG + CSS + GSAP.

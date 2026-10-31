@@ -32,6 +32,7 @@ Milestone doc (scope + ACs + issue list)
 | M5 | [Sequence mode](milestones/M5-sequence.md) | Multi-note quiz in measures, sized by difficulty | Not started |
 | M6 | [Timer & results](milestones/M6-timer.md) | Sprint timer, results and stats screens | Not started |
 | M7 | [Polish & PWA hardening](milestones/M7-polish.md) | Update prompt, install hint, effects, accessibility | Not started |
+| M8 | [Themes in Settings](milestones/M8-themes.md) | Theme switch in Settings (Paper & ink default), Neon arcade fixed | Not started |
 | F1 | [Accidentals & key signatures](milestones/F1-accidentals.md) | Later feature | Backlog |
 | F3 | [Write or say the letter](milestones/F3-letter-inputs.md) | Handwriting and voice letter inputs | Backlog |
 

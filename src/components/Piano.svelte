@@ -101,9 +101,11 @@
   }
   .key.right {
     background: var(--right);
+    box-shadow: 0 0 var(--mark-glow) var(--right);
   }
   .key.wrong {
     background: var(--wrong);
+    box-shadow: 0 0 var(--mark-glow) var(--wrong);
   }
   span {
     font: 700 11px var(--font);

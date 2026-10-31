@@ -1,4 +1,5 @@
-// GSAP right/wrong feedback, one style per theme (M1 spike). Paper & ink stays subtle; Storybook bounces and sparkles.
+// GSAP right/wrong feedback, one style per theme (M1 spike). Paper & ink stays subtle; Storybook bounces and sparkles;
+// Neon arcade flickers on, glitches on a miss, and bursts on a hit.
 import { gsap } from 'gsap';
 import type { Theme } from '../core/theme';
 
@@ -57,6 +58,32 @@ const storybook: Feedback = {
   },
 };
 
+const arcade: Feedback = {
+  enter(note) {
+    gsap.fromTo(
+      note,
+      { opacity: 0, x: 0, scale: 1.8 },
+      {
+        keyframes: { opacity: [0, 1, 0.2, 1, 0.5, 1] },
+        scale: 1,
+        duration: 0.4,
+        ease: 'power3.out',
+        ...ORIGIN,
+      },
+    );
+  },
+  wrong(note) {
+    gsap.fromTo(note, { x: 0 }, { keyframes: { x: [-9, 7, -5, 3, 0] }, duration: 0.3, ease: 'none' });
+  },
+  async right(note) {
+    sparkle(note);
+    await gsap
+      .timeline()
+      .to(note, { scale: 1.3, duration: 0.12, ease: 'steps(3)', ...ORIGIN })
+      .to(note, { keyframes: { opacity: [1, 0, 1, 0] }, scale: 2, duration: 0.35, delay: 0.25, ...ORIGIN });
+  },
+};
+
 const SPARKS = 14;
 
 // A ring of dots flying out from the note; they remove themselves when done.
@@ -86,4 +113,4 @@ function sparkle(note: SVGGElement) {
 }
 
 /** The feedback style for a theme. */
-export const FEEDBACK: Record<Theme, Feedback> = { paper, storybook };
+export const FEEDBACK: Record<Theme, Feedback> = { paper, storybook, arcade };
