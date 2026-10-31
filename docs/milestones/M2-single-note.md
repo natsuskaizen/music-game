@@ -2,6 +2,14 @@
 
 **Goal**: a usable daily drill. One note at a time, answered with letter buttons.
 
+## Working session with Stan first (home screen)
+The home screen, which you see before a game starts, needs refinement with Stan before its issue is written.
+Questions to settle:
+- What's on it: mode picker, quick-start with last settings, review weak notes, progress glance, settings entry.
+- How much is configured here versus in Settings.
+- How it looks in the M1 theme.
+Bring 2–3 quick mock-ups (Svelte, like `prototypes/compare/`) to react to. The outcome updates this scope and its ACs.
+
 ## Scope
 - `src/core`: pitch model, ranges, uniform random selection, quiz state reducer.
 - Staff view for treble, bass, and grand staff (`both`), in the M1 theme.

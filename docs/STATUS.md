@@ -31,6 +31,7 @@ M0 ○ · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 
 ## Known issues / open questions
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
+- **Home screen** (before a game starts) gets a working session with Stan at the start of M2, with 2–3 mock-ups to react to. See the M2 doc.
 - **Note selection and ordering**: hold a working session with Stan at the start of M3 (difficulty tiers by register around C4 / C3–C5 / C2–C6, less random ordering). See M3 and M4 docs.
 - Look and feel is open until the M1 spike (3 themes to try on device).
 - iOS: mic permission may re-prompt per launch; silent switch handling must be confirmed on device (M1).
