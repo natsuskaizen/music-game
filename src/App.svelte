@@ -1,4 +1,3 @@
-<!-- App root. Screens (design §11) mount here as milestones add them. -->
 <main>
   <h1>Sight Reading</h1>
   <p>Coming soon.</p>
