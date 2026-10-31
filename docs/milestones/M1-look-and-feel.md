@@ -28,8 +28,8 @@ M1-4 uses a synthesized tone: the silent-switch behavior is the same for any Web
 
 ## Acceptance criteria
 - M1-AC1 Both themes render the treble, bass, and grand staff with ledger notes (Playwright screenshots attached to CI).
-- [ ] M1-AC2 Manual (iPhone + iPad): sound plays with the silent switch on, or the limitation is documented.
-- [ ] M1-AC3 Manual: works in airplane mode after install.
+- [x] M1-AC2 Manual (iPhone + iPad): sound plays with the silent switch on, or the limitation is documented. (Stan, 2026-10-31)
+- [x] M1-AC3 Manual: works in airplane mode after install. (Stan, 2026-10-31: the quiz works; the tone is silent offline, moved to M3-AC7, #39)
 - [ ] M1-AC4 You pick a theme (or a mix); the choice is recorded in the Summary.
 - M1-AC5 The correct note sounds once a question is settled (right, or revealed), with the audio session set to `playback`; without `audioSession`, a touch device shows a "turn the ringer on for sound" hint.
 
@@ -56,5 +56,7 @@ with the device and date, e.g. `- [x] M1-AC2 ... (iPhone, iPad, 2026-11-01)`, or
   silent switch with a ringer hint fallback (new M1-AC5); Neon arcade came back as a third theme (#29); a theme
   switch in Settings and its note-position bug (#36) are M8.
 - Icons and theme color are Paper & ink, the default pick; a re-skin only means new tokens and `npm run icons`.
-- Open: AC2–AC4 wait on Stan's device checks and pick, so M1 stays in progress while M2 starts.
+- Device checks (2026-10-31): sound plays with the silent switch on; the app works offline but the tone is silent
+  in airplane mode (#39, M3-AC7). Storybook sometimes draws the note slightly off its line (#38, M8).
+- Open: AC4 (theme pick) keeps M1 in progress while M2 starts.
 - Follow-ups: delete `prototypes/` once M1 closes (roadmap); re-render icons if the pick isn't Paper & ink.

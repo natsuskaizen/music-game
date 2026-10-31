@@ -8,7 +8,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 ## Now
 - **Phase**: M2 single-note MVP in progress (`docs/milestones/M2-single-note.md`, issues #30–#34). M1 stays in progress until Stan's device checks and theme pick.
 - **Next issue**: M2-2 (#31) session reducer + `gradeAnswer`, replacing `core/quiz.ts`. Build on Paper & ink unless Stan picks another theme.
-- **Blocked on Stan** (not stop points; steps in the M1 doc "Device checks and theme pick"): M1-AC2 silent switch and M1-AC3 airplane mode on iPhone and iPad; M1-AC4 theme pick, which defaults to Paper & ink on 2026-11-01. Issue #23 stays open until these are ticked.
+- **Blocked on Stan** (not stop points; steps in the M1 doc "Device checks and theme pick"): M1-AC4 theme pick, which defaults to Paper & ink on 2026-11-01. Issue #23 stays open until then.
 
 ## Decisions so far
 | Topic | Decision | Where |
@@ -41,6 +41,7 @@ M0 ✓ · M1 ✱ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M1 device checks: silent switch OK (AC2); works offline but the tone is silent in airplane mode (AC3 ticked, sound moved to M3-AC7, #39); Storybook note alignment logged for M8 (#38).
 - 2026-10-31: M8 Themes in Settings added to the roadmap (near the end): theme switch in Settings, Paper & ink default, and the arcade note-position bug (#36).
 - 2026-10-31: Neon arcade theme (#29, `?theme=arcade`, not a roadmap issue): dark CRT page, glow tokens (`--page-art`, `--text-glow`, `--mark-glow`, `none` elsewhere; no CSS filter on the staff SVG, it made WebKit repaint too slowly for the GSAP feedback), flicker/glitch/burst GSAP feedback with unit tests (GSAP on a stand-in object); e2e and screenshots cover it.
 - 2026-10-31: M2 started: issue list in the M2 doc, issues #30–#34. M2-1 (#30): difficulty note pools (`core/ranges.ts`), uniform `pickNote` (`core/selector.ts`), full-range staff position and ledger tests (M2-AC1, AC2); the demo quiz now asks Medium-range notes.
@@ -62,4 +63,4 @@ M0 ✓ · M1 ✱ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 - WebKit can't be downloaded in the cloud sessions, so e2e runs there on Chromium as a smoke test; CI is the WebKit source of truth.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
 - Theme pick (M1-AC4) is open until 2026-11-01; Paper & ink is the default.
-- iOS: mic permission may re-prompt per launch (M3); silent switch handling waits on the M1-AC2 device check.
+- iOS: mic permission may re-prompt per launch (M3). The answer tone is silent in airplane mode (#39, M3-AC7).
