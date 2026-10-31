@@ -13,7 +13,7 @@ export interface Verdict {
   findings: Finding[];
 }
 
-/** Parses the reviewer's JSON and checks its shape, so a bad or missing output fails with a clear message. */
+/** Parses the reviewer's JSON and checks its top-level fields, so a bad or missing output fails with a clear message. */
 export function parseVerdict(json: string | undefined): Verdict {
   if (!json) throw new Error('The reviewer returned no structured output.');
   const result = JSON.parse(json) as Partial<Verdict>;
