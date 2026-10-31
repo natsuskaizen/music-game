@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M2 single-note MVP complete once #34 merges (roadmap keeps it "In progress" until M3 starts: `npm run ac-report` needs one in-progress milestone) (`docs/milestones/M2-single-note.md`, issues #30–#34). M1 is done.
-- **Next issue**: first issue of M3 (mic input; write its issue list at the milestone start).
+- **Phase**: M3 Real piano & sound (`docs/milestones/M3-mic-and-sound.md`, issues #45–#50). M2 is done.
+- **Next issue**: M3-1 (#45) piano samples and `playPitch`.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -42,10 +42,11 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✱ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M3 kick-off: issue list M3-1..6 (#45–#50) in the milestone doc, new M3-AC8 (mute while listening, heard-key highlight); M2 marked Done.
 - 2026-10-31: M2-5 (#34): Home + Settings screens, `core/settings.ts` with `migrateSettings`, localStorage persistence, session results with Play again; M2 Summary filled in (M2-AC6).
 - 2026-10-31: M2-4 (#33): quiz screen with the input switcher and `ActiveInput`; e2e for retry, reveal and Continue, grand staff stave placement, and switching input mid-quiz (M2-AC3, AC4, AC5, AC8 e2e). The scripted headless input is e2e-build only.
 - 2026-10-31: Token savings (not a roadmap issue): CLAUDE.md drops the local reviewer subagent for a self-check, adds the backup-run early exit and a two-message rule, and says issue threads run on Sonnet.
