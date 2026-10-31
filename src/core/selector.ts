@@ -53,10 +53,14 @@ function candidates(pool: ClefNote[], random: Random, previous?: ClefNote): Clef
   return steps.length > 0 ? steps : pool;
 }
 
-/** A stepwise-ordered random note: uniform among `candidates`, never `previous` (design §14). */
-export function pickStepwise(pool: ClefNote[], random: Random, previous?: ClefNote): ClefNote {
-  return pickNote(candidates(pool, random, previous), random, previous);
-}
+/** Chooses the next note from a pool, given the one before it; the session takes one so it never knows how notes are chosen. */
+export type Picker = (pool: ClefNote[], previous?: ClefNote) => ClefNote;
+
+/** A picker for stepwise order only: uniform among `candidates`, never `previous` (design §14). */
+export const stepwisePicker =
+  (random: Random): Picker =>
+  (pool, previous) =>
+    pickNote(candidates(pool, random, previous), random, previous);
 
 /** Tunables of the weight function (design §7.3). */
 export interface WeightConfig {
@@ -123,3 +127,11 @@ export function pickWeighted(pool: ClefNote[], ctx: PickContext, previous?: Clef
   if (!note) throw new Error('No notes to pick from');
   return note;
 }
+
+/** The quiz's picker: weighted by `context()` among the stepwise `candidates`. `context` is read per pick so stats and time stay current. */
+export const learnedPicker =
+  (context: () => PickContext): Picker =>
+  (pool, previous) => {
+    const ctx = context();
+    return pickWeighted(candidates(pool, ctx.random, previous), ctx, previous);
+  };

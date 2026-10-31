@@ -3,6 +3,7 @@
      Sound follows the sound settings (`noteToPlay`, design §14). Switching input keeps the question. -->
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { SvelteMap } from 'svelte/reactivity';
   import { needsRingerHint, setIgnoreSilentSwitch } from '../audio/context';
   import { loadPiano, playPitch } from '../audio/piano';
   import { midiOf, pitchLabel } from '../core/pitch';
@@ -11,15 +12,19 @@
     firstTryPercent,
     isSettled,
     reduce,
+    settledAttempt,
     startSession,
     type Answer,
     type Session,
   } from '../core/session';
   import type { Settings } from '../core/settings';
+  import { learnedPicker, weightsFor } from '../core/selector';
   import { noteToPlay } from '../core/sound';
+  import { applyAttempt, newStat, type NoteStat } from '../core/stats';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
   import { available, inputById } from '../inputs';
+  import { loadStats, recordAttempt, requestPersistence } from '../storage/db';
   import type { KeyMark } from '../inputs/types';
   import ActiveInput from './ActiveInput.svelte';
   import Staff from './Staff.svelte';
@@ -30,11 +35,19 @@
   const ringerHint = needsRingerHint();
   void loadPiano(); // the Start tap that opened this screen lets iOS start audio
   const inputs = available();
+  // What the quiz knows about each note; it fills from storage and grows with every answer, and the picker reads it live.
+  const stats = new SvelteMap<string, NoteStat>();
+  const pick = learnedPicker(() => ({
+    stats,
+    cfg: weightsFor(settings.difficulty),
+    now: Date.now(),
+    random: Math.random,
+  }));
   const begin = () =>
     startSession(
       notePool(settings.clef, settings.difficulty),
       settings.questionsPerSession || undefined,
-      Math.random,
+      pick,
     );
   // The default input starts; the switcher changes it for this quiz only.
   const defaultInput = () => inputById(settings.input);
@@ -48,10 +61,27 @@
   onMount(() => {
     setIgnoreSilentSwitch(settings.sound.ignoreSilentSwitch);
     sound(undefined, quiz);
+    // Storage is a bonus: if it is unavailable (private mode, quota) the quiz still works, without memory.
+    void requestPersistence().catch(() => undefined);
+    loadStats()
+      .then((stored) => {
+        for (const [key, stat] of stored) if (!stats.has(key)) stats.set(key, stat);
+      })
+      .catch(() => undefined);
   });
   let noteEl = $state<SVGGElement>();
   // Counts questions, so an animation that ends after the quiz moved on doesn't advance it again.
   let asked = 0;
+  // When the current question appeared, to time the answer.
+  let shownAt = Date.now();
+
+  function record(before: Session, after: Session, answer: Answer) {
+    const ts = Date.now();
+    const attempt = settledAttempt(before, after, { ts, input: input.id, ms: ts - shownAt, answer });
+    if (!attempt) return;
+    stats.set(attempt.key, applyAttempt(stats.get(attempt.key) ?? newStat(attempt.key), attempt));
+    recordAttempt(attempt).catch(() => undefined);
+  }
 
   const target = $derived(midiOf(quiz.note.pitch));
   const name = $derived(pitchLabel(quiz.note.pitch));
@@ -73,18 +103,20 @@
 
   function showQuestion(next: Session) {
     asked++;
+    shownAt = Date.now();
     sound(quiz, next);
     quiz = next;
     if (noteEl) feedback.enter(noteEl);
   }
 
   function advance() {
-    showQuestion(reduce(quiz, { type: 'next' }, Math.random));
+    showQuestion(reduce(quiz, { type: 'next' }, pick));
   }
 
   async function onAnswer(answer: Answer) {
     const before = quiz;
-    quiz = reduce(quiz, { type: 'answer', answer }, Math.random);
+    quiz = reduce(quiz, { type: 'answer', answer }, pick);
+    record(before, quiz, answer);
     sound(before, quiz);
     if (quiz.phase === before.phase || !noteEl) return;
     if (quiz.phase !== 'right') {

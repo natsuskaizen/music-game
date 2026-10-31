@@ -46,7 +46,7 @@ test('M2-AC4 a second miss reveals the note and only Continue moves on', async (
 });
 
 // Stepwise ordering (M4-3) changes clef only ~3% of the time, so a seeded Math.random makes this walk reach both clefs.
-const SEED = 7;
+const SEED = 8;
 
 test('M2-AC5 both shows a grand staff with each note on its own stave', async ({ page }) => {
   await page.addInitScript((seed) => {
@@ -106,4 +106,29 @@ test('M2-AC8 a miss on one input and a hit on the other is a second-try answer',
   await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
   await expect(quiz.getByText('First try 0%')).toBeVisible();
   await expect(quiz.getByText('Streak 0')).toBeVisible();
+});
+
+// M4-4 only: the round trip (export → import) that completes M4-AC6 comes with M4-6, so this is not tagged AC6.
+test('M4-4 answers are kept on the device and survive a reload', async ({ page }) => {
+  const { quiz, target, key } = await openQuiz(page);
+  await key(target).click();
+  await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
+  const stored = () =>
+    page.evaluate(async () => {
+      const db = await new Promise<IDBDatabase>((resolve) => {
+        const open = indexedDB.open('sight-reading');
+        open.onsuccess = () => {
+          resolve(open.result);
+        };
+      });
+      return new Promise<number>((resolve) => {
+        const count = db.transaction('attempts').objectStore('attempts').count();
+        count.onsuccess = () => {
+          resolve(count.result);
+        };
+      });
+    });
+  await expect.poll(stored).toBe(1);
+  await page.reload();
+  expect(await stored()).toBe(1);
 });
