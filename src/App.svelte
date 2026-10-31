@@ -3,6 +3,7 @@
   import Quiz from './components/Quiz.svelte';
   import UpdateBanner from './components/UpdateBanner.svelte';
   import SettingsScreen from './components/SettingsScreen.svelte';
+  import StatsScreen from './components/StatsScreen.svelte';
   import Staff from './components/Staff.svelte';
   import type { Clef, ClefNote, Pitch } from './core/pitch';
   import type { Measure } from './core/sequence';
@@ -16,7 +17,7 @@
 
   let updateReady = $state(false);
   watchForUpdates(() => (updateReady = true));
-  let screen = $state<'home' | 'settings' | 'quiz' | 'review'>('home');
+  let screen = $state<'home' | 'settings' | 'stats' | 'quiz' | 'review'>('home');
   let reviewStats = $state.raw<ReadonlyMap<string, NoteStat>>(new Map());
   let settings = $state(loadSettings(localStorage));
 
@@ -76,6 +77,8 @@
     <Quiz {theme} {settings} onHome={() => (screen = 'home')} />
   {:else if screen === 'review'}
     <Quiz {theme} {settings} review={reviewStats} onHome={() => (screen = 'home')} />
+  {:else if screen === 'stats'}
+    <StatsScreen {settings} onBack={() => (screen = 'home')} />
   {:else if screen === 'settings'}
     <SettingsScreen {settings} onchange={change} onBack={() => (screen = 'home')} />
   {:else}
@@ -88,6 +91,7 @@
         screen = 'review';
       }}
       onSettings={() => (screen = 'settings')}
+      onStats={() => (screen = 'stats')}
     />
     <section aria-label="Staff gallery">
       {#each EXAMPLES as example (example.title)}

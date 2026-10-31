@@ -26,4 +26,9 @@ Refs: design §8.3, §9, §7.4, §14.
 
 ## Summary (fill in at completion)
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+Shipped the optional sprint timer and the progress views.
+- `core/sprint.ts` is a pausable clock (60/50/40 s by difficulty); `SprintBar` runs it in the quiz and a `timeUp` event ends the session without counting the unfinished question.
+- `core/results.ts` + `Results.svelte`: first-try accuracy, average time and the three slowest notes, with Play again and Home.
+- `core/heatmap.ts` + `StatsScreen.svelte` (M6-4): every pool note colored by `ewmaAcc` (unseen grey, under 50% red, under 80% orange, else green) using the existing theme tokens, plus a weakest-first list with accuracy and average time. A Stats button sits on Home.
+- Deviation: the heat-map is one single-clef staff row per eight notes (treble rows, then bass), not one grand staff, because a hard pool of 44 notes cannot fit on one system. `Staff` reuses its sequence drawing; `marks` now also takes a heat.
+- Follow-ups: none. Stats still ignore `exactOctave`/`mode` (see STATUS).

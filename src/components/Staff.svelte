@@ -1,6 +1,7 @@
 <!-- Draws one whole note, or a sequence of quarters and eighths in measures, on a treble, bass, or grand staff,
      with ledger lines (design §3.1). A listening input's heard note shows as a faint notehead beside a single note. -->
 <script lang="ts">
+  import type { Heat } from '../core/heatmap';
   import { ledgerPositions, pitchLabel, staffPos, type ClefNote } from '../core/pitch';
   import type { Measure } from '../core/sequence';
   import { layoutSequence } from '../core/sequence-layout';
@@ -15,6 +16,8 @@
     type ClefMode,
     type Stave,
   } from '../core/staff-layout';
+
+  type NoteMark = 'right' | 'wrong' | Heat;
 
   let {
     mode,
@@ -32,8 +35,8 @@
     note?: ClefNote;
     /** Measures to read in order, drawn instead of `note`. */
     sequence?: Measure[];
-    /** Colours each sequence note (in play order) after it is settled. */
-    marks?: ('right' | 'wrong' | undefined)[];
+    /** Colours each sequence note (in play order): right or wrong once settled, or a heat on the stats screen. */
+    marks?: (NoteMark | undefined)[];
     /** Index of the sequence note being read, drawn in the accent colour. */
     current?: number;
     /** Colours the note after an answer. */
@@ -179,12 +182,20 @@
   .note.current .glyph {
     fill: var(--accent);
   }
-  .note.right .glyph {
+  .note.right .glyph,
+  .note.strong .glyph {
     fill: var(--right);
   }
   .note.wrong .glyph,
+  .note.weak .glyph,
   .name {
     fill: var(--wrong);
+  }
+  .note.fair .glyph {
+    fill: var(--accent);
+  }
+  .note.unseen .glyph {
+    fill: var(--muted);
   }
   .stem,
   .beam {
@@ -198,11 +209,19 @@
   .note.current .stem {
     stroke: var(--accent);
   }
-  .note.right .stem {
+  .note.right .stem,
+  .note.strong .stem {
     stroke: var(--right);
   }
-  .note.wrong .stem {
+  .note.wrong .stem,
+  .note.weak .stem {
     stroke: var(--wrong);
+  }
+  .note.fair .stem {
+    stroke: var(--accent);
+  }
+  .note.unseen .stem {
+    stroke: var(--muted);
   }
   .name {
     font: 700 20px var(--font);

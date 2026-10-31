@@ -14,12 +14,14 @@
     onStart,
     onReview,
     onSettings,
+    onStats,
   }: {
     settings: Settings;
     onchange: (next: Settings) => void;
     onStart: () => void;
     onReview: (stats: ReadonlyMap<string, NoteStat>) => void;
     onSettings: () => void;
+    onStats: () => void;
   } = $props();
 
   // Review needs stored stats; until they load, or if storage is unavailable, there is nothing to review.
@@ -52,6 +54,7 @@
     }}
   />
   <button type="button" class="link" onclick={onSettings}>Settings</button>
+  <button type="button" class="link" onclick={onStats}>Stats</button>
   <button type="button" class="start" onclick={onStart}>Start</button>
   <button
     type="button"
