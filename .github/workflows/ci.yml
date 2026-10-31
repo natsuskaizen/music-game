@@ -30,6 +30,13 @@ jobs:
         run: npx playwright install --with-deps webkit
       - name: E2E (WebKit iPhone + iPad)
         run: npm run e2e
+      - name: Upload theme screenshots (M1-AC1)
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: theme-screenshots
+          path: reports/screenshots/
+          if-no-files-found: warn
       - name: AC status report
         if: ${{ !cancelled() }}
         run: npm run ac-report
