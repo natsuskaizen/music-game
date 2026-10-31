@@ -19,7 +19,8 @@ Milestone doc (scope + ACs + issue list)
 2. **One issue = one branch = one PR** into `main`. PRs stay small, so reviews and fixes stay cheap.
 3. Before opening the PR, Claude runs the **code-reviewer agent** locally on the diff and fixes what it finds.
 4. On the PR, **every gate below must pass**, including the code-quality and AI review gates. Then it merges and deploys.
-5. When the last issue closes: fill in the milestone Summary and update the status table here.
+5. **Every PR updates [`STATUS.md`](STATUS.md)**, the short living summary that `CLAUDE.md` auto-loads into each new session.
+   When the last issue closes: fill in the milestone Summary, update the status table here, and refresh STATUS.md in full.
 
 | # | Milestone | Outcome | Status |
 |---|---|---|---|
@@ -47,6 +48,7 @@ Order rationale: gates first, so every later PR reports status. Then the riskies
 | E2E | Playwright on **WebKit** iPhone + iPad profiles (closest to iOS Safari) | a test fails |
 | Build budget | `vite build` + size check | JS > 250 KB gz (raised deliberately if needed) |
 | PWA | manifest + service worker present; app loads offline in Playwright | offline load fails |
+| Status file | PRs that change `src/` must also change `docs/STATUS.md` | file not updated |
 | **Code quality (static)** | ESLint strict profile (below), `jscpd` duplicate detection, `knip` unused code | any violation |
 | **Code review (AI)** | Claude Code GitHub Action runs the [code-reviewer agent](../.claude/agents/code-reviewer.md) on the PR diff | verdict `fail` (any blocking finding) |
 | **AC status** | `scripts/ac-report` reads test results and writes a per-AC table to the job summary | always runs; red if any AC for the active milestone is failing or missing |
@@ -77,8 +79,8 @@ the milestone doc to test results, so status is visible without reading logs.
 
 ## Working efficiently (token budget)
 
-1. **`CLAUDE.md` is the entry point**: commands, layout, and conventions in under 60 lines.
-   A new thread reads that plus *one* milestone doc, not the whole design.
+1. **`CLAUDE.md` + `STATUS.md` are the entry point.** Claude Code loads both automatically. A new session
+   starts from that summary plus *one* milestone doc, never from the old chat or the whole design.
 2. **`design.md` is reference only**, linked by section from milestone docs. It isn't re-read end to end.
 3. **CI is the status report.** The AC table in the job summary replaces long manual
    verification write-ups; a thread reads the summary, not raw logs.

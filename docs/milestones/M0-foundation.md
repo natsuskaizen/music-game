@@ -16,7 +16,8 @@ project guidance Claude reads, so each later issue just adds code and tests and 
     It explains the project, Stan's goals, the workflow, commands, and code standards.
   - `.claude/agents/code-reviewer.md` is a Claude Code subagent definition: the review checklist and verdict format.
     Claude runs it locally before each PR, and CI runs the same file.
-- `.github/pull_request_template.md` (issue link, ACs, checklist) and an issue template.
+- `.github/pull_request_template.md` (issue link, ACs, "STATUS.md updated" checkbox) and an issue template.
+- Status-file gate: a CI step fails a PR that changes `src/` without changing `docs/STATUS.md`.
 - Create the GitHub milestones and this milestone's issues from the docs.
 
 ## Issues
@@ -25,7 +26,7 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 | M0-1 | Scaffold: Vite + Svelte 5 + TS, Prettier, `src/` layout from design §11 | AC1 |
 | M0-2 | Test harness: Vitest + Playwright WebKit, AC-tagged sample tests | AC1, AC3 |
 | M0-3 | Static quality gate: strict ESLint profile, `jscpd`, `knip`, `svelte-check` | AC7 |
-| M0-4 | CI workflow + AC status report in the job summary | AC2, AC3 |
+| M0-4 | CI workflow + AC status report in the job summary + status-file check | AC2, AC3, AC10 |
 | M0-5 | AI review gate: finalize the code-reviewer agent + `review.yml` | AC8 |
 | M0-6 | PWA shell + GitHub Pages deploy | AC4, AC5, AC6 |
 | M0-7 | Finalize CLAUDE.md, PR and issue templates; create milestones and issues | AC9 |
@@ -39,7 +40,8 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 - M0-AC6 Manual: it installs to the iPad/iPhone home screen and opens full-screen.
 - M0-AC7 A seeded violation of each static rule (complex function, duplicated block, unused export) fails CI.
 - M0-AC8 A seeded PR with a needlessly repeated, undocumented function gets a `fail` verdict; the clean version passes.
-- M0-AC9 A new session reading only `CLAUDE.md` can state the project goal, workflow, and commands.
+- M0-AC9 A new session reading only `CLAUDE.md` (with STATUS.md auto-loaded) can state the project goal, current state, workflow, and commands.
+- M0-AC10 A PR that changes `src/` but not `docs/STATUS.md` fails CI.
 
 ## Setup Stan does once
 - Branch protection on `main`: require the CI and review checks.
