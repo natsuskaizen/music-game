@@ -111,7 +111,8 @@
 <style>
   main {
     text-align: center;
-    padding: 2rem 1rem;
+    padding: max(2rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+      max(2rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
     max-width: 760px;
     margin: 0 auto;
   }

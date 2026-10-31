@@ -6,6 +6,7 @@
   import { loadStats } from '../storage/db';
   import { CLEFS, MODES, type QuizMode, type Settings } from '../core/settings';
   import type { ClefMode } from '../core/staff-layout';
+  import InstallHint from './InstallHint.svelte';
   import Segmented from './Segmented.svelte';
 
   let {
@@ -37,6 +38,7 @@
 </script>
 
 <section class="home" aria-label="Home">
+  <InstallHint />
   <Segmented
     label="Clef"
     options={CLEFS.map((value) => ({ value, text: value }))}
