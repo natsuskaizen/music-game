@@ -16,7 +16,7 @@
 - M8-AC3 Each theme passes the M1 device checks on iPhone and iPad (manual).
 
 ## Issues
-_Written when the milestone starts._ Known so far: #36 (Neon arcade note position, M8-AC2).
+_Written when the milestone starts._ Known so far: #36 (Neon arcade note position, M8-AC2), #38 (Storybook note slightly off its line, M8-AC2).
 
 ## Summary (fill in at completion)
 
