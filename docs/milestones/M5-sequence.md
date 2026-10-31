@@ -7,6 +7,14 @@
   Rhythm (quarters and eighths) is visual only.
 - Multi-note staff with active/right/wrong states. The same retry → reveal → Continue flow per note.
 
+## Issues
+| Id | Issue | ACs |
+|---|---|---|
+| M5-1 (#72) | Sequence generation: `core/sequence.ts` sizes a sequence by difficulty (§14), chains the M4 `Picker`, and gives each note a quarter or eighth so measures fill 4/4 | AC1 |
+| M5-2 (#73) | Session cursor (§8.3, §8.4): retry → reveal → Continue per note, cursor moves on right or Continue, one attempt per note, single note is a sequence of one | AC2 (unit), AC3 |
+| M5-3 (#74) | Multi-note staff: pure layout (x positions, barlines, stems, flags/beams, ledgers) fitted to the width; `Staff.svelte` per-note states; gallery entry | AC4 |
+| M5-4 (#75) | Sequence mode in the quiz: Single / Sequence switch on Home (saved in Settings), `Quiz` runs sequences with any input, review stays single-note; M5 Summary | AC2 (e2e) |
+
 ## Acceptance criteria
 - M5-AC1 Sequences match the difficulty table (Easy 4 notes in 1 measure; Medium 1–2 measures, ≤ 10; Hard 3 measures, 10–16) and the clef (unit).
 - M5-AC2 The cursor advances only on a correct answer or after Continue (unit + e2e).

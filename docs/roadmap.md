@@ -28,8 +28,8 @@ Milestone doc (scope + ACs + issue list)
 | M1 | [Look & feel spike](milestones/M1-look-and-feel.md) | 2 themes on device; staff/audio/offline risks retired; theme picked | Done |
 | M2 | [Single-note MVP](milestones/M2-single-note.md) | Playable single-note quiz on the on-screen piano, retry/reveal/continue, difficulty, home | Done |
 | M3 | [Real piano & sound](milestones/M3-mic-and-sound.md) | Mic input from a real piano, piano samples, sound settings | Built, device checks open |
-| M4 | [Tracking, review & ordering](milestones/M4-tracking.md) | Stats in IndexedDB, weighted stepwise ordering, review mode, backup | In progress |
-| M5 | [Sequence mode](milestones/M5-sequence.md) | Multi-note quiz in measures, sized by difficulty | Not started |
+| M4 | [Tracking, review & ordering](milestones/M4-tracking.md) | Stats in IndexedDB, weighted stepwise ordering, review mode, backup | Done |
+| M5 | [Sequence mode](milestones/M5-sequence.md) | Multi-note quiz in measures, sized by difficulty | In progress |
 | M6 | [Timer & results](milestones/M6-timer.md) | Sprint timer, results and stats screens | Not started |
 | M7 | [Polish & PWA hardening](milestones/M7-polish.md) | Update prompt, install hint, effects, accessibility | Not started |
 | M8 | [Themes in Settings](milestones/M8-themes.md) | Theme switch in Settings (Paper & ink default), Neon arcade fixed | Not started |
