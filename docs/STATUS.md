@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M4 Tracking, review & ordering (`docs/milestones/M4-tracking.md`, issues #58–#63). M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M4-1 (#58) note stats and scoring.
+- **Next issue**: M4-2 (#59) weighted pick in `core/selector.ts`.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -45,6 +45,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Detection fixtures | `tests/fixtures/piano/<midi>.wav` (0.4 s, 44.1 kHz mono, nearest Salamander sample pitch-shifted ≤ 1 semitone); `tests/core/listen-accuracy.test.ts` slides a 4096 `PitchDetector` at 735-sample hops through `listenStep`. `DEFAULT_LISTEN` stays as is | M3-4 |
 | Mic input | `inputs/mic.ts`: headless `mic` input; `start` calls `getUserMedia` (echo cancellation, noise suppression, auto-gain off) so the permission prompt shows only once it's chosen, runs a `pitchy` detector (fftSize 4096, −45 dB floor) each animation frame on the shared `AudioContext` through `listenStep`, emits pitch answers in A0–C8, and stop releases the tracks. Hidden without `getUserMedia`. Its tests are tagged M3-5, not AC6, so the manual latency AC stays pending | M3-5 |
 | Listening UI | `HeadlessInput.listens` mutes `playPitch` in `Quiz`; `start(emit, heard)` reports the sounding note (`heardNote` in `core/listen.ts`) and the keyboard marks it `heard` (answer marks win). A headless input shows the piano beside "Listening". e2e drives it with `scripted-heard`. `prototypes/` deleted | M3-6 |
+| Note stats | `core/stats.ts`: `NoteStat`, `Attempt` (ts, key, input, answer, tries, correct, ms; no `exactOctave`/`mode` yet), `statKey` (`treble:C6`), `newStat`, `credit` (1 / 0.5 / 0), `applyAttempt`: EWMA α 0.3 on credit and ms (first attempt replaces the 0.5 start), box +1 only on a first-try hit, 0 on a miss, streak counts first-try hits | M4-1 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
@@ -53,6 +54,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✱ · M5 ○
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M4-1 (#58): `core/stats.ts` with `applyAttempt`, `credit` and `statKey` (M4-AC1).
 - 2026-10-31: M4 kick-off: issue list #58–#63 in the M4 doc; roadmap shows M3 "Built, device checks open" and M4 In progress.
 - 2026-10-31: M3-6 (#50): playback muted while listening, heard key highlighted (M3-AC8), `prototypes/` deleted, M3 Summary written; AC6 and AC7 stay open for Stan.
 - 2026-10-31: M3-5 (#49): `mic` input registered (raw `getUserMedia`, `pitchy` per frame through `listenStep`); AC6 latency check on a real piano still open for Stan.
