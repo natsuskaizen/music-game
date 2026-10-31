@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 
@@ -9,6 +10,8 @@ export default defineConfig({
   test: {
     include: ['tests/**/*.test.ts'],
     passWithNoTests: true,
+    // CI also writes JSON results for the AC status report (scripts/ac-report).
+    reporters: process.env.CI ? ['default', ['json', { outputFile: 'reports/unit.json' }]] : ['default'],
     coverage: {
       provider: 'v8',
       include: ['src/core/**/*.ts'],

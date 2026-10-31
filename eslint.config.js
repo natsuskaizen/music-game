@@ -9,7 +9,7 @@ import svelteConfig from './svelte.config.js';
 
 // Strict profile from the roadmap "Code-quality standards": small functions, no duplication, documented exports.
 export default defineConfig(
-  { ignores: ['dist', 'coverage', 'test-results', 'playwright-report', 'prototypes'] },
+  { ignores: ['dist', 'coverage', 'test-results', 'playwright-report', 'reports', 'prototypes'] },
   js.configs.recommended,
   tseslint.configs.strictTypeChecked,
   tseslint.configs.stylisticTypeChecked,
@@ -60,6 +60,10 @@ export default defineConfig(
         },
       ],
     },
+  },
+  {
+    files: ['scripts/**'],
+    languageOptions: { globals: { ...globals.node } },
   },
   {
     // Test bodies are long by nature; size limits apply to app code.
