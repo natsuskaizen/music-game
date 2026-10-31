@@ -30,6 +30,7 @@
 - M3-AC6 Manual: on your piano, iPad and iPhone, normal room, a played note registers in under 0.3 s, and samples sound right.
 - M3-AC7 Manual: the answer sound plays in airplane mode after install, on iPhone and iPad (#39).
 - M3-AC8 While the mic listens, no note plays, and the heard key is highlighted on the on-screen keyboard (e2e with a stubbed mic).
+- M3-AC9 The mic shows a live level meter, a blocked mic shows a message instead of a silent "Listening", and the iOS audio session switches to `play-and-record` while listening (unit, stubbed mic; real iPhone check by Stan).
 
 Refs: design §3.3, §3.4, §4, §14. Prototypes: `prototypes/compare/keyboard.html`, `prototypes/compare/src/shared/mic.ts`.
 
