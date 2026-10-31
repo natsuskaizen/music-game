@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { staffTarget } from './staff-target';
 import { hzOf, midiOf, type Pitch } from '../src/core/pitch';
 
 declare global {
@@ -20,7 +21,7 @@ async function stubAudio(page: Page, withSession: boolean) {
   }, withSession);
   await page.goto('./');
   const quiz = page.getByRole('region', { name: 'Quiz' });
-  const target = ((await quiz.getByRole('img').getAttribute('aria-label')) ?? '').split(' ')[0] ?? '';
+  const { target } = await staffTarget(quiz);
   return { quiz, target, tones: () => page.evaluate(() => window.tones) };
 }
 

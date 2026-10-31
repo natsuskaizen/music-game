@@ -1,11 +1,10 @@
 import { expect, test, type Page } from '@playwright/test';
+import { staffTarget } from './staff-target';
 
-// The quiz staff is named like "C4 on the treble staff"; its first word is the key to press.
 async function setup(page: Page, theme: string) {
   await page.goto(`./?theme=${theme}`);
   const quiz = page.getByRole('region', { name: 'Quiz' });
-  const staffName = (await quiz.getByRole('img').getAttribute('aria-label')) ?? '';
-  const target = staffName.split(' ')[0] ?? '';
+  const { staffName, target } = await staffTarget(quiz);
   const keys = quiz.locator(`.key:not([aria-label="${target}"])`);
   return {
     quiz,

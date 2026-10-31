@@ -17,13 +17,13 @@ export function needsRingerHint(): boolean {
 }
 
 // Made on the first tap, since iOS keeps audio locked until a user gesture. A 'playback' session plays
-// with the silent switch on; resuming covers a context suspended while the app was in the background.
+// with the silent switch on; resuming covers a context iOS suspended or interrupted in the background.
 function audio(): AudioContext {
   if (!ctx) {
     if (session) session.type = 'playback';
     ctx = new AudioContext();
   }
-  if (ctx.state !== 'running') void ctx.resume();
+  if (ctx.state !== 'running') ctx.resume().catch(() => undefined);
   return ctx;
 }
 
