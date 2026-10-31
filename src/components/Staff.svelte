@@ -11,7 +11,22 @@
     type ClefMode,
   } from '../core/staff-layout';
 
-  let { mode, note }: { mode: ClefMode; note: ClefNote } = $props();
+  let {
+    mode,
+    note,
+    mark,
+    revealed = false,
+    noteEl = $bindable(),
+  }: {
+    mode: ClefMode;
+    note: ClefNote;
+    /** Colours the note after an answer. */
+    mark?: 'right' | 'wrong';
+    /** Writes the note's name beside it (design §8.4 reveal). */
+    revealed?: boolean;
+    /** The note's group, for feedback animations. */
+    noteEl?: SVGGElement;
+  } = $props();
 
   // SMuFL code points in the Bravura subset.
   const GLYPH = { treble: '\uE050', bass: '\uE062', brace: '\uE000', wholeNote: '\uE0A2' };
@@ -51,7 +66,7 @@
     >
   {/if}
   {#if noteStave}
-    <g class="note">
+    <g class="note {mark ?? ''}" bind:this={noteEl}>
       {#each ledgerPositions(pos) as p (p)}
         <line
           class="staff-line ledger"
@@ -64,6 +79,11 @@
       <text class="glyph" x={NOTE_X} y={yOf(noteStave, pos)} text-anchor="middle" font-size={GLYPH_SIZE}
         >{GLYPH.wholeNote}</text
       >
+      {#if revealed}
+        <text class="name" x={NOTE_X + 2.2 * SPACE} y={yOf(noteStave, pos) + SPACE / 2.5}
+          >{pitchLabel(note.pitch)}</text
+        >
+      {/if}
     </g>
   {/if}
 </svg>
@@ -85,5 +105,15 @@
   }
   .note .glyph {
     fill: var(--note);
+  }
+  .note.right .glyph {
+    fill: var(--right);
+  }
+  .note.wrong .glyph,
+  .name {
+    fill: var(--wrong);
+  }
+  .name {
+    font: 700 20px var(--font);
   }
 </style>

@@ -23,6 +23,8 @@ const MIDDLE_LINE: Record<Clef, Pitch> = {
 
 const FIRST_LEDGER = 6;
 
+const SEMITONE: Record<Pitch['letter'], number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+
 function diatonic(pitch: Pitch): number {
   return pitch.octave * LETTERS.length + LETTERS.indexOf(pitch.letter);
 }
@@ -30,6 +32,18 @@ function diatonic(pitch: Pitch): number {
 /** Staff position of a note: 0 is the middle line, +1 per line or space upward; the five lines are at -4, -2, 0, 2, 4. */
 export function staffPos({ pitch, clef }: ClefNote): number {
   return diatonic(pitch) - diatonic(MIDDLE_LINE[clef]);
+}
+
+/** The note written at staff position `pos` on a clef: the inverse of `staffPos`. */
+export function noteAt(clef: Clef, pos: number): ClefNote {
+  const index = diatonic(MIDDLE_LINE[clef]) + pos;
+  const letter = LETTERS[((index % LETTERS.length) + LETTERS.length) % LETTERS.length] ?? 'C';
+  return { pitch: { letter, octave: Math.floor(index / LETTERS.length) }, clef };
+}
+
+/** MIDI number of a pitch (C4 = 60), the common currency of key presses and, later, the mic (design §3.3). */
+export function midiOf(pitch: Pitch): number {
+  return (pitch.octave + 1) * 12 + SEMITONE[pitch.letter];
 }
 
 /** Positions of the ledger lines a note at `pos` needs, from the staff outward (±6, ±8, ±10). */

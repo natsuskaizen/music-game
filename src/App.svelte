@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Quiz from './components/Quiz.svelte';
   import Staff from './components/Staff.svelte';
   import type { ClefNote } from './core/pitch';
   import type { ClefMode } from './core/staff-layout';
@@ -21,12 +22,15 @@
       <a href="?theme={id}" aria-current={id === theme ? 'page' : undefined}>{name}</a>
     {/each}
   </nav>
-  {#each EXAMPLES as example (example.title)}
-    <figure>
-      <Staff mode={example.mode} note={example.note} />
-      <figcaption>{example.title}</figcaption>
-    </figure>
-  {/each}
+  <Quiz {theme} />
+  <section aria-label="Staff gallery">
+    {#each EXAMPLES as example (example.title)}
+      <figure>
+        <Staff mode={example.mode} note={example.note} />
+        <figcaption>{example.title}</figcaption>
+      </figure>
+    {/each}
+  </section>
 </main>
 
 <style>

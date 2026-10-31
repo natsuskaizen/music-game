@@ -1,5 +1,13 @@
 import { describe, expect, test } from 'vitest';
-import { ledgerPositions, pitchLabel, staffPos, type Clef, type Pitch } from '../../src/core/pitch';
+import {
+  ledgerPositions,
+  midiOf,
+  noteAt,
+  pitchLabel,
+  staffPos,
+  type Clef,
+  type Pitch,
+} from '../../src/core/pitch';
 
 const note = (letter: Pitch['letter'], octave: number, clef: Clef) => ({ pitch: { letter, octave }, clef });
 
@@ -40,4 +48,16 @@ describe('ledgerPositions', () => {
 
 test('M1-AC1 pitchLabel names the letter and octave', () => {
   expect(pitchLabel({ letter: 'C', octave: 6 })).toBe('C6');
+});
+
+test('M1-AC1 noteAt is the inverse of staffPos on both clefs', () => {
+  expect(noteAt('treble', 0)).toEqual(note('B', 4, 'treble'));
+  expect(noteAt('bass', -11)).toEqual(note('G', 1, 'bass'));
+  for (let pos = -11; pos <= 11; pos++) expect(staffPos(noteAt('treble', pos))).toBe(pos);
+});
+
+test('M1-AC1 midiOf puts middle C at 60 and A4 at 69', () => {
+  expect(midiOf({ letter: 'C', octave: 4 })).toBe(60);
+  expect(midiOf({ letter: 'A', octave: 4 })).toBe(69);
+  expect(midiOf({ letter: 'B', octave: 3 })).toBe(59);
 });

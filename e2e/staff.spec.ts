@@ -24,12 +24,15 @@ for (const theme of THEMES) {
     await expectBravuraLoaded(page);
     // CI uploads reports/screenshots as the "theme-screenshots" artifact.
     const shot = (file: string) => `reports/screenshots/${theme}-${testInfo.project.name}-${file}.png`;
+    const gallery = page.getByRole('region', { name: 'Staff gallery' });
     for (const staff of STAFFS) {
-      const svg = page.getByRole('img', { name: staff.name });
+      const svg = gallery.getByRole('img', { name: staff.name });
       await expect(svg.locator('.ledger')).toHaveCount(staff.ledgers);
       await svg.screenshot({ path: shot(staff.file) });
     }
-    await expect(page.locator('svg[role="img"]').last().locator('.staff-line:not(.ledger)')).toHaveCount(11);
+    await expect(gallery.locator('svg[role="img"]').last().locator('.staff-line:not(.ledger)')).toHaveCount(
+      11,
+    );
     await testInfo.attach(`${theme} page`, {
       body: await page.screenshot({ fullPage: true, path: shot('page') }),
       contentType: 'image/png',
