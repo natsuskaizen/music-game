@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M1 look & feel spike (`docs/milestones/M1-look-and-feel.md`). Issues M1-1…M1-5 are #19–#23; M1-1 (pitch math + `Staff`) and M1-2 (theme tokens) are done.
-- **Next issue**: M1-3 (#21) demo quiz: on-screen piano answers, retry → reveal → Continue, GSAP feedback per theme.
+- **Phase**: M1 look & feel spike (`docs/milestones/M1-look-and-feel.md`). Issues M1-1…M1-5 are #19–#23; M1-1 (pitch math + `Staff`), M1-2 (theme tokens) and M1-3 (demo quiz) are done.
+- **Next issue**: M1-4 (#22) sound: a tone after each answer, `audioSession` playback for the silent switch, ringer hint fallback.
 - **Blocked on Stan**: nothing. Q&A answers are recorded in design §14; milestone ends and pending device checks no longer stop the loop (CLAUDE.md).
 
 ## Decisions so far
@@ -30,6 +30,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Themes | Paper & ink and Storybook (Neon arcade dropped) | M1 doc |
 | Staff | `src/core/pitch.ts` + `staff-layout.ts` (pure geometry), `components/Staff.svelte` draws it; Bravura subset inlined by Vite (offline from first paint); grand staff middle lines 10 spaces apart | M1-1 |
 | Theme tokens | `src/themes.css` CSS variables; Paper & ink on `:root`, Storybook overrides via `data-theme`; `?theme=` read by `core/theme.ts`; components use only tokens | M1-2 |
+| Demo quiz | `core/quiz.ts` reducer (ask → retry → reveal, exact octave) and `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. Spike: M2 replaces it with the `InputMethod` registry and §8.3 session | M1-3 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -37,6 +38,7 @@ M0 ✓ · M1 ✱ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M1-3 (#21): demo quiz above the staff gallery: on-screen piano (scrolls a revealed key into view), retry → reveal → Continue, GSAP feedback (Paper & ink: subtle slide/shake; Storybook: bounce, wobble, sparkles); e2e for both themes with reveal screenshots.
 - 2026-10-31: M1-2 (#20): theme tokens for Paper & ink and Storybook, `?theme=` switch with nav links; CI uploads per-theme staff screenshots as the `theme-screenshots` artifact (M1-AC1).
 - 2026-10-31: M1 started: issue list in the M1 doc, issues #19–#23. M1-1 (#19): pitch math, staff geometry and the `Staff` component (treble, bass, grand staff with ledger notes); the home page shows all three (M1-AC1 e2e with a screenshot).
 - 2026-10-31: Q&A with Stan replaces the working sessions: design §14; roadmap reordered (mic + sound to M3, tracking + ordering M4, sequence M5); letter pad dropped (F3 later).
