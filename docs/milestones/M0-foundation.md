@@ -8,8 +8,9 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 - **Quality gates** (roadmap "Quality gates"): types, lint, unit, e2e, build budget, PWA, AC report,
   **static code quality** (strict ESLint profile, `jscpd`, `knip`), and the **AI code review**.
 - `npm run check` runs every non-AI gate locally; `ci.yml` runs them on PRs and `main`.
-- `review.yml`: Claude Code GitHub Action runs `.claude/agents/code-reviewer.md` on the PR diff and
-  fails the check on a `fail` verdict. It needs one repo secret (see Setup below).
+- Review gate without API costs: the session that builds an issue runs `.claude/agents/code-reviewer.md` on the
+  final diff, posts the JSON verdict as a PR comment, and adds the `review-passed` label on `pass`.
+  `review-gate.yml` fails unless the label is present, and removes it on every new push (`synchronize`).
 - `deploy.yml`: Pages deploy on `main` after all checks pass. `vite-plugin-pwa` shell.
 - **Claude guidance files**:
   - `CLAUDE.md` (repo root) is read automatically by Claude Code at the start of every session.
@@ -27,7 +28,7 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 | M0-2 | Test harness: Vitest + Playwright WebKit, AC-tagged sample tests | AC1, AC3 |
 | M0-3 | Static quality gate: strict ESLint profile, `jscpd`, `knip`, `svelte-check` | AC7 |
 | M0-4 | CI workflow + AC status report in the job summary + status-file check | AC2, AC3, AC10 |
-| M0-5 | AI review gate: finalize the code-reviewer agent + `review.yml` | AC8 |
+| M0-5 | AI review gate: finalize the code-reviewer agent, `review-passed` label, `review-gate.yml` | AC8, AC11 |
 | M0-6 | PWA shell + GitHub Pages deploy | AC4, AC5, AC6 |
 | M0-7 | Finalize CLAUDE.md, PR and issue templates; create milestones and issues | AC9 |
 
@@ -42,10 +43,10 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 - M0-AC8 A seeded PR with a needlessly repeated, undocumented function gets a `fail` verdict; the clean version passes.
 - M0-AC9 A new session reading only `CLAUDE.md` (with STATUS.md auto-loaded) can state the project goal, current state, workflow, and commands.
 - M0-AC10 A PR that changes `src/` but not `docs/STATUS.md` fails CI.
+- M0-AC11 Pushing a new commit after review removes `review-passed`, and the review check goes red until re-reviewed.
 
 ## Setup Stan does once
 - Branch protection on `main`: require the CI and review checks.
-- Repo secret for the AI review: run `/install-github-app` in Claude Code (adds `CLAUDE_CODE_OAUTH_TOKEN`), or add an `ANTHROPIC_API_KEY`.
 - Settings → Pages → Source: GitHub Actions.
 
 Refs: design §5 (PWA), §11 (layout), roadmap "Workflow" and "Quality gates".

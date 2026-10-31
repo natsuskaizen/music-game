@@ -8,7 +8,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 ## Now
 - **Phase**: planning done; design PR #1 open. Next: merge it, then start **M0** (foundation & quality gates).
 - **Next issue**: M0-1 Scaffold (see `docs/milestones/M0-foundation.md`).
-- **Blocked on Stan**: merge PR #1. During M0, a one-time setup (AI review secret, branch protection, Pages source).
+- **Blocked on Stan**: merge PR #1. During M0, a one-time setup (branch protection, Pages source). The AI review needs no secret: it runs in-session on the subscription.
 
 ## Decisions so far
 | Topic | Decision | Where |
