@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M5 Sequence mode (`docs/milestones/M5-sequence.md`, issues #72–#75). M4 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M5-4 (#75) sequence mode in the quiz.
+- **Next issue**: M6 kick-off (M5 is built; its Summary is filled in and the roadmap flips at the M6 kick-off).
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -55,6 +55,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Cursor | `core/cursor.ts`: `SequenceRun` `{ notes, index, session }`; `stepRun` reuses `reduce` with a picker that returns the next note and `questionsPerSession = notes.length`, so retry → reveal → Continue and per-note `settledAttempt` are unchanged. The index moves only on `next`; a single note is a run of one. Quiz adopts it in M5-4 | M5-2 |
 | Sequence layout | `core/sequence-layout.ts` `layoutSequence(measures, staves, span)`: slots by duration (quarter 30, eighth 24) stretched to fill the span, stems up below the middle line, a pair of eighths on one stave beamed (slope ≤ 1 space), a cross-stave pair gets line flags (no flag glyphs in the Bravura subset). `Staff` takes `sequence`, `marks` (right/wrong per note) and `current`; the gallery shows a 16-note Hard example | M5-3 |
 | Mic follow-ups | `Settings.micLevel` (`MIC_LEVELS` Soft 0.35 / Firm 0.5 default / Loud 0.65 on the meter scale): `loudEnough` turns quieter frames into silence before the filter; `HeadlessInput.start(emit, hooks)` takes `ListenHooks` (heard, level, minLevel); the meter marks the threshold. `answerContinues`: with a listening input, playing the revealed note is Continue. `heardMark` + `writtenPitch` draw the heard note faintly on the staff. Mic bar redesign is an M7 scope item | design §4.4, §8.4; M3-AC10–12 |
+| Sequence quiz | `Settings.mode` (`single`/`sequence`, Segmented on Home). `Quiz` in sequence mode (not review) builds `makeSequence`, walks it with `stepRun`, and draws `Staff` `sequence` with `marks` (settled notes) and `current`. A right note advances at once (no animation); reveal/Continue and `answerContinues` work per note, so a listening input plays through misses | M5-4 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
 | App updates | `registerType: 'prompt'`, registered by `watchForUpdates()` in `App.svelte`: the new service worker waits until the person taps **Update now** (`UpdateBanner`), which reloads into it. Needed because an installed PWA otherwise keeps the old build until every window closes | design §5.2 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
@@ -64,6 +65,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✱
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M5-4 (#75): Single / Sequence switch on Home and sequence mode in `Quiz` (M5-AC2 e2e); M5 Summary filled in.
 - 2026-10-31: M5-3 (#74): `layoutSequence` and `Staff` sequence mode (noteheads, stems, beams, barlines, per-note states); gallery example and M5-AC4 e2e (no overlap, screenshots).
 - 2026-10-31: Mic follow-ups (Stan's ask, not a roadmap issue): loudness threshold setting, play the revealed note to continue, heard note on the staff (M3-AC10–12); mic bar redesign noted in M7.
 - 2026-10-31: M5-2 (#73): sequence cursor in `core/cursor.ts` (`startRun`, `stepRun`, `sequenceNotes`; M5-AC2 unit, M5-AC3).

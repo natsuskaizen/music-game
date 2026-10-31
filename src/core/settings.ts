@@ -6,6 +6,9 @@ import { DEFAULT_SOUND, VOLUMES, type SoundSettings } from './sound';
 import type { ClefMode } from './staff-layout';
 
 export const CLEFS: ClefMode[] = ['treble', 'bass', 'both'];
+/** One note at a time, or a run of notes read in order (design §8.2). */
+export type QuizMode = 'single' | 'sequence';
+export const MODES: QuizMode[] = ['single', 'sequence'];
 export const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard'];
 /** Questions per session; 0 is endless (design §14). */
 export const SESSION_LENGTHS = [10, 20, 50, 0];
@@ -14,6 +17,7 @@ export const SESSION_LENGTHS = [10, 20, 50, 0];
 export interface Settings {
   v: 1;
   clef: ClefMode;
+  mode: QuizMode;
   difficulty: Difficulty;
   /** Id of the default answer input (design §3.4). */
   input: string;
@@ -26,6 +30,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
   v: 1,
   clef: 'treble',
+  mode: 'single',
   difficulty: 'medium',
   input: 'piano',
   questionsPerSession: 20,
@@ -64,6 +69,7 @@ export function migrateSettings(raw: unknown): Settings {
   return {
     v: 1,
     clef: oneOf(stored.clef, CLEFS, d.clef),
+    mode: oneOf(stored.mode, MODES, d.mode),
     difficulty: oneOf(stored.difficulty, DIFFICULTIES, d.difficulty),
     input: typeof stored.input === 'string' ? stored.input : d.input,
     questionsPerSession: oneOf(stored.questionsPerSession, SESSION_LENGTHS, d.questionsPerSession),

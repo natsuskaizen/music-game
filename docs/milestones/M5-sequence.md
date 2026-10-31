@@ -23,6 +23,11 @@
 
 Refs: design §8.2, §8.4, §14.
 
-## Summary (fill in at completion)
-
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+## Summary
+Sequence mode shipped in four issues (#72–#75).
+- `core/sequence.ts` builds a sequence sized by difficulty (Hard's 3 measures need 12–16 notes, not design's 10) and chains the M4 picker.
+- `core/cursor.ts` reuses the single-note `reduce`, so retry → reveal → Continue and one attempt per note are unchanged; a single note is a run of one.
+- `core/sequence-layout.ts` and `Staff` draw measures, barlines, stems, beams and per-note states without overlap on an iPhone viewport.
+- `Settings.mode` (Single / Sequence, chosen on Home) makes `Quiz` run a sequence with any input. A right note moves on at once; a listening input plays the revealed note to continue, and a miss never blocks, so the player can play on through mistakes. Review stays single-note.
+- Deviation: the e2e proof of M5-AC2 goes through reveal → Continue, since a test can't read the notes of a sequence from the page; right-answer advance is covered by the cursor unit tests.
+- Follow-up: none; rhythm stays visual only.
