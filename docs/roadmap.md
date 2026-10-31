@@ -50,7 +50,7 @@ Order rationale: gates first, so every later PR reports status. Then the riskies
 | PWA | manifest + service worker present; app loads offline in Playwright | offline load fails |
 | Status file | PRs that change `src/` must also change `docs/STATUS.md` | file not updated |
 | **Code quality (static)** | ESLint strict profile (below), `jscpd` duplicate detection, `knip` unused code | any violation |
-| **Code review (AI)** | The Claude session that built the issue runs the [code-reviewer agent](../.claude/agents/code-reviewer.md) on the final diff, posts the verdict on the PR, and adds the `review-passed` label. A CI check requires the label, and a workflow removes it on every new push | label missing, i.e. not reviewed since the last push |
+| **Code review (AI)** | `review.yml`: `anthropics/claude-code-action` runs the [code-reviewer agent](../.claude/agents/code-reviewer.md) on the PR diff on every push, authenticated with the `CLAUDE_CODE_OAUTH_TOKEN` secret (Stan's subscription) | verdict `fail` (any blocking finding) |
 | **AC status** | `scripts/ac-report` reads test results and writes a per-AC table to the job summary | always runs; red if any AC for the active milestone is failing or missing |
 
 Deploy: `deploy.yml` runs on `main` only after CI passes, then publishes to GitHub Pages.
@@ -69,9 +69,9 @@ status checks" in the repo settings (a one-time click you do on GitHub).
 | Well structured, readable, simple | AI review: naming, single responsibility, layering (`core` stays pure), needless abstraction, comments that lie or narrate |
 
 Static rules catch what is mechanical and cost nothing per run. The AI review covers what
-rules can't judge. It runs inside the Claude session on Stan's subscription, so there is **no API billing
-and no secret to set up**. It reads only the PR diff in a fresh subagent context and skips docs-only PRs
-to keep token use low. (Optional later: move it into CI with `claude setup-token`, which also uses the subscription.) The agent file is the single source of the review checklist, used both
+rules can't judge. It runs in CI on Stan's subscription through the `CLAUDE_CODE_OAUTH_TOKEN` secret, so there is **no API billing**.
+To keep usage low, it reads only the PR diff, uses Sonnet, and skips docs-only PRs (`paths` filter). The same agent
+also runs locally before each PR, so CI usually confirms rather than finds problems. The agent file is the single source of the review checklist, used both
 locally by Claude and in CI.
 
 **AC tagging convention**: a test's title starts with its AC id, e.g.

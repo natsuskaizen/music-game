@@ -27,8 +27,7 @@ Svelte 5 + SVG (Bravura glyphs) + GSAP, Vite, TypeScript, Dexie (IndexedDB), Web
 - Milestone → issues → **one branch and one PR per issue** (branch `m2-3-short-name`). The PR body links the issue and its ACs.
 - At a milestone's start, write its issue list in the milestone doc, then create the GitHub issues.
 - Before opening a PR: run `npm run check`, then run the **code-reviewer** agent (`.claude/agents/code-reviewer.md`) on the diff and fix every blocking finding.
-- After the final push, post the reviewer's JSON verdict as a PR comment. On `pass`, add the `review-passed` label (CI requires it; any new push removes it).
-- A PR merges only when all CI gates pass.
+- A PR merges only when all CI gates pass, including the AI review in `review.yml` (same agent, runs on Stan's subscription).
 - **Every PR updates `docs/STATUS.md`**: Now, Recent (one line), and new decisions or known issues.
 - When a milestone's last issue closes: fill in its Summary (5–10 lines), update the roadmap status, and refresh all of STATUS.md (trim Recent to the last ~5 lines).
 
