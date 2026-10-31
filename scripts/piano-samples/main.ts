@@ -5,10 +5,10 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { SAMPLE_MIDIS } from '../../src/core/samples.ts';
 
 const SOURCE = 'https://raw.githubusercontent.com/tonejs/audio/master/salamander';
 const OUT = 'public/audio/piano';
-const SAMPLE_MIDIS = Array.from({ length: 21 }, (_, i) => 30 + i * 3);
 const CLIP_S = 1.5;
 const FADE_S = 0.3;
 const NAMES: Record<number, string> = { 0: 'C', 3: 'Ds', 6: 'Fs', 9: 'A' };

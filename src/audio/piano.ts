@@ -9,6 +9,7 @@ let loading: Promise<void> | undefined;
 
 async function loadSample(ctx: AudioContext, midi: number): Promise<void> {
   const res = await fetch(`${import.meta.env.BASE_URL}audio/piano/${String(midi)}.m4a`);
+  if (!res.ok) throw new Error(`Piano sample ${String(midi)} failed to load (${String(res.status)})`);
   buffers.set(midi, await ctx.decodeAudioData(await res.arrayBuffer()));
 }
 
