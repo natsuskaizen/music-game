@@ -35,7 +35,7 @@ measured in `prototypes/compare`).
 | UI | **Svelte 5** (runes) | Little boilerplate, reads like HTML, compiles away to small JS |
 | Notation | **SVG staff** with the **Bravura** SMuFL font (3 KB subset) | Vector, sharp at any zoom; VexFlow 5 is the fallback for complex engraving |
 | Animation | **GSAP 3** | Tweens, elastic shakes, spark bursts; free including plugins |
-| Answer input | **Letter pad / on-screen piano / mic** | All three feed the same `answerKey()` grader (section 4.4, 9) |
+| Answer input | **Pluggable inputs**: letter pad, on-screen piano, mic, more later | One `InputMethod` interface and registry; all feed `gradeAnswer()` (3.4) |
 | Audio | **Web Audio**: one `AudioContext` for piano-sample playback and mic listening | Works offline once precached; one place to enforce "mute while listening" |
 | Pitch detection | **pitchy** (McLeod method) | Small, accurate for single piano notes |
 | State | **Svelte stores** | Built in; settings persisted to localStorage |
@@ -121,16 +121,73 @@ Playwright can then drive it exactly like a person: `page.getByRole('button', { 
 
 ### 3.3 One grader for every input
 
-Letter pad, keyboard, and mic all end in the same pure function, so the retry → reveal →
-Continue flow and stats work identically whatever you answer with:
+Letter pad, keyboard, and mic all end in the same pure function, `gradeAnswer()` (3.4). The
+retry → reveal → Continue flow and the stats therefore work identically whatever you answer with.
+
+### 3.4 Pluggable answer inputs
+
+Inputs will keep growing, so each one is a **plug-in** behind one small interface. The quiz
+core never knows which input produced an answer. Adding an input means adding one file
+and one `register()` call, with no change to `src/core/`.
+
+```ts
+// src/inputs/types.ts
+/** What an input reports. Letter-only inputs can't know the octave; pitch inputs can. */
+export type Answer =
+  | { kind: 'letter'; letter: Letter }
+  | { kind: 'pitch'; midi: number };
+
+/** Contract every answer input implements. */
+export interface InputMethod {
+  id: string;                         // stored in settings, e.g. 'piano'
+  label: string;                      // shown in Settings
+  octaveAware: boolean;               // decides whether "Octave must match" applies
+  /** Feature check, e.g. mic needs getUserMedia. Unavailable inputs are hidden. */
+  isAvailable(): boolean;
+  /** On-screen UI, or null for headless inputs (mic, hardware keyboard). */
+  component: Component<InputProps> | null;
+  /** Headless inputs start here and return a stop function. */
+  start?(emit: (a: Answer) => void): Promise<() => void>;
+}
+```
+
+```ts
+// src/inputs/registry.ts
+const inputs = new Map<string, InputMethod>();
+export const register = (m: InputMethod) => void inputs.set(m.id, m);
+export const available = () => [...inputs.values()].filter(m => m.isAvailable());
+
+// src/inputs/index.ts — the only place that lists inputs
+register(letterPad); register(pianoKeys); register(micListener); register(hardwareKeys);
+```
+
+The grader takes an `Answer`, so every input shares the retry → reveal → Continue flow and the stats:
 
 ```ts
 // src/core/quiz.ts
-export function answerKey(s: QuizState, midi: number, exactOctave: boolean): QuizState {
-  const target = midiOf(s.note);
-  return grade(s, exactOctave ? midi === target : (((midi - target) % 12) + 12) % 12 === 0);
+export function gradeAnswer(s: QuizState, a: Answer, exactOctave: boolean): QuizState {
+  if (a.kind === 'letter') return grade(s, a.letter === s.note.letter);
+  const diff = a.midi - midiOf(s.note);
+  return grade(s, exactOctave ? diff === 0 : ((diff % 12) + 12) % 12 === 0);
 }
 ```
+
+**Several inputs can be on at once**, e.g. the on-screen piano plus the mic, so you can either tap or play.
+`settings.inputs` is a list of ids. The first answer from any input counts.
+
+| Input | Kind | Status |
+|---|---|---|
+| Letter pad (A–G) | letter | M2 |
+| On-screen piano | pitch | M5 |
+| Mic (real piano) | pitch | F2 |
+| Hardware keyboard (A–G keys on an iPad keyboard) | letter | Cheap add-on, any milestone |
+| Letter + octave picker | pitch | M5 |
+| Solfège pad (Do Re Mi) | letter | Idea |
+| USB/Bluetooth MIDI piano | pitch | Desktop/Android only (no Web MIDI on iOS) |
+
+**Contract test**: one shared Vitest suite runs against every registered input with a fake
+`emit` (it registers, reports availability, and emits well-formed answers). A new input passes the same
+tests with no extra wiring.
 
 ---
 
@@ -210,7 +267,7 @@ always muted** so the app never hears itself.
 The mic shares the playback `AudioContext`. An `AnalyserNode` feeds `pitchy` about 60 times
 a second. A note counts once it holds for 4 frames (~65 ms) with clarity > 0.9. The same
 note can fire again only after a short silence or a different note. The resulting MIDI number goes
-through `answerKey()` like a tap. A working version is in `prototypes/compare/src/shared/mic.ts`.
+through `gradeAnswer()` like a tap. A working version is in `prototypes/compare/src/shared/mic.ts`.
 
 ```ts
 const stream = await navigator.mediaDevices.getUserMedia({
@@ -224,7 +281,7 @@ const detector = PitchDetector.forFloat32Array(analyser.fftSize);
 // per animation frame:
 const [hz, clarity] = detector.findPitch(buf, ctx.sampleRate);
 const midi = clarity > 0.9 ? Math.round(69 + 12 * Math.log2(hz / 440)) : -1;
-if (stableFor(midi, 4)) onNote(midi);            // → answerKey(state, midi, exactOctave)
+if (stableFor(midi, 4)) emit({ kind: 'pitch', midi }); // → gradeAnswer(state, answer, exactOctave)
 ```
 
 | Limitation | Handling |
@@ -618,12 +675,8 @@ export interface Settings {
     | { kind: 'off' }
     | { kind: 'perNote'; seconds: number }     // countdown per question; timeout = miss
     | { kind: 'session'; seconds: number };    // sprint: as many as you can in N seconds
-  answerInput: 'letters' | 'lettersOctave' | 'piano' | 'mic';
-  //  letters        A–G buttons; any octave counts (the default; the fallback you asked for)
-  //  lettersOctave  A–G plus an octave picker; must match exactly (e.g. C6)
-  //  piano          on-screen keyboard spanning the active range (section 3.2)
-  //  mic            play it on your real piano (section 4.4); keyboard shows what it hears
-  exactOctave: boolean;            // piano/mic: must the octave match? (on by default)
+  inputs: string[];                // enabled input ids from the registry (3.4), e.g. ['piano', 'mic']
+  exactOctave: boolean;            // octave-aware inputs: must the octave match? (on by default)
   showKeyNames: boolean;           // label every key, not just the Cs
   showOctaveOnFeedback: boolean;   // "C6" vs "C"
   ledgerBoost: number;             // exposes WeightConfig.ledgerBoost as a slider
@@ -636,7 +689,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   clef: 'treble', range: 'ledger3', mode: 'single', sequenceLength: 6,
-  questionsPerSession: 20, timer: { kind: 'off' }, answerInput: 'letters', exactOctave: true, showKeyNames: false, showOctaveOnFeedback: true, ledgerBoost: 0.6,
+  questionsPerSession: 20, timer: { kind: 'off' }, inputs: ['letters'], exactOctave: true, showKeyNames: false, showOctaveOnFeedback: true, ledgerBoost: 0.6,
   sound: { when: 'afterAnswer', volume: 0.8, ignoreSilentSwitch: true },
 };
 ```
@@ -695,7 +748,8 @@ src/
   core/            # pure TS, 100% unit-testable (your "domain" package)
     pitch.ts  ranges.ts  scoring.ts  selector.ts  quiz.ts  settings.ts  types.ts
   storage/         # Dexie DB, repositories, backup/import
-  audio/           # shared AudioContext, piano sampler, mic listener (pitchy)
+  inputs/          # InputMethod registry + one file per input (letters, piano, mic, hardware keys)
+  audio/           # shared AudioContext, piano sampler, pitch detection (pitchy)
   lib/             # Svelte stores (settings, session), GSAP helpers
   components/      # Staff, GrandStaff, Note, LetterPad, Piano, TimerBar, Sparks
   screens/         # Home, Quiz, Results, Stats (heat-map), Settings
@@ -720,7 +774,7 @@ See [docs/roadmap.md](roadmap.md) for the milestones, one doc each, and the qual
 | Hosting | GitHub Pages, deployed by GitHub Actions only when all gates are green |
 | Sequence errors | Retry once, then reveal, then wait for Continue; applies to both modes (8.4) |
 | Look and feel | Early spike (M1) shows several themes on device; pick one there |
-| Answer precision | Configurable: `letters` / `lettersOctave` / `piano` (section 9) |
-| Answer input | On-screen piano keyboard, with the letter pad as the simple fallback; mic input from a real piano (F2) |
+| Answer precision | Configurable per input via `exactOctave` (sections 3.4, 9) |
+| Answer input | Pluggable (3.4): letter pad fallback, on-screen piano, mic from a real piano (F2), more later |
 | Framework | Svelte 5 + SVG + GSAP ([frameworks.md](frameworks.md)); Phaser 4 evaluated and not chosen |
 | Accidentals / key signatures | A later feature (F1 in the roadmap) |

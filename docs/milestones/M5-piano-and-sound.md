@@ -3,7 +3,7 @@
 **Goal**: answer on a piano keyboard (or keep the simple letter pad), and hear the notes.
 
 ## Scope
-- `answerInput` setting: `letters` (default) | `lettersOctave` | `piano`.
+- Register `piano` and `lettersOctave` inputs (design §3.4); `exactOctave` setting; several inputs can be on at once.
 - On-screen piano spanning the active range, scrollable on iPhone, with exact-key checking.
 - Piano samples (~20 trimmed Salamander clips, a committed script builds them). `playPitch` with detune.
 - Sound setting: off / afterAnswer / onShow / onWrong, plus volume. iOS audio session = playback.

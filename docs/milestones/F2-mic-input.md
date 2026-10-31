@@ -3,7 +3,7 @@
 **Goal**: answer by playing the note on your piano. The app hears it through the microphone.
 
 ## Scope
-- `answerInput: 'mic'`. `getUserMedia` with echo cancellation, noise suppression, and auto-gain off. One shared `AudioContext` for playback and listening.
+- Registers a `mic` input (design §3.4); can run alongside `piano`. `getUserMedia` with echo cancellation, noise suppression, and auto-gain off. One shared `AudioContext` for playback and listening.
 - Pitch detection with `pitchy` (McLeod method), `fftSize` 4096. A note is accepted after it holds stable for N frames with clarity > 0.9.
 - Octave handling: letters-only mode ignores octave; exact-octave modes use a majority vote over frames.
 - Note playback is muted while listening. The heard key is highlighted on the on-screen keyboard (from M5).

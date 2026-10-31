@@ -5,7 +5,7 @@
 ## Scope
 - `src/core`: pitch model, ranges, uniform random selection, quiz state reducer.
 - Staff view for treble, bass, and grand staff (`both`), in the M1 theme.
-- Letter pad A–G. **Wrong answer**: second try, then reveal (e.g. "C6"), then wait for **Continue**. Never auto-advance.
+- Input plug-in system (design §3.4): `InputMethod`, registry, `gradeAnswer()`, with the letter pad as the first input. Letter pad A–G. **Wrong answer**: second try, then reveal (e.g. "C6"), then wait for **Continue**. Never auto-advance.
 - Settings: clef (treble/bass/both), range (staff to 3 ledger lines), questions per session. Persisted in localStorage.
 
 ## Acceptance criteria
@@ -15,8 +15,9 @@
 - M2-AC4 A second wrong answer reveals the answer and waits; only Continue advances (e2e).
 - M2-AC5 `both` shows a grand staff, with the note on the correct stave (e2e).
 - M2-AC6 Settings persist across reloads (e2e).
+- M2-AC7 Input contract suite passes for every registered input; a fake test input works with no core changes (unit).
 
-Refs: design §6, §8.1, §8.3, §8.4, §9.
+Refs: design §3.4, §6, §8.1, §8.3, §8.4, §9.
 
 ## Summary (fill in at completion)
 

@@ -1,8 +1,25 @@
 # Roadmap
 
-Each milestone gets one thread, one PR, and one doc in `milestones/`. A milestone is
-**done** when every acceptance criterion (AC) has a passing test or a recorded manual
-check, all CI gates are green, and the doc's *Summary* section is filled in.
+Each milestone has one doc in `milestones/` and is split into **issues** (small, reviewable
+features). A milestone is **done** when all its issues are closed, every acceptance criterion
+(AC) has a passing test or a recorded manual check, and the doc's *Summary* is filled in.
+
+## Workflow: milestone → issues → one PR each
+
+```
+Milestone doc (scope + ACs + issue list)
+  └─ GitHub milestone "M2 Single-note MVP"
+       ├─ Issue M2-1 "Pitch model and ranges"      → branch m2-1-pitch-model → PR → gates → merge
+       ├─ Issue M2-2 "Staff component"             → branch m2-2-staff       → PR → gates → merge
+       └─ ...
+```
+
+1. At the start of a milestone, its issue list becomes GitHub issues under a GitHub milestone.
+   Each issue names the ACs it satisfies.
+2. **One issue = one branch = one PR** into `main`. PRs stay small, so reviews and fixes stay cheap.
+3. Before opening the PR, Claude runs the **code-reviewer agent** locally on the diff and fixes what it finds.
+4. On the PR, **every gate below must pass**, including the code-quality and AI review gates. Then it merges and deploys.
+5. When the last issue closes: fill in the milestone Summary and update the status table here.
 
 | # | Milestone | Outcome | Status |
 |---|---|---|---|
@@ -30,11 +47,29 @@ Order rationale: gates first, so every later PR reports status. Then the riskies
 | E2E | Playwright on **WebKit** iPhone + iPad profiles (closest to iOS Safari) | a test fails |
 | Build budget | `vite build` + size check | JS > 250 KB gz (raised deliberately if needed) |
 | PWA | manifest + service worker present; app loads offline in Playwright | offline load fails |
+| **Code quality (static)** | ESLint strict profile (below), `jscpd` duplicate detection, `knip` unused code | any violation |
+| **Code review (AI)** | Claude Code GitHub Action runs the [code-reviewer agent](../.claude/agents/code-reviewer.md) on the PR diff | verdict `fail` (any blocking finding) |
 | **AC status** | `scripts/ac-report` reads test results and writes a per-AC table to the job summary | always runs; red if any AC for the active milestone is failing or missing |
 
 Deploy: `deploy.yml` runs on `main` only after CI passes, then publishes to GitHub Pages.
 To make the gates truly blocking, turn on branch protection for `main` with "require
 status checks" in the repo settings (a one-time click you do on GitHub).
+
+### Code-quality standards (what the two quality gates enforce)
+
+| Standard | Enforced by |
+|---|---|
+| Small, simple functions | ESLint `complexity` ≤ 8, `sonarjs/cognitive-complexity` ≤ 10, `max-lines-per-function` 40, `max-depth` 3, `max-params` 3 (use an options object) |
+| Don't repeat yourself | `jscpd` fails on > 1% duplicated lines; `sonarjs/no-identical-functions`, `sonarjs/no-duplicate-string` |
+| Concise, accurate doc comments | `jsdoc/require-jsdoc` on exported functions/classes; `jsdoc/require-description`; no `@param`/`@returns` boilerplate (TypeScript has the types). The AI review checks accuracy |
+| No dead code | `knip` (unused files, exports, dependencies); `@typescript-eslint/no-unused-vars` |
+| Consistent formatting | Prettier |
+| Well structured, readable, simple | AI review: naming, single responsibility, layering (`core` stays pure), needless abstraction, comments that lie or narrate |
+
+Static rules catch what is mechanical and cost nothing per run. The AI review covers what
+rules can't judge. It reads only the PR diff, runs on the Sonnet model, and skips docs-only PRs
+to keep token use low. The agent file is the single source of the review checklist, used both
+locally by Claude and in CI.
 
 **AC tagging convention**: a test's title starts with its AC id, e.g.
 `test('M2-AC3 wrong answer allows a second try', ...)`. The report matches ids from
@@ -49,6 +84,6 @@ the milestone doc to test results, so status is visible without reading logs.
    verification write-ups; a thread reads the summary, not raw logs.
 4. **Pure core + unit tests** (`src/core/`) are verified in seconds without a browser.
    Screenshots only for visual work (M1, M7).
-5. **One PR per milestone**, reviewed at the end, instead of many small review loops.
+5. **Small PRs, one per issue.** The AI reviewer reads a short diff rather than a whole milestone, so each review is cheap and focused.
 6. **Scripts for repeat chores** (sample trimming, icons, AC report) are committed once and rerun, never redone by hand.
 7. **Short docs**: a milestone doc stays about a page; its Summary is 5–10 lines.
