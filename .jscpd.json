@@ -1,0 +1,11 @@
+{
+  "threshold": 1,
+  "minLines": 5,
+  "minTokens": 50,
+  "path": ["."],
+  "ignore": ["prototypes/**", "docs/**", "**/*.md", "**/*.json"],
+  "format": ["typescript", "javascript", "markup"],
+  "formatsExts": { "markup": ["svelte"] },
+  "reporters": ["console"],
+  "gitignore": true
+}
