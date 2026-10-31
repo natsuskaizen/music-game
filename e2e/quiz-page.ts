@@ -13,9 +13,11 @@ export function pitchOfLabel(label: string): Pitch {
   return { letter: label[0] as Pitch['letter'], octave: Number(label.slice(1)) };
 }
 
-/** Opens the quiz (`query` such as "?theme=arcade") and returns it with its current note and key locators. */
-export async function openQuiz(page: Page, query = '') {
+/** Opens the quiz from Home (`query` such as "?theme=arcade", optional `clef`) and returns it with its current note and key locators. */
+export async function openQuiz(page: Page, query = '', clef?: string) {
   await page.goto(`./${query}`);
+  if (clef) await page.getByRole('radio', { name: clef }).click();
+  await page.getByRole('button', { name: 'Start' }).click();
   const quiz = page.getByRole('region', { name: 'Quiz' });
   const { staffName, target } = await staffTarget(quiz);
   return {

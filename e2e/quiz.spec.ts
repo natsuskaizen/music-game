@@ -34,9 +34,8 @@ for (const theme of ['paper', 'storybook', 'arcade']) {
   });
 }
 
-test('M1-AC1 the clef switch changes the staff and the keyboard range', async ({ page }) => {
-  const { quiz } = await openQuiz(page);
-  await quiz.getByRole('radio', { name: 'bass' }).click();
+test('M1-AC1 the clef chosen on Home sets the staff and the keyboard range', async ({ page }) => {
+  const { quiz } = await openQuiz(page, '', 'bass');
   await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', / on the bass staff$/);
   await expect(quiz.getByRole('button', { name: 'G1', exact: true })).toBeVisible();
   await expect(quiz.getByRole('button', { name: 'F6', exact: true })).toHaveCount(0);

@@ -33,6 +33,11 @@
 
 Refs: design §3.2, §3.4, §6, §8.1, §8.3, §8.4, §9, §14.
 
-## Summary (fill in at completion)
+## Summary
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+M2 shipped a usable daily drill: Home (clef, Settings, Start), Settings (difficulty, 10/20/50/endless questions, default input), and the quiz on the staff with the on-screen piano.
+- **Core** (all unit-tested): `ranges.ts` note pools, `selector.ts`, the `session.ts` reducer (retry once, reveal, wait for Continue), `settings.ts` with `migrateSettings` and localStorage load/save.
+- **Inputs**: `InputMethod` registry with a contract suite; switching input mid-quiz keeps the question and its tries.
+- **M2-5**: settings supply the quiz's starting input, clef, difficulty and session length. A finished session shows its first-try score with Play again. The in-quiz clef switch moved to Home, so the quiz has a Home button instead.
+- **Deviations**: the staff gallery from M1 now sits under Home (the M1 screenshots still use it). The default input picker only shows when 2+ inputs are available, so Settings has no input row in production until the mic (M3).
+- **Follow-ups**: M3 mic input; M4 weighted note selection; sequence mode and timer settings come with their milestones.
