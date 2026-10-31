@@ -27,7 +27,7 @@ Accidentals/key signatures are planned as a later feature (see the roadmap).
 **Decided: Svelte 5 + SVG + GSAP.** Phaser 4 and three other alternatives were compared in
 [frameworks.md](frameworks.md). Svelte won on crisp notation, a native-feeling scrollable keyboard,
 one shared audio setup for playback and mic, testability, and bundle size (~40 KB vs ~374 KB gz,
-measured in `prototypes/compare`).
+measured in a prototype deleted in M3-6, see git history).
 
 | Concern | Choice | Why |
 |---|---|---|
@@ -53,7 +53,7 @@ which note comes next; they render what the core hands them and report taps back
 
 ## 3. Rendering & input
 
-Working prototypes of everything in this section are in `prototypes/compare/`
+Working prototypes of everything in this section lived in `prototypes/compare/` (deleted in M3-6; see git history)
 (`npm run dev`, then open `/keyboard.html`).
 
 ### 3.1 Staff as SVG + Bravura glyphs
@@ -67,7 +67,7 @@ SMuFL fonts are designed so 1 em = 4 staff spaces and each glyph's baseline sits
 reference line. That makes positioning plain arithmetic:
 
 ```svelte
-<!-- Staff.svelte (trimmed from prototypes/compare/src/svelte/KeyboardQuiz.svelte) -->
+<!-- Staff.svelte (trimmed from the deleted prototype) -->
 <svg viewBox="0 0 640 248">
   {#each [-4, -2, 0, 2, 4] as p}<line x1={LEFT} x2={RIGHT} y1={yOf(p)} y2={yOf(p)} />{/each}
   <!-- G clef baseline on the G4 line, F clef on the F3 line -->
@@ -269,7 +269,7 @@ always muted** so the app never hears itself.
 The mic shares the playback `AudioContext`. An `AnalyserNode` feeds `pitchy` about 60 times
 a second. A note counts once it holds for 4 frames (~65 ms) with clarity > 0.9. The same
 note can fire again only after a short silence or a different note. The resulting MIDI number goes
-through `gradeAnswer()` like a tap. A working version is in `prototypes/compare/src/shared/mic.ts`.
+through `gradeAnswer()` like a tap. The shipped version is `src/inputs/mic.ts`.
 
 ```ts
 const stream = await navigator.mediaDevices.getUserMedia({

@@ -126,3 +126,25 @@ test('M3-AC2 turning the silent-switch setting off leaves the audio session on a
   await stubAudio(page, true, { ignoreSilentSwitch: false });
   expect(await sessionType(page)).toBe('auto');
 });
+
+test('M3-AC8 while a listening input is active nothing plays and the heard key is highlighted', async ({
+  page,
+}) => {
+  const { quiz, target, tones } = await stubAudio(page, true, { onShow: true });
+  await expect.poll(tones).toEqual([midiOfLabel(target)]);
+  await quiz.getByRole('combobox', { name: 'Input' }).selectOption('scripted');
+  const heard = (detail: number | null) =>
+    page.evaluate((d) => window.dispatchEvent(new CustomEvent('scripted-heard', { detail: d })), detail);
+
+  await heard(midiOfLabel(target));
+  await expect(quiz.getByRole('button', { name: target, exact: true })).toHaveClass(/heard/);
+  await heard(null);
+  await expect(quiz.locator('.key.heard')).toHaveCount(0);
+
+  await page.evaluate(
+    (d) => window.dispatchEvent(new CustomEvent('scripted-answer', { detail: d })),
+    midiOfLabel(target),
+  );
+  await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
+  expect(await tones()).toEqual([midiOfLabel(target)]); // still only the one from before listening
+});

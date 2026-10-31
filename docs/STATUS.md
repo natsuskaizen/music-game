@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M3 Real piano & sound (`docs/milestones/M3-mic-and-sound.md`, issues #45–#50). M2 is done.
-- **Next issue**: M3-6 (#50) mute playback while listening, highlight the heard key, delete `prototypes/`, M3 Summary.
+- **Next issue**: M4 kick-off (flips M3 to done-pending-device-checks and M4 to In progress).
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -44,19 +44,20 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Mic filter | `core/listen.ts`: `hzToMidi` (±30 cents), pure `listenStep(state, frame, config)` fires a note after 4 frames of one letter with clarity > 0.9, octave by majority; same note re-fires only after 3 gap frames, a different note fires at once. `DEFAULT_LISTEN` (internal) holds the tunables for M3-4 | M3-3 |
 | Detection fixtures | `tests/fixtures/piano/<midi>.wav` (0.4 s, 44.1 kHz mono, nearest Salamander sample pitch-shifted ≤ 1 semitone); `tests/core/listen-accuracy.test.ts` slides a 4096 `PitchDetector` at 735-sample hops through `listenStep`. `DEFAULT_LISTEN` stays as is | M3-4 |
 | Mic input | `inputs/mic.ts`: headless `mic` input; `start` calls `getUserMedia` (echo cancellation, noise suppression, auto-gain off) so the permission prompt shows only once it's chosen, runs a `pitchy` detector (fftSize 4096, −45 dB floor) each animation frame on the shared `AudioContext` through `listenStep`, emits pitch answers in A0–C8, and stop releases the tracks. Hidden without `getUserMedia`. Its tests are tagged M3-5, not AC6, so the manual latency AC stays pending | M3-5 |
+| Listening UI | `HeadlessInput.listens` mutes `playPitch` in `Quiz`; `start(emit, heard)` reports the sounding note (`heardNote` in `core/listen.ts`) and the keyboard marks it `heard` (answer marks win). A headless input shows the piano beside "Listening". e2e drives it with `scripted-heard`. `prototypes/` deleted | M3-6 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✱ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✱ (device ACs open) · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M3-6 (#50): playback muted while listening, heard key highlighted (M3-AC8), `prototypes/` deleted, M3 Summary written; AC6 and AC7 stay open for Stan.
 - 2026-10-31: M3-5 (#49): `mic` input registered (raw `getUserMedia`, `pitchy` per frame through `listenStep`); AC6 latency check on a real piano still open for Stan.
 - 2026-10-31: M3-4 (#48): `pitchy` + 59 recorded-piano fixtures G1–F6 (`npm run piano-fixtures`); accuracy test at 100% letter and octave with the M3-3 defaults, so no tuning (M3-AC5).
 - 2026-10-31: M3-3 (#47): `core/listen.ts` pitch-to-note filter (Hz → MIDI ±30 cents, stability, octave majority, re-fire rule; M3-AC3, AC4).
 - 2026-10-31: M3-2 (#46): sound settings (master, on show, on wrong, volume, silent switch) and the pure `noteToPlay` rule replacing `toneAfter` (M3-AC2).
 - 2026-10-31: M3-1 (#45): piano samples + `playPitch` with detune, shared `AudioContext` module, sample build script, CC-BY credit (M3-AC1; AC7 needs a device check in airplane mode).
-- 2026-10-31: M3 kick-off: issue list M3-1..6 (#45–#50) in the milestone doc, new M3-AC8 (mute while listening, heard-key highlight); M2 marked Done.
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).

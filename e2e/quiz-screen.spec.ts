@@ -74,7 +74,7 @@ test('M2-AC8 switching input mid-quiz keeps the question and its tries', async (
 
   await switcher.selectOption('scripted');
   await expect(quiz.getByText('Listening: Scripted (test)')).toBeVisible();
-  await expect(quiz.locator('.key')).toHaveCount(0);
+  await expect(quiz.locator('.key.wrong')).toHaveCount(1); // the keyboard stays, to show the heard key
   await expect(quiz.getByText(RETRY)).toBeVisible();
   await scriptedAnswer(page, secondMiss);
   await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();

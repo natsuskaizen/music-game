@@ -4,7 +4,7 @@
 technical risks early.
 
 ## Scope
-- Built in Svelte from `prototypes/compare/keyboard.html`. One demo page, `?theme=` switch, with **2 themes** drawing the same screen (staff, a note,
+- Built in Svelte from the original prototype. One demo page, `?theme=` switch, with **2 themes** drawing the same screen (staff, a note,
   on-screen piano for answering, right/wrong feedback animation):
   1. *Paper & ink*: warm cream paper, engraved look, subtle motion.
   2. *Storybook*: rounded, colorful, playful character feedback (SVG + CSS + GSAP; no extra framework).
@@ -59,5 +59,4 @@ with the device and date, e.g. `- [x] M1-AC2 ... (iPhone, iPad, 2026-11-01)`, or
   available and get a Settings switch in M8.
 - Device checks (2026-10-31): sound plays with the silent switch on; the app works offline but the tone is silent
   in airplane mode (#39, M3-AC7). Storybook sometimes draws the note slightly off its line (#38, M8).
-- Follow-ups: offline tone (#39, M3-AC7); Storybook note alignment (#38, M8). `prototypes/` stays until M3,
-  which reuses `prototypes/compare/src/shared/mic.ts`; delete it then.
+- Follow-ups: offline tone (#39, M3-AC7); Storybook note alignment (#38, M8). `prototypes/` was deleted in M3-6.

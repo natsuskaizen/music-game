@@ -1,7 +1,7 @@
 // The mic input (design §3.4, §4.4): listens to a real piano and emits each played note as a pitch answer.
 import { PitchDetector } from 'pitchy';
 import { audioContext } from '../audio/context';
-import { initialListen, listenStep, type ListenState } from '../core/listen';
+import { heardNote, initialListen, listenStep, type ListenState } from '../core/listen';
 import type { Answer } from '../core/session';
 import type { HeadlessInput } from './types';
 
@@ -16,7 +16,10 @@ const RAW_AUDIO = { echoCancellation: false, noiseSuppression: false, autoGainCo
  * Opens the mic on the shared context and feeds each animation frame through the note filter.
  * The permission prompt appears here, so it only shows once the player picks this input.
  */
-async function listen(emit: (answer: Answer) => void): Promise<() => void> {
+async function listen(
+  emit: (answer: Answer) => void,
+  heard: (midi: number | undefined) => void = () => undefined,
+): Promise<() => void> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: RAW_AUDIO });
   const ctx = audioContext();
   const analyser = ctx.createAnalyser();
@@ -33,7 +36,9 @@ async function listen(emit: (answer: Answer) => void): Promise<() => void> {
   const onFrame = () => {
     analyser.getFloatTimeDomainData(samples);
     const [hz, clarity] = detector.findPitch(samples, ctx.sampleRate);
-    const step = listenStep(state, { hz, clarity });
+    const pitch = { hz, clarity };
+    heard(heardNote(pitch));
+    const step = listenStep(state, pitch);
     state = step.state;
     if (step.note !== undefined && step.note >= MIDI_RANGE.lo && step.note <= MIDI_RANGE.hi)
       emit({ kind: 'pitch', midi: step.note });
@@ -43,6 +48,7 @@ async function listen(emit: (answer: Answer) => void): Promise<() => void> {
 
   return () => {
     cancelAnimationFrame(frame);
+    heard(undefined);
     source.disconnect();
     stream.getTracks().forEach((track) => {
       track.stop();
@@ -54,6 +60,7 @@ async function listen(emit: (answer: Answer) => void): Promise<() => void> {
 export const micInput: HeadlessInput = {
   id: 'mic',
   label: 'Real piano (mic)',
+  listens: true,
   isAvailable() {
     // `mediaDevices` is missing on insecure pages, though the DOM types say it never is.
     const devices = navigator.mediaDevices as MediaDevices | undefined;

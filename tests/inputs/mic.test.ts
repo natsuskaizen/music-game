@@ -68,6 +68,17 @@ describe('M3-5 mic input', () => {
     stop();
   });
 
+  test('M3-AC8 reports the sounding note as heard, then none once stopped', async () => {
+    const heard: (number | undefined)[] = [];
+    const stop = await micInput.start(
+      () => undefined,
+      (midi) => heard.push(midi),
+    );
+    runFrames(2);
+    stop();
+    expect(heard).toEqual([A4, A4, undefined]);
+  });
+
   test('M3-5 hears nothing from silence', async () => {
     tone = false;
     const answers: Answer[] = [];

@@ -35,4 +35,10 @@ Refs: design §3.3, §3.4, §4, §14. Prototypes: `prototypes/compare/keyboard.h
 
 ## Summary (fill in at completion)
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+Piano samples and sound settings shipped (M3-1, M3-2), then the mic: a pure pitch-to-note filter (`core/listen.ts`),
+59 recorded-piano fixtures proving 100% letter and octave accuracy with the first-guess tuning (no tuning needed), and
+the `mic` input on the shared `AudioContext` (M3-3..5). M3-6 mutes playback while a listening input is active
+(`HeadlessInput.listens`) and shows the sounding note on the keyboard (`heard` key mark, fed by `HeadlessInput.start`'s
+second callback and `heardNote`). A headless input now shows the on-screen keyboard beside "Listening", so taps still work.
+`prototypes/` is deleted. Open for Stan: M3-AC6 (latency on a real piano) and M3-AC7 (airplane mode), so M3 stays In progress
+until he ticks them; the M4 kick-off flips the roadmap status.
