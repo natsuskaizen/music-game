@@ -27,7 +27,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Difficulty | Easy / Medium / Hard sets range, ledger weighting, sequence size, timer; ledger counts never shown | design §14 |
 | Ordering | Mostly within a third, ~10% jumps (clef, octave) | design §14 |
 | Sound / timer | Note always plays after answer (master off switch); timer is a sprint (one bar per session, 60/50/40 s by difficulty) | design §14 |
-| Themes | Paper & ink and Storybook (Neon arcade dropped) | M1 doc |
+| Themes | Paper & ink and Storybook in M1; a separate Neon arcade demo may join the pick; Paper & ink is the default | M1 doc |
 | Staff | `src/core/pitch.ts` + `staff-layout.ts` (pure geometry), `components/Staff.svelte` draws it; Bravura subset inlined by Vite (offline from first paint); grand staff middle lines 10 spaces apart | M1-1 |
 | Theme tokens | `src/themes.css` CSS variables; Paper & ink on `:root`, Storybook overrides via `data-theme`; `?theme=` read by `core/theme.ts`; components use only tokens | M1-2 |
 | Demo quiz | `core/quiz.ts` reducer (ask → retry → reveal, exact octave) and `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. Spike: M2 replaces it with the `InputMethod` registry and §8.3 session | M1-3 |
