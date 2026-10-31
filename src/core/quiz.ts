@@ -1,7 +1,7 @@
 // The demo quiz loop as a reducer (design §8.3, §8.4): a miss gets one retry, then the answer is
 // revealed and the quiz waits for Continue. Spike version for M1; M2 replaces it with the full session.
-import { ledgerPositions, midiOf, noteAt, staffPos, type Clef, type ClefNote } from './pitch';
-import type { ClefMode } from './staff-layout';
+import { midiOf, type ClefNote } from './pitch';
+import { pickNote, type Random } from './selector';
 
 /** Where a question stands: waiting, second try after one miss, revealed after two, or answered right. */
 type Phase = 'ask' | 'retry' | 'reveal' | 'right';
@@ -16,38 +16,9 @@ export interface QuizState {
   total: number;
 }
 
-/** A source of numbers in [0, 1), so tests can pick notes deterministically. */
-export type Random = () => number;
-
-// Up to 3 ledger lines beyond either side of the staff (design §6.1).
-const REACH = 11;
-const LEDGER_WEIGHT = 0.6;
-
-function candidates(mode: ClefMode): { note: ClefNote; weight: number }[] {
-  const clefs: Clef[] = mode === 'both' ? ['treble', 'bass'] : [mode];
-  return clefs.flatMap((clef) =>
-    Array.from({ length: 2 * REACH + 1 }, (_, i) => {
-      const note = noteAt(clef, i - REACH);
-      return { note, weight: 1 + LEDGER_WEIGHT * ledgerPositions(staffPos(note)).length };
-    }),
-  );
-}
-
-const sameNote = (a: ClefNote, b: ClefNote) => a.clef === b.clef && staffPos(a) === staffPos(b);
-
-/** A random note for the clef setting, weighted toward ledger notes, never `previous` again. */
-export function pickNote(mode: ClefMode, random: Random, previous?: ClefNote): ClefNote {
-  const pool = candidates(mode).filter((c) => !previous || !sameNote(c.note, previous));
-  let r = random() * pool.reduce((sum, c) => sum + c.weight, 0);
-  // The last candidate catches floating-point rounding when `random()` is just under 1.
-  const hit = pool.find((c) => (r -= c.weight) < 0) ?? pool.at(-1);
-  if (!hit) throw new Error(`No notes for clef setting ${mode}`);
-  return hit.note;
-}
-
-/** A fresh quiz with its first note. */
-export function startQuiz(mode: ClefMode, random: Random): QuizState {
-  return { note: pickNote(mode, random), phase: 'ask', wrongKeys: [], streak: 0, firstTry: 0, total: 0 };
+/** A fresh quiz with its first note from `pool`. */
+export function startQuiz(pool: ClefNote[], random: Random): QuizState {
+  return { note: pickNote(pool, random), phase: 'ask', wrongKeys: [], streak: 0, firstTry: 0, total: 0 };
 }
 
 /** Grades a pressed key by exact pitch. Only 'ask' and 'retry' accept answers; a reveal waits for `nextQuestion`. */
@@ -77,8 +48,8 @@ function scoreRight(s: QuizState): QuizState {
 }
 
 /** Moves on to a new note, keeping the score. The UI calls it after a right answer or the Continue tap. */
-export function nextQuestion(s: QuizState, mode: ClefMode, random: Random): QuizState {
-  return { ...s, note: pickNote(mode, random, s.note), phase: 'ask', wrongKeys: [] };
+export function nextQuestion(s: QuizState, pool: ClefNote[], random: Random): QuizState {
+  return { ...s, note: pickNote(pool, random, s.note), phase: 'ask', wrongKeys: [] };
 }
 
 /** First-try accuracy as a whole percentage, 0 before any answer. */

@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M1 built (Summary filled in); it stays in progress until Stan's device checks and theme pick. M2 single-note MVP starts next (`docs/milestones/M2-single-note.md`).
-- **Next issue**: M2 start: write the M2 issue list in its doc, create the issues, then M2-1. Build on Paper & ink unless Stan picks another theme.
+- **Phase**: M2 single-note MVP in progress (`docs/milestones/M2-single-note.md`, issues #30–#34). M1 stays in progress until Stan's device checks and theme pick.
+- **Next issue**: M2-2 (#31) session reducer + `gradeAnswer`, replacing `core/quiz.ts`. Build on Paper & ink unless Stan picks another theme.
 - **Blocked on Stan** (not stop points; steps in the M1 doc "Device checks and theme pick"): M1-AC2 silent switch and M1-AC3 airplane mode on iPhone and iPad; M1-AC4 theme pick, which defaults to Paper & ink on 2026-11-01. Issue #23 stays open until these are ticked.
 
 ## Decisions so far
@@ -33,13 +33,15 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Demo quiz | `core/quiz.ts` reducer (ask → retry → reveal, exact octave) and `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. Spike: M2 replaces it with the `InputMethod` registry and §8.3 session | M1-3 |
 | Answer sound | `audio/tone.ts`: one shared `AudioContext` made on the first tap, `audioSession.type = 'playback'`, a triangle tone with a 1.2 s decay; `core/quiz.ts` `toneAfter` plays the correct note on right or reveal (not on the first miss). Without `audioSession` a touch device shows a ringer hint. Added M1-AC5 for the automated part; AC2 stays manual | M1-4 |
 | Icons | Paper & ink icons and theme color (default pick); `npm run icons` renders the PNGs from `public/icon.svg` via Playwright | M1-5 |
+| Note pool | `core/ranges.ts` `notePool(mode, difficulty)` from the §14 table (bounds written as pitches); `core/selector.ts` `pickNote` is uniform and never repeats, until M4's weighted ordering. The demo quiz uses Medium | M2-1 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✱ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1, F3 backlog
+M0 ✓ · M1 ✱ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M2 started: issue list in the M2 doc, issues #30–#34. M2-1 (#30): difficulty note pools (`core/ranges.ts`), uniform `pickNote` (`core/selector.ts`), full-range staff position and ledger tests (M2-AC1, AC2); the demo quiz now asks Medium-range notes.
 - 2026-10-31: M1-5 (#23): device-check steps for Stan, Paper & ink app icons + `npm run icons`, M1 Summary. AC2–AC4 pending on Stan; M2 starts.
 - 2026-10-31: M1-4 (#22): the correct note plays (synthesized tone) once a question is settled; `audioSession` set to `playback` for the silent switch; ringer hint when it's unsupported on a touch device. New M1-AC5 (unit + e2e); M1-AC2 waits for the device check.
 - 2026-10-31: M1-3 (#21): demo quiz above the staff gallery: on-screen piano (scrolls a revealed key into view), retry → reveal → Continue, GSAP feedback (Paper & ink: subtle slide/shake; Storybook: bounce, wobble, sparkles); e2e for both themes with reveal screenshots.

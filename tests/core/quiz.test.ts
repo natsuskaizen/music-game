@@ -1,17 +1,16 @@
 import { describe, expect, test } from 'vitest';
-import { midiOf, staffPos, type ClefNote } from '../../src/core/pitch';
+import { midiOf, type ClefNote } from '../../src/core/pitch';
 import {
   answerKey,
   firstTryPercent,
   nextQuestion,
-  pickNote,
   startQuiz,
   toneAfter,
   type QuizState,
 } from '../../src/core/quiz';
+import { notePool } from '../../src/core/ranges';
 
 const first = () => 0;
-const last = () => 0.999999;
 const C4: ClefNote = { pitch: { letter: 'C', octave: 4 }, clef: 'treble' };
 const quiz = (over: Partial<QuizState> = {}): QuizState => ({
   note: C4,
@@ -21,33 +20,6 @@ const quiz = (over: Partial<QuizState> = {}): QuizState => ({
   firstTry: 0,
   total: 0,
   ...over,
-});
-
-describe('pickNote', () => {
-  test('M1-AC1 stays within 3 ledger lines of the chosen clef', () => {
-    expect(pickNote('treble', first)).toEqual({ pitch: { letter: 'E', octave: 3 }, clef: 'treble' });
-    expect(pickNote('bass', last)).toEqual({ pitch: { letter: 'A', octave: 4 }, clef: 'bass' });
-  });
-
-  test('M1-AC1 a random value at the very top of the range still picks the last note', () => {
-    expect(pickNote('treble', () => 1).pitch).toEqual({ letter: 'F', octave: 6 });
-  });
-
-  test('M1-AC1 the grand staff draws from both clefs', () => {
-    expect(pickNote('both', first).clef).toBe('treble');
-    expect(pickNote('both', last).clef).toBe('bass');
-  });
-
-  test('M1-AC1 never repeats the previous note', () => {
-    const previous = pickNote('treble', first);
-    expect(staffPos(pickNote('treble', first, previous))).not.toBe(staffPos(previous));
-  });
-
-  test('M1-AC1 ledger notes are weighted up', () => {
-    // E3 (3 ledger lines) weighs 2.8 of 37.4, about 0.075 of [0, 1); unweighted it would be 1/23 ≈ 0.043.
-    const lowest = pickNote('treble', () => 0.06);
-    expect(lowest.pitch).toEqual({ letter: 'E', octave: 3 });
-  });
 });
 
 describe('answerKey: retry, then reveal, then wait (design §8.4)', () => {
@@ -85,7 +57,7 @@ describe('answerKey: retry, then reveal, then wait (design §8.4)', () => {
 test('M1-AC1 nextQuestion asks a new note and keeps the score', () => {
   const s = nextQuestion(
     quiz({ phase: 'reveal', wrongKeys: [62, 64], streak: 0, total: 3, firstTry: 2 }),
-    'treble',
+    notePool('treble', 'medium'),
     first,
   );
   expect(s).toMatchObject({ phase: 'ask', wrongKeys: [], total: 3, firstTry: 2 });
@@ -93,7 +65,7 @@ test('M1-AC1 nextQuestion asks a new note and keeps the score', () => {
 });
 
 test('M1-AC1 startQuiz begins with an empty score', () => {
-  expect(startQuiz('bass', first)).toMatchObject({
+  expect(startQuiz(notePool('bass', 'medium'), first)).toMatchObject({
     phase: 'ask',
     total: 0,
     streak: 0,
