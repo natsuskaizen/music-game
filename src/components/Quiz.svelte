@@ -42,7 +42,8 @@
   let quiz = $state(begin());
   const sound = (before: Session | undefined, after: Session) => {
     const midi = noteToPlay(before, after, settings.sound);
-    if (midi !== undefined) playPitch(midi, settings.sound.volume);
+    // A listening input hears the room, so playing a note would answer itself (design §4.3).
+    if (midi !== undefined && !('listens' in input && input.listens)) playPitch(midi, settings.sound.volume);
   };
   onMount(() => {
     setIgnoreSilentSwitch(settings.sound.ignoreSilentSwitch);
@@ -55,8 +56,11 @@
   const target = $derived(midiOf(quiz.note.pitch));
   const name = $derived(pitchLabel(quiz.note.pitch));
   const showsAnswer = $derived(isSettled(quiz.phase));
+  // The note a listening input hears right now; an answer's own mark wins over it.
+  let heard = $state<number>();
   const marks = $derived(
     new Map<number, KeyMark>([
+      ...(heard === undefined ? [] : [[heard, 'heard'] as const]),
       ...quiz.misses.map((a) => [a.midi, 'wrong'] as const),
       ...(showsAnswer ? [[target, 'right'] as const] : []),
     ]),
@@ -138,7 +142,15 @@
       revealed={quiz.phase === 'reveal'}
       bind:noteEl
     />
-    <ActiveInput method={input} mode={settings.clef} {marks} emit={onAnswer} />
+    <ActiveInput
+      method={input}
+      mode={settings.clef}
+      {marks}
+      emit={onAnswer}
+      onHeard={(midi: number | undefined) => {
+        heard = midi;
+      }}
+    />
     <div class="continue">
       {#if quiz.phase === 'reveal'}<button type="button" onclick={advance}>Continue</button>{/if}
     </div>

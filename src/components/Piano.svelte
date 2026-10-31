@@ -101,6 +101,10 @@
     background: var(--right);
     box-shadow: 0 0 var(--mark-glow) var(--right);
   }
+  .key.heard {
+    background: var(--accent);
+    box-shadow: 0 0 var(--mark-glow) var(--accent);
+  }
   .key.wrong {
     background: var(--wrong);
     box-shadow: 0 0 var(--mark-glow) var(--wrong);
@@ -111,6 +115,7 @@
     margin-bottom: 9px;
     pointer-events: none;
   }
+  .heard span,
   .right span,
   .wrong span {
     color: var(--on-accent);

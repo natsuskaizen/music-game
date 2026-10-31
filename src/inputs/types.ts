@@ -5,7 +5,7 @@ import type { Answer } from '../core/session';
 import type { ClefMode } from '../core/staff-layout';
 
 /** How a key is marked after an answer: a miss, or the correct note once it's settled. */
-export type KeyMark = 'right' | 'wrong';
+export type KeyMark = 'right' | 'wrong' | 'heard';
 
 /** What the quiz hands an on-screen input: the clef setting (for its range), marks to show, and where answers go. */
 export interface InputProps {
@@ -29,9 +29,14 @@ export interface OnScreenInput extends InputBase {
   component: Component<InputProps>;
 }
 
-/** An input with no UI, e.g. the mic: it starts listening and resolves to a stop function. */
+/**
+ * An input with no UI, e.g. the mic: it starts listening and resolves to a stop function.
+ * `heard` reports the note sounding right now (`undefined` for none), so the keyboard can show it.
+ */
 export interface HeadlessInput extends InputBase {
-  start: (emit: (answer: Answer) => void) => Promise<() => void>;
+  /** True when it listens to the room, so the app must not play notes (design §4.3). */
+  listens?: boolean;
+  start: (emit: (answer: Answer) => void, heard?: (midi: number | undefined) => void) => Promise<() => void>;
 }
 
 /** One answer input, on screen or headless, so it can't be both or neither. */

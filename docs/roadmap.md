@@ -81,7 +81,6 @@ locally by Claude and in CI.
 - AI review escape hatch: if the reviewer is wrong, Stan can add the `review-override` label. The check then
   passes and the override is logged in the PR. Only Stan uses it.
 - Manual ACs (device checks) are recorded in the milestone doc as `- [x] M1-AC2 (iPad, 2026-11-02)`. The AC report reads them.
-- `prototypes/` is excluded from lint, `jscpd`, `knip`, and coverage. It's reference code and is deleted after M3 (which reuses its mic code).
 - Tests (`tests/`, `e2e/`) are exempt from `max-lines-per-function` and `sonarjs/no-duplicate-string`; `jscpd` still scans them.
 
 **AC tagging convention**: a test's title starts with its AC id, e.g.

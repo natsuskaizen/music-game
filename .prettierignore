@@ -1,7 +1,6 @@
 package-lock.json
 dist
 dist-e2e
-prototypes
 docs
 *.md
 coverage

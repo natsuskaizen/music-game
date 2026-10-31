@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { hzOf } from '../../src/core/pitch';
 import {
+  heardNote,
   initialListen,
   hzToMidi,
   listenStep,
@@ -76,5 +77,13 @@ describe('stability filter', () => {
   test('M3-AC4 a different note fires without silence', () => {
     const hold = (m: number) => Array.from({ length: 5 }, () => clear(m));
     expect(heard([...hold(60), ...hold(62)])).toEqual([60, 62]);
+  });
+});
+
+describe('heard note', () => {
+  test('M3-AC8 a clear frame is the note it sounds like, an unclear or missing one is nothing', () => {
+    expect(heardNote({ hz: hzOf(60), clarity: 0.95 })).toBe(60);
+    expect(heardNote({ hz: hzOf(60), clarity: 0.5 })).toBeUndefined();
+    expect(heardNote(undefined)).toBeUndefined();
   });
 });

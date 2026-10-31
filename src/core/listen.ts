@@ -63,15 +63,24 @@ function trailingGaps(recent: (number | undefined)[]): number {
   return recent.length - 1 - lastNote;
 }
 
+/** The note a single frame sounds like (clear and within tolerance), or `undefined`: what the keyboard shows as heard. */
+export function heardNote(
+  frame: PitchFrame | undefined,
+  config: ListenConfig = DEFAULT_LISTEN,
+): number | undefined {
+  const clear = frame !== undefined && frame.clarity > config.minClarity;
+  return clear ? hzToMidi(frame.hz, config.toleranceCents) : undefined;
+}
+
 /** Feeds one frame in; returns the next state and the note to report, if this frame completed a new one. */
 export function listenStep(
   state: ListenState,
   frame: PitchFrame | undefined,
   config: ListenConfig = DEFAULT_LISTEN,
 ): { state: ListenState; note?: number } {
-  const clear = frame !== undefined && frame.clarity > config.minClarity;
-  const midi = clear ? hzToMidi(frame.hz, config.toleranceCents) : undefined;
-  const recent = [...state.recent, midi].slice(-Math.max(config.stableFrames, config.silenceFrames));
+  const recent = [...state.recent, heardNote(frame, config)].slice(
+    -Math.max(config.stableFrames, config.silenceFrames),
+  );
   const fired = trailingGaps(recent) >= config.silenceFrames ? undefined : state.fired;
   const held = heldNote(recent.slice(-config.stableFrames));
   if (recent.length < config.stableFrames || held === undefined || held === fired)
