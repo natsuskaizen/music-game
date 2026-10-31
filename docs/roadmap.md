@@ -15,6 +15,7 @@ check, all CI gates are green, and the doc's *Summary* section is filled in.
 | M6 | [Timer & challenge](milestones/M6-timer.md) | Per-note and sprint timers, results and stats screens | Not started |
 | M7 | [Polish & PWA hardening](milestones/M7-polish.md) | Update prompt, install hint, effects, accessibility | Not started |
 | F1 | [Accidentals & key signatures](milestones/F1-accidentals.md) | Later feature | Backlog |
+| F2 | [Play on a real piano](milestones/F2-mic-input.md) | Answer by playing the note; the app hears it through the mic | After M5 |
 
 Order rationale: gates first, so every later PR reports status. Then the riskiest unknowns
 (look, iOS audio, offline) before building features. Then value in the order you'll use it.
