@@ -1,8 +1,9 @@
 // CI side of the AI review gate (review.yml). Commands:
 //   scope   reads changed paths on stdin and prints `review=true|false` for $GITHUB_OUTPUT.
-//   verdict reads the reviewer's JSON from $REVIEW_JSON, annotates the PR, and exits 1 on a fail.
-import { appendFileSync, readFileSync } from 'node:fs';
-import { annotations, isDocsOnly, isFailing, renderSummary, type Verdict } from './gate.ts';
+//   verdict reads the reviewer's JSON from $REVIEW_JSON, annotates the PR, writes the summary to the job
+//           summary and reports/review.md (posted as a PR comment), and exits 1 on a fail.
+import { appendFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { annotations, isDocsOnly, isFailing, parseVerdict, renderSummary } from './gate.ts';
 
 function scope(): void {
   const paths = readFileSync(0, 'utf8').split('\n').filter(Boolean);
@@ -10,11 +11,11 @@ function scope(): void {
 }
 
 function verdict(): void {
-  const json = process.env.REVIEW_JSON;
-  if (!json) throw new Error('REVIEW_JSON is empty: the reviewer returned no structured output.');
-  const result = JSON.parse(json) as Verdict;
+  const result = parseVerdict(process.env.REVIEW_JSON);
   for (const command of annotations(result)) console.log(command);
   const summary = renderSummary(result);
+  mkdirSync('reports', { recursive: true });
+  writeFileSync('reports/review.md', summary);
   const summaryPath = process.env.GITHUB_STEP_SUMMARY;
   if (summaryPath) appendFileSync(summaryPath, summary);
   else console.log(summary);

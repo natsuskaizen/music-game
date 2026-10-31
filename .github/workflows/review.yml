@@ -12,7 +12,7 @@ concurrency:
 
 permissions:
   contents: read
-  pull-requests: read
+  pull-requests: write
 
 jobs:
   review:
@@ -73,3 +73,10 @@ jobs:
         env:
           REVIEW_JSON: ${{ steps.review.outputs.structured_output }}
         run: node scripts/review-gate/main.ts verdict
+      # One comment per PR, edited on each push, so suggestions on a passing review are still seen.
+      - name: Post the findings on the PR
+        if: ${{ !cancelled() && hashFiles('reports/review.md') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR" --edit-last --create-if-none --body-file reports/review.md

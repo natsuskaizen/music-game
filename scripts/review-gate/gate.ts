@@ -13,6 +13,16 @@ export interface Verdict {
   findings: Finding[];
 }
 
+/** Parses the reviewer's JSON and checks its shape, so a bad or missing output fails with a clear message. */
+export function parseVerdict(json: string | undefined): Verdict {
+  if (!json) throw new Error('The reviewer returned no structured output.');
+  const result = JSON.parse(json) as Partial<Verdict>;
+  if ((result.verdict !== 'pass' && result.verdict !== 'fail') || !Array.isArray(result.findings)) {
+    throw new Error(`The reviewer's output is not a verdict: ${json}`);
+  }
+  return { verdict: result.verdict, findings: result.findings };
+}
+
 /** A PR that only touches Markdown has no code to review, so the gate passes without calling Claude.
  * Agent files under `.claude/` are Markdown but steer the reviewer, so they still get reviewed. */
 export function isDocsOnly(changedPaths: string[]): boolean {

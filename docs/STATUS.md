@@ -7,8 +7,8 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M0 (foundation & quality gates) in progress. M0 issues are #2–#8.
-- **In progress**: M0-5 AI review gate (#6), draft PR #14.
-- **Blocked on Stan**: the AI review sees `CLAUDE_CODE_OAUTH_TOKEN` as empty; it must be an Actions repository secret. Then: merge M0 PRs until branch protection is on (M0-4/M0-5). Later in M0: branch protection on `main` and Settings → Pages → Source: GitHub Actions. GitHub milestones weren't created (no tool for it); create "M0 Foundation" in the UI or leave it to M0-7.
+- **Next issue**: M0-6 PWA shell + Pages deploy (#7).
+- **Blocked on Stan**: squash-merge #14, then turn on branch protection for `main` requiring the checks **Gates**, **STATUS.md updated** and **AI review**. After that the loop uses auto-merge. Later in M0: Settings → Pages → Source: GitHub Actions. GitHub milestones weren't created (no tool for it); create "M0 Foundation" in the UI or leave it to M0-7.
 
 ## Decisions so far
 | Topic | Decision | Where |
@@ -34,8 +34,10 @@ M0 ✱ · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 - 2026-10-31: M0-2 test harness: Vitest (coverage ≥ 90% on `src/core`, part of `npm run check`) and Playwright on WebKit iPhone 15 / iPad gen 11 (`npm run e2e`). CI must run `npx playwright install --with-deps webkit` (M0-4). Each issue now runs in a fresh thread, chained by the coordinator; the 2-hour scheduled task is the backup.
 - 2026-10-31: M0-3 static gate: ESLint 10 (typescript-eslint strict type-checked, sonarjs, jsdoc, svelte), `jscpd` (≤ 1%), `knip`, all in `npm run check`. Seeded complex function, duplicate block, and unused export each fail locally (M0-AC7); CI proof comes with M0-4.
 - 2026-10-31: M0-4 CI (#12, #13): `ci.yml` runs `npm run check`, WebKit e2e and `scripts/ac-report` (per-AC table in the job summary) on PRs and `main`; a `STATUS.md updated` job fails PRs that touch `src/` without this file. AC2, AC3, AC7, AC10 proven by seeded CI runs (links in the M0 doc). #12 merged on a seed commit; #13 removed it.
+- 2026-10-31: M0-5 AI review (#14): `review.yml` runs the code-reviewer agent (Sonnet, read-only tools, JSON-schema verdict) on every PR push; findings are inline annotations plus one PR comment (edited on each push), and blocking ones fail the check. Docs-only PRs and the `review-override` label pass without calling Claude. AC8, AC11 proven by seeded runs.
 
 ## Known issues / open questions
+- `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
 - The build size budget (JS ≤ 250 KB gz) isn't in `npm run check` yet, and no M0 issue owns it. Add it in M0-6 (PWA/deploy) unless Stan prefers otherwise.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
 - **Home screen** (before a game starts) gets a working session with Stan at the start of M2, with 2–3 mock-ups to react to. See the M2 doc.
