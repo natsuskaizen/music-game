@@ -8,6 +8,16 @@
 - Weighted pick among the candidates (design §7.3: weakness × slowness × staleness, ledger boost on Hard, no-repeat).
 - *Review weak notes* mode, shown on Home. JSON export/import (iOS share sheet). `navigator.storage.persist()`.
 
+## Issues
+| Id | Issue | ACs |
+|---|---|---|
+| M4-1 (#58) | Note stats and scoring: `core/stats.ts` (`NoteStat`, `Attempt`, `statKey`, `newStat`, `applyAttempt`, credit 1 / 0.5 / 0) | AC1 |
+| M4-2 (#59) | Weighted pick in `core/selector.ts` (§7.3): weakness × slowness × staleness, ledger boost on Hard, exploration, no repeat | AC2, AC3 |
+| M4-3 (#60) | Stepwise ordering (§14): candidates within a third, ~10% jumps (other clef, octave, octave ± 1–2); session uses it instead of `pickNote` | AC4 |
+| M4-4 (#61) | Dexie `storage/db.ts` + `recordAttempt` (§10), quiz records answers and loads stats, `navigator.storage.persist()` | AC6 (reload) |
+| M4-5 (#62) | Review weak notes: weak-note pool in `core` (§7.4), session ends when empty, button on Home | AC5 |
+| M4-6 (#63) | JSON export (share sheet, download fallback) and validated import in Settings; M4 Summary | AC6 (round trip) |
+
 ## Acceptance criteria
 - M4-AC1 `applyAttempt` updates EWMA, box, and streak per the credit rules (unit).
 - M4-AC2 Simulation: over 1,000 picks, a note at 40% accuracy appears ≥3× as often as one at 95% (unit).
