@@ -4,6 +4,7 @@ import { themeFromQuery } from '../../src/core/theme';
 describe('themeFromQuery', () => {
   test('M1-AC1 picks the theme named in ?theme=', () => {
     expect(themeFromQuery('?theme=storybook')).toBe('storybook');
+    expect(themeFromQuery('?theme=arcade')).toBe('arcade');
     expect(themeFromQuery('?x=1&theme=paper')).toBe('paper');
   });
 

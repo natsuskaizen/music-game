@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 
-const THEMES = ['paper', 'storybook'];
+const THEMES = ['paper', 'storybook', 'arcade'];
 const STAFFS = [
   { name: 'F6 on the treble staff', file: 'treble', ledgers: 3 },
   { name: 'G1 on the bass staff', file: 'bass', ledgers: 3 },

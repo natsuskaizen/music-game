@@ -27,7 +27,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Difficulty | Easy / Medium / Hard sets range, ledger weighting, sequence size, timer; ledger counts never shown | design §14 |
 | Ordering | Mostly within a third, ~10% jumps (clef, octave) | design §14 |
 | Sound / timer | Note always plays after answer (master off switch); timer is a sprint (one bar per session, 60/50/40 s by difficulty) | design §14 |
-| Themes | Paper & ink and Storybook (Neon arcade dropped) | M1 doc |
+| Themes | Paper & ink and Storybook; Neon arcade (`?theme=arcade`) back on trial, Stan decides whether it stays | M1 doc |
 | Staff | `src/core/pitch.ts` + `staff-layout.ts` (pure geometry), `components/Staff.svelte` draws it; Bravura subset inlined by Vite (offline from first paint); grand staff middle lines 10 spaces apart | M1-1 |
 | Theme tokens | `src/themes.css` CSS variables; Paper & ink on `:root`, Storybook overrides via `data-theme`; `?theme=` read by `core/theme.ts`; components use only tokens | M1-2 |
 | Demo quiz | `core/quiz.ts` reducer (ask → retry → reveal, exact octave) and `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. Spike: M2 replaces it with the `InputMethod` registry and §8.3 session | M1-3 |
@@ -39,6 +39,7 @@ M0 ✓ · M1 ✱ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: Neon arcade trial theme (`?theme=arcade`, not a roadmap issue): dark CRT page, glow tokens (`--page-art`, `--text-glow`, `--staff-glow`, `--mark-glow`, `none` elsewhere), flicker/glitch/burst GSAP feedback; e2e and screenshots cover it.
 - 2026-10-31: M1-4 (#22): the correct note plays (synthesized tone) once a question is settled; `audioSession` set to `playback` for the silent switch; ringer hint when it's unsupported on a touch device. New M1-AC5 (unit + e2e); M1-AC2 waits for the device check.
 - 2026-10-31: M1-3 (#21): demo quiz above the staff gallery: on-screen piano (scrolls a revealed key into view), retry → reveal → Continue, GSAP feedback (Paper & ink: subtle slide/shake; Storybook: bounce, wobble, sparkles); e2e for both themes with reveal screenshots.
 - 2026-10-31: M1-2 (#20): theme tokens for Paper & ink and Storybook, `?theme=` switch with nav links; CI uploads per-theme staff screenshots as the `theme-screenshots` artifact (M1-AC1).
