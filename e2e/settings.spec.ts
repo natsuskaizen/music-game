@@ -38,6 +38,23 @@ test('M2-AC6 a 10-question session ends with a result and can start again', asyn
     if (i < 9) name = (await quiz.getByRole('img').getAttribute('aria-label')) ?? '';
   }
   await expect(quiz.getByText('Session done: 10 of 10 right on the first try (100%).')).toBeVisible();
+  await expect(quiz.getByText(/Average time \d+\.\d s/)).toBeVisible();
+  await expect(quiz.getByRole('list', { name: 'Slowest notes' }).getByRole('listitem')).toHaveCount(3);
   await quiz.getByRole('button', { name: 'Play again' }).click();
   await expect(quiz.getByText('Streak 0')).toBeVisible();
+});
+
+test('M6-AC5 the results screen has a Home button', async ({ page }) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('radio', { name: '10' }).click();
+  const { quiz, staffName, key } = await openQuiz(page);
+  let name = staffName;
+  for (let i = 0; i < 10; i++) {
+    await key(name.split(' ')[0] ?? '').click();
+    if (i < 9) await expect(quiz.getByRole('img')).not.toHaveAttribute('aria-label', name);
+    if (i < 9) name = (await quiz.getByRole('img').getAttribute('aria-label')) ?? '';
+  }
+  await quiz.getByRole('button', { name: 'Home' }).click();
+  await expect(page.getByRole('button', { name: 'Start' })).toBeVisible();
 });
