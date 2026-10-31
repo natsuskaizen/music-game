@@ -43,8 +43,8 @@ describe('pickNote', () => {
   });
 
   test('M1-AC1 ledger notes are weighted up', () => {
-    // The lowest note (3 ledger lines) takes a bigger slice of [0, 1) than a note on the staff.
-    const lowest = pickNote('treble', () => 0.05);
+    // E3 (3 ledger lines) weighs 2.8 of 37.4, about 0.075 of [0, 1); unweighted it would be 1/23 ≈ 0.043.
+    const lowest = pickNote('treble', () => 0.06);
     expect(lowest.pitch).toEqual({ letter: 'E', octave: 3 });
   });
 });

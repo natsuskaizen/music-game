@@ -11,9 +11,19 @@ export interface Feedback {
 
 const ORIGIN = { transformOrigin: '50% 50%' };
 
+// A clef change can start the next note while the last right-answer tween is still queued; stop it first.
+function restart(note: SVGGElement) {
+  gsap.killTweensOf(note);
+  return note;
+}
+
 const paper: Feedback = {
   enter(note) {
-    gsap.fromTo(note, { opacity: 0, x: 12, scale: 1 }, { opacity: 1, x: 0, duration: 0.3, ...ORIGIN });
+    gsap.fromTo(
+      restart(note),
+      { opacity: 0, x: 12, scale: 1 },
+      { opacity: 1, x: 0, duration: 0.3, ...ORIGIN },
+    );
   },
   wrong(note) {
     gsap.fromTo(note, { x: -6 }, { x: 0, duration: 0.4, ease: 'elastic.out(1, 0.5)' });
@@ -26,7 +36,7 @@ const paper: Feedback = {
 const storybook: Feedback = {
   enter(note) {
     gsap.fromTo(
-      note,
+      restart(note),
       { opacity: 0, y: -40, scale: 1 },
       { opacity: 1, y: 0, duration: 0.5, ease: 'bounce.out', ...ORIGIN },
     );
