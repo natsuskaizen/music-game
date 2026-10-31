@@ -26,7 +26,7 @@ Milestone doc (scope + ACs + issue list)
 |---|---|---|---|
 | M0 | [Foundation & quality gates](milestones/M0-foundation.md) | Scaffold, CI gates, AC status report, Pages deploy, installable PWA shell | Done |
 | M1 | [Look & feel spike](milestones/M1-look-and-feel.md) | 2 themes on device; staff/audio/offline risks retired; theme picked | In progress |
-| M2 | [Single-note MVP](milestones/M2-single-note.md) | Playable single-note quiz on the on-screen piano, retry/reveal/continue, difficulty, home | Not started |
+| M2 | [Single-note MVP](milestones/M2-single-note.md) | Playable single-note quiz on the on-screen piano, retry/reveal/continue, difficulty, home | In progress |
 | M3 | [Real piano & sound](milestones/M3-mic-and-sound.md) | Mic input from a real piano, piano samples, sound settings | Not started |
 | M4 | [Tracking, review & ordering](milestones/M4-tracking.md) | Stats in IndexedDB, weighted stepwise ordering, review mode, backup | Not started |
 | M5 | [Sequence mode](milestones/M5-sequence.md) | Multi-note quiz in measures, sized by difficulty | Not started |

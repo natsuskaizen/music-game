@@ -11,6 +11,15 @@
 - Home (design §14): mode, clef (treble / bass / both), Settings button, **Start at the bottom** using the last settings.
 - Settings: difficulty (easy / medium / hard), default input, questions per session (10 / 20 / 50 / endless). Persisted in localStorage.
 
+## Issues
+| Id | Issue | ACs |
+|---|---|---|
+| M2-1 (#30) | Difficulty ranges + note pool: `core/ranges.ts` (§14 table), uniform `pickNote` in `core/selector.ts` | AC1, AC2 |
+| M2-2 (#31) | Session reducer (`core/session.ts`, §8.3/§8.4) with `Answer` + `gradeAnswer` by exact pitch; replaces `core/quiz.ts` | AC3 (unit), AC9 |
+| M2-3 (#32) | Input plug-ins: `InputMethod`, registry, on-screen piano input, contract suite + fake input | AC7, AC8 (unit) |
+| M2-4 (#33) | Quiz screen: staff, active input + switcher, feedback, Continue, grand staff; replaces the M1 demo | AC3 (e2e), AC4, AC5, AC8 (e2e) |
+| M2-5 (#34) | Home + Settings, `core/settings.ts` with `migrateSettings`, localStorage; M2 Summary | AC6 |
+
 ## Acceptance criteria
 - M2-AC1 `staffPos`/`ledgerLines` are correct for every note in both clefs' full ranges (unit).
 - M2-AC2 The note pool matches the clef and difficulty table in design §14 (unit).
