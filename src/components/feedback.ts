@@ -12,7 +12,9 @@ export interface Feedback {
   celebrate(count: HTMLElement): void;
 }
 
-const ORIGIN = { transformOrigin: '50% 50%' };
+// smoothOrigin off: GSAP's origin compensation would otherwise bake an x/y offset into a note that is still scaled
+// from the last answer, and the next note would be drawn off its pitch (#36).
+const ORIGIN = { transformOrigin: '50% 50%', smoothOrigin: false };
 
 // A clef change can start the next note while the last right-answer tween is still queued; stop it first.
 function restart(note: SVGGElement) {
@@ -73,7 +75,7 @@ const storybook: Feedback = {
 const arcade: Feedback = {
   enter(note) {
     gsap.fromTo(
-      note,
+      restart(note),
       { opacity: 0, x: 0, scale: 1.8 },
       {
         keyframes: { opacity: [0, 1, 0.2, 1, 0.5, 1] },
