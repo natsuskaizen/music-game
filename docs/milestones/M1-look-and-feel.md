@@ -8,6 +8,7 @@ technical risks early.
   on-screen piano for answering, right/wrong feedback animation):
   1. *Paper & ink*: warm cream paper, engraved look, subtle motion.
   2. *Storybook*: rounded, colorful, playful character feedback (SVG + CSS + GSAP; no extra framework).
+  3. *Neon arcade* (added by Stan, PR #29): dark CRT page, neon glow, flicker/glitch/burst feedback.
 - Risk checks on device: Bravura glyph alignment incl. 3 ledger lines and grand staff;
   piano sample plays with the **silent switch on**; works offline after install.
 - Spike code is throwaway except the theme tokens and the staff component.
