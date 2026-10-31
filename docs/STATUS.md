@@ -19,7 +19,8 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Wrong answers | Retry once, reveal, wait for Continue (never auto-advance) | design §8.4 |
 | Answer precision | `exactOctave` setting for octave-aware inputs | design §9 |
 | Note selection | Weighted: ledger lines, weakness, slowness, staleness | design §7.3 |
-| Workflow | Milestone → issues → one PR per issue; code-reviewer agent + static quality gates on every PR | roadmap |
+| Workflow | Milestone → issues → one PR per issue; code-reviewer agent (CI only) + static quality gates on every PR | roadmap |
+| Token use | Issue threads on Sonnet; one AI review per PR (CI), local self-check instead of a subagent; one PR-link and one result message per thread; backup task every 2 h with an early exit | CLAUDE.md |
 | AC report | Failing AC turns CI red; an AC with no test or `- [x]` check yet is *pending*, and a milestone can't close with any pending | roadmap |
 | Build budget | `npm run size`: all gzipped JS in `dist/` (incl. service worker) ≤ 250 KB, part of `npm run check` | M0-6 |
 | Gate proofs | Seeded-violation commits go on a **draft** PR and are reverted before it's marked ready | M0-4 |
@@ -45,6 +46,7 @@ M0 ✓ · M1 ✓ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 
 ## Recent
 - 2026-10-31: M2-4 (#33): quiz screen with the input switcher and `ActiveInput`; e2e for retry, reveal and Continue, grand staff stave placement, and switching input mid-quiz (M2-AC3, AC4, AC5, AC8 e2e). The scripted headless input is e2e-build only.
+- 2026-10-31: Token savings (not a roadmap issue): CLAUDE.md drops the local reviewer subagent for a self-check, adds the backup-run early exit and a two-message rule, and says issue threads run on Sonnet.
 - 2026-10-31: M2-3 (#32): input plug-ins (`src/inputs/`), the on-screen piano is the first input and emits `Answer`; the demo quiz renders the registered input. Contract suite runs on every registered input plus a headless fake (M2-AC7), and answers from two inputs share one question's attempts (M2-AC8 unit).
 - 2026-10-31: M2-2 (#31): `core/session.ts` session reducer with `Answer` + exact-pitch `gradeAnswer` and a done phase after the session length, replacing `core/quiz.ts`; the demo quiz runs on it (a clef switch starts a new session). M2-AC3 (unit), M2-AC9.
 - 2026-10-31: M1 done: Stan picked Paper & ink (AC4); silent switch OK (AC2); works offline but the tone is silent in airplane mode (AC3, sound moved to M3-AC7, #39); Storybook note alignment logged for M8 (#38).
