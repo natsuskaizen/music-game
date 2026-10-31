@@ -38,7 +38,7 @@ project guidance Claude reads, so each later issue just adds code and tests and 
 - [x] M0-AC3 A deliberately failing test turns CI red (verified once, then removed). ([run](https://github.com/natsuskaizen/music-game/actions/runs/41165646526), 2026-10-31)
 - [x] M0-AC4 Merge to `main` deploys to `https://natsuskaizen.github.io/music-game/`. ([deploy run](https://github.com/natsuskaizen/music-game/actions/runs/41169387631), commit 908d8c5, 2026-10-31)
 - M0-AC5 Playwright: the page loads offline after first visit (service worker).
-- M0-AC6 Manual: it installs to the iPad/iPhone home screen and opens full-screen.
+- [x] M0-AC6 Manual: it installs to the iPad/iPhone home screen and opens full-screen. (iPhone, iPad, 2026-10-31)
 - [x] M0-AC7 A seeded violation of each static rule (complex function, duplicated block, unused export) fails CI. ([complex](https://github.com/natsuskaizen/music-game/actions/runs/41165719488), [duplicate](https://github.com/natsuskaizen/music-game/actions/runs/41165842359), [unused](https://github.com/natsuskaizen/music-game/actions/runs/41165947254), 2026-10-31)
 - [x] M0-AC8 A seeded PR with a needlessly repeated, undocumented function gets a `fail` verdict; the clean version passes. ([fail](https://github.com/natsuskaizen/music-game/actions/runs/41167653514), [pass](https://github.com/natsuskaizen/music-game/actions/runs/41167730502), 2026-10-31)
 - [x] M0-AC9 A new session reading only `CLAUDE.md` (with STATUS.md auto-loaded) can state the project goal, current state, workflow, and commands. (fresh M0-7 session, 2026-10-31)
