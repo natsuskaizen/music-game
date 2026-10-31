@@ -1,3 +1,4 @@
+/// <reference types="node" />
 import { defineConfig, devices } from '@playwright/test';
 
 // WebKit is the closest engine to iOS Safari, where Stan runs the app.
