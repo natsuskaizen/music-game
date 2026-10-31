@@ -52,7 +52,8 @@
       return;
     }
     await feedback.right(noteEl);
-    advance();
+    // A clef change during the animation has already moved on.
+    if (quiz.phase === 'right') advance();
   }
 </script>
 
