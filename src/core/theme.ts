@@ -6,8 +6,16 @@ export type Theme = keyof typeof THEME_NAMES;
 
 const THEMES = Object.keys(THEME_NAMES) as Theme[];
 
-/** Reads `?theme=` from a URL query string. A missing or unknown value falls back to Paper & ink. */
-export function themeFromQuery(search: string): Theme {
+/** Reads `?theme=` from a URL query string: the theme it names, or undefined when it is missing or unknown. */
+export function themeFromQuery(search: string): Theme | undefined {
   const value = new URLSearchParams(search).get('theme');
-  return THEMES.find((theme) => theme === value) ?? 'paper';
+  return THEMES.find((theme) => theme === value);
 }
+
+/** The theme in use: a `?theme=` test hook wins over the saved choice. */
+export function activeTheme(search: string, saved: Theme): Theme {
+  return themeFromQuery(search) ?? saved;
+}
+
+/** Every theme id, default first. */
+export const THEME_IDS: readonly Theme[] = THEMES;

@@ -1,10 +1,11 @@
-<!-- Settings (design §14): difficulty, questions per session, timer, the default answer input, mic loudness, and sound. Changes save at once. -->
+<!-- Settings (design §14): theme, difficulty, questions per session, timer, the default answer input, mic loudness, and sound. Changes save at once. -->
 <script lang="ts">
   import { MIC_LEVELS } from '../core/listen';
   import { DIFFICULTIES, SESSION_LENGTHS, type Settings } from '../core/settings';
   import { SPRINT_SECONDS } from '../core/sprint';
   import { VOLUMES, type SoundSettings } from '../core/sound';
   import type { Difficulty } from '../core/ranges';
+  import { THEME_IDS, THEME_NAMES, type Theme } from '../core/theme';
   import { available } from '../inputs';
   import { exportProgress, importProgress } from '../storage/backup-file';
   import Segmented from './Segmented.svelte';
@@ -67,6 +68,17 @@
       value={settings.questionsPerSession}
       onchange={(questionsPerSession: number) => {
         onchange({ ...settings, questionsPerSession });
+      }}
+    />
+  </div>
+  <div class="row">
+    <span>Theme</span>
+    <Segmented
+      label="Theme"
+      options={THEME_IDS.map((value) => ({ value, text: THEME_NAMES[value] }))}
+      value={settings.theme}
+      onchange={(theme: Theme) => {
+        onchange({ ...settings, theme });
       }}
     />
   </div>

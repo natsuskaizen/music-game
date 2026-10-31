@@ -4,6 +4,7 @@ import { DEFAULT_MIC_LEVEL, MIC_LEVELS } from './listen';
 import type { Difficulty } from './ranges';
 import { DEFAULT_SOUND, VOLUMES, type SoundSettings } from './sound';
 import type { ClefMode } from './staff-layout';
+import { THEME_IDS, type Theme } from './theme';
 
 export const CLEFS: ClefMode[] = ['treble', 'bass', 'both'];
 /** One note at a time, or a run of notes read in order (design §8.2). */
@@ -27,6 +28,8 @@ export interface Settings {
   micLevel: number;
   /** Race the clock: one countdown for the whole session (design §14). Off by default. */
   timer: boolean;
+  /** Look and feel (design §14). */
+  theme: Theme;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -39,6 +42,7 @@ export const DEFAULT_SETTINGS: Settings = {
   sound: DEFAULT_SOUND,
   micLevel: DEFAULT_MIC_LEVEL,
   timer: false,
+  theme: 'paper',
 };
 
 const KEY = 'settings';
@@ -79,6 +83,7 @@ export function migrateSettings(raw: unknown): Settings {
     sound: migrateSound(stored.sound),
     micLevel: oneOf(stored.micLevel, MIC_LEVELS, d.micLevel),
     timer: flag(stored.timer, d.timer),
+    theme: oneOf(stored.theme, THEME_IDS, d.theme),
   };
 }
 

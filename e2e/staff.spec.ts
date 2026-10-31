@@ -60,11 +60,3 @@ for (const theme of THEMES) {
     await svg.screenshot({ path: `reports/screenshots/${theme}-${testInfo.project.name}-sequence.png` });
   });
 }
-
-test('M1-AC1 theme switch links to the other theme', async ({ page }) => {
-  await page.goto('./');
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'paper');
-  await page.getByRole('link', { name: 'Storybook' }).click();
-  await expect(page.locator('html')).toHaveAttribute('data-theme', 'storybook');
-  await expect(page.getByRole('link', { name: 'Storybook' })).toHaveAttribute('aria-current', 'page');
-});

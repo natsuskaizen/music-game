@@ -25,4 +25,10 @@ AC3 is a manual device check for Stan; it stays open and doesn't block building.
 
 ## Summary (fill in at completion)
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+- **Shipped**: the leftover GSAP transform is gone (`smoothOrigin: false`), fixing #36 and #38, with a drawn-position e2e in
+  every theme (AC2). `Settings.theme` (default Paper & ink, migrated like the other fields) has a Theme control in Settings
+  that re-skins the app at once and survives a reload (AC1). The Home theme links are gone.
+- **Decision**: `?theme=` stays as a test hook and wins over the saved theme (`activeTheme`); `main.ts` sets `data-theme`
+  from the saved setting before the first paint so there is no flash.
+- **Open**: AC3 (each theme on iPhone and iPad) is Stan's manual device check.
+- **Follow-ups**: F1 (accidentals, key signatures) and F3 (write or say the letter) are in the backlog.

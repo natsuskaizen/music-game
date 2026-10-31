@@ -94,3 +94,11 @@ describe('migrateSettings timer', () => {
     expect(migrateSettings({ timer: 'yes' }).timer).toBe(false);
   });
 });
+
+describe('migrateSettings theme', () => {
+  test('M8-AC1 the theme is Paper & ink by default and keeps a stored choice', () => {
+    expect(DEFAULT_SETTINGS.theme).toBe('paper');
+    expect(migrateSettings({ theme: 'arcade' }).theme).toBe('arcade');
+    expect(migrateSettings({ theme: 'neon' }).theme).toBe('paper');
+  });
+});
