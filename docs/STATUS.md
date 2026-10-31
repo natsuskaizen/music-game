@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M7 Polish & PWA hardening is in progress (`docs/milestones/M7-polish.md`, issues #92–#97). M6 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M7-2 (#93) update prompt proof. M7-1 (#92, mic meter) is in review.
+- **Next issue**: M7-3 (#94) iOS shell. M7-2 (#93, update prompt proof) is in review.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -70,6 +70,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M7-2 (#93): `e2e/update-prompt.spec.ts` serves a v1 build, swaps in v2 mid-quiz, and checks the banner shows, the question stays, and Update now reloads into v2 (M7-AC1 e2e).
 - 2026-10-31: M7-1 (#92): `MicMeter.svelte` (taller themed bar, tinted loud-enough zone from the threshold, "Loud enough"/"Too quiet" label, `aria-valuetext`); scripted input gains `scripted-level` (M7-AC6 e2e).
 - 2026-10-31: M7 kick-off: issues #92–#97 (mic meter redesign first; new AC6–AC8; AC4 moves from Lighthouse to axe), roadmap marks M6 Done and M7 In progress.
 - 2026-10-31: M6-4 (#86): `core/heatmap.ts` and the Stats screen with a per-note heat-map (M6-AC4 unit + e2e); M6 Summary filled in.

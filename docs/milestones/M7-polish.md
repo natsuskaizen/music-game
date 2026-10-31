@@ -3,7 +3,7 @@
 **Goal**: feels finished and stays reliable on iOS.
 
 ## Scope
-- (The update banner shipped early, outside M7; M7-1 adds its e2e proof.)
+- (The update banner shipped early, outside M7; M7-2 adds its e2e proof.)
 - Redesign the mic level bar (Stan, 2026-10-31): the thin "Listening" meter works but needs a proper visual design in
   the chosen theme. Keep its threshold mark (M3-AC10) and its `role="meter"`.
 - Add-to-Home-Screen hint and safe-area insets (design §5.2).
