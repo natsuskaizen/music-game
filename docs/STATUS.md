@@ -60,7 +60,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✱
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
-- 2026-10-31: Update banner (not a roadmap issue, Stan's ask): a waiting new version shows "Update now" on every screen (`src/pwa/update.ts`, `UpdateBanner.svelte`); checks at launch, on return and hourly; never swaps by itself. M7 keeps the install hint and its e2e.
+- 2026-10-31: Update banner (not a roadmap issue, Stan's ask): a waiting new version shows "Update now" on every screen (`src/pwa/update.ts`, `UpdateBanner.svelte`); checks at launch, on return and hourly; never swaps by itself. New AC M7-AC5 (unit) in the M7 doc; M7 keeps the install hint and the e2e proof.
 - 2026-10-31: M5 kick-off: issues #72–#75 listed, roadmap marks M4 Done and M5 In progress.
 - 2026-10-31: M4-6 (#63): JSON export/import in Settings (share sheet or download, validated, replace-on-restore), M4 Summary written (M4-AC6).
 - 2026-10-31: M4-5 (#62): Review weak notes: `weakNotes` pool, session ends when empty, Home button (M4-AC5).

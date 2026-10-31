@@ -11,6 +11,7 @@
 - M7-AC2 The install hint shows only in the Safari tab, never in standalone mode (e2e).
 - M7-AC3 `prefers-reduced-motion` disables non-essential animation (e2e).
 - M7-AC4 Lighthouse PWA/accessibility checks pass in CI.
+- M7-AC5 A waiting new version shows an "Update now" button, and tapping it applies the update (unit; shipped early with the banner).
 
 Refs: design §5.2.
 

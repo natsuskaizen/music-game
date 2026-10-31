@@ -17,11 +17,11 @@ function bannerButton(ready: boolean, onUpdate: () => void): HTMLButtonElement |
   return target.querySelector('button');
 }
 
-test('M0-AC5 no banner shows until a new version is waiting', () => {
+test('M7-AC5 no banner shows until a new version is waiting', () => {
   expect(bannerButton(false, () => undefined)).toBeNull();
 });
 
-test('M0-AC5 a waiting version shows an Update now button that applies it', () => {
+test('M7-AC5 a waiting version shows an Update now button that applies it', () => {
   let applied = 0;
   const button = bannerButton(true, () => applied++);
   expect(button?.textContent).toBe('Update now');
