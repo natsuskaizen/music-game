@@ -6,7 +6,7 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M8 Themes in Settings is built (`docs/milestones/M8-themes.md`); device AC3 is open for Stan, as are M7's AC7 and M3's AC6 and AC7.
+- **Phase**: M8 Themes in Settings is built and stays "In progress" on the roadmap, the last milestone (`docs/milestones/M8-themes.md`); device AC3 is open for Stan, as are M7's AC7 and M3's AC6 and AC7.
 - **Next issue**: none queued; F1/F3 are backlog.
 - **Blocked on Stan**: nothing.
 
@@ -70,7 +70,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✓ built (device AC open) · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✱ built (device AC open) · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
