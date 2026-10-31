@@ -30,5 +30,6 @@ M0 ○ · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 - 2026-10-31: Research, design, framework comparison, Svelte keyboard mock-up (`prototypes/compare/`), roadmap and gates. All in PR #1.
 
 ## Known issues / open questions
+- **Note selection and ordering**: hold a working session with Stan at the start of M3 (difficulty tiers by register around C4 / C3–C5 / C2–C6, less random ordering). See M3 and M4 docs.
 - Look and feel is open until the M1 spike (3 themes to try on device).
 - iOS: mic permission may re-prompt per launch; silent switch handling must be confirmed on device (M1).

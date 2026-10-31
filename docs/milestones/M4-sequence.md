@@ -2,6 +2,13 @@
 
 **Goal**: read several notes in a row, tapping letters in order.
 
+## Working session with Stan first (before any issues are written)
+Note selection and ordering get designed together with Stan in a live session. Starting ideas from Stan:
+- **Difficulty tiers by register**: Easy = around C4, Medium = around C3 and C5, Hard = around C2 and C6.
+- **Less random ordering**: options for how notes follow each other, e.g. staying within one register group,
+  stepwise or patterned movement, gradual widening. Not a uniform shuffle.
+The outcome updates design §7 and this doc's scope and ACs. The weighting in §7.3 is a starting point only.
+
 ## Scope
 - `makeSequence` (weighted, with a max-leap setting). Multi-note staff with active/right/wrong states.
 - The same retry → reveal → Continue flow per note. Sequence length setting (4–8).
