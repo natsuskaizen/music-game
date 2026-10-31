@@ -7,8 +7,8 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M0 (foundation & quality gates) in progress. M0 issues are #2–#8.
-- **Next issue**: M0-5 AI review gate (#6).
-- **Blocked on Stan**: merge M0 PRs until branch protection is on (M0-4/M0-5). Later in M0: branch protection on `main` and Settings → Pages → Source: GitHub Actions. GitHub milestones weren't created (no tool for it); create "M0 Foundation" in the UI or leave it to M0-7.
+- **In progress**: M0-5 AI review gate (#6), draft PR #14.
+- **Blocked on Stan**: the AI review sees `CLAUDE_CODE_OAUTH_TOKEN` as empty; it must be an Actions repository secret. Then: merge M0 PRs until branch protection is on (M0-4/M0-5). Later in M0: branch protection on `main` and Settings → Pages → Source: GitHub Actions. GitHub milestones weren't created (no tool for it); create "M0 Foundation" in the UI or leave it to M0-7.
 
 ## Decisions so far
 | Topic | Decision | Where |
