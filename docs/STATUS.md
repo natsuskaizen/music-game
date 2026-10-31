@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M5 Sequence mode (`docs/milestones/M5-sequence.md`, issues #72–#75). M4 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M5-1 (#72) sequence generation.
+- **Next issue**: M5-3 (#74) multi-note staff layout.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -51,6 +51,8 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Storage | `storage/db.ts` (Dexie `sight-reading`: `stats` by key, `attempts` log): `recordAttempt` folds the attempt into its stat and appends it in one transaction; `loadStats`; `requestPersistence`. `Session` takes a `Picker` (`selector.ts`) instead of `random`: `learnedPicker` weights within `candidates`, `stepwisePicker` is the stats-free one for tests. `settledAttempt` builds the `Attempt` when a question settles (first miss records nothing). `Quiz` keeps a live stats map, merges stored stats in on mount, and ignores storage errors. | M4-4 |
 | Review mode | `core/stats.ts` `isWeak` (seen and `box <= 1` or `ewmaAcc < 0.7`) and `weakNotes(pool, stats)`. `Quiz` with a `review` stats prop starts from the weak notes, refilters after each settled answer (`withPool`), and the session is `done` when the pool is empty; a lone weak note may repeat. Home's "Review weak notes (n)" button is disabled at 0 | M4-5 |
 | Backup | `core/backup.ts` (`serializeBackup`, `parseBackup` validates, `rebuildStats` replays attempts); `storage/backup-file.ts` (`exportProgress` share sheet or download, `importProgress`); `db.ts` `replaceAttempts` swaps log and stats in one transaction. File is `{ v: 1, attempts }` | M4-6 |
+| Sequence | `core/sequence.ts` `makeSequence(pool, difficulty, { picker, random })` returns `Measure[]` of `{ note, duration }`. Hard's 3 measures force 12–16 notes (design's 10 can't fill 3 bars). Notes split evenly over measures; each measure has `count - 4` beats of two eighths, the rest quarters (always beamable pairs) | M5-1 |
+| Cursor | `core/cursor.ts`: `SequenceRun` `{ notes, index, session }`; `stepRun` reuses `reduce` with a picker that returns the next note and `questionsPerSession = notes.length`, so retry → reveal → Continue and per-note `settledAttempt` are unchanged. The index moves only on `next`; a single note is a run of one. Quiz adopts it in M5-4 | M5-2 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
 | App updates | `registerType: 'prompt'`, registered by `watchForUpdates()` in `App.svelte`: the new service worker waits until the person taps **Update now** (`UpdateBanner`), which reloads into it. Needed because an installed PWA otherwise keeps the old build until every window closes | design §5.2 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
@@ -60,11 +62,11 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✱
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M5-2 (#73): sequence cursor in `core/cursor.ts` (`startRun`, `stepRun`, `sequenceNotes`; M5-AC2 unit, M5-AC3).
+- 2026-10-31: M5-1 (#72): `makeSequence` in `core/sequence.ts` (sizes by difficulty, chains the picker, fills 4/4 measures with quarters and eighth pairs; M5-AC1).
 - 2026-10-31: Update banner (not a roadmap issue, Stan's ask): a waiting new version shows "Update now" on every screen (`src/pwa/update.ts`, `UpdateBanner.svelte`); checks at launch, on return and hourly; never swaps by itself. New AC M7-AC5 (unit) in the M7 doc; M7 keeps the install hint and the e2e proof.
 - 2026-10-31: M5 kick-off: issues #72–#75 listed, roadmap marks M4 Done and M5 In progress.
 - 2026-10-31: M4-6 (#63): JSON export/import in Settings (share sheet or download, validated, replace-on-restore), M4 Summary written (M4-AC6).
-- 2026-10-31: M4-5 (#62): Review weak notes: `weakNotes` pool, session ends when empty, Home button (M4-AC5).
-- 2026-10-31: M4-4 (#61): Dexie storage, `recordAttempt`, and `learnedPicker` (weighted, stepwise) drive the quiz; stats survive a reload.
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
