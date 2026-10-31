@@ -36,4 +36,9 @@ Refs: design §5.2, §4.4, §8.4.
 
 ## Summary (fill in at completion)
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+Shipped the polish and iOS hardening.
+- `MicMeter.svelte` (themed level bar with a "loud enough" zone), an e2e proof of the update banner, and `core/install.ts` with a dismissible Add to Home Screen hint plus `env(safe-area-inset-*)` padding.
+- `core/streak.ts` names celebrated streaks (5, 10, 20, then every 10) and each theme's `Feedback` pulses the count; `prefers-reduced-motion` makes `feedbackFor` motionless.
+- `e2e/a11y.spec.ts` runs axe (WCAG 2 A/AA) on Home, Settings, Stats, the quiz and results in all three themes. It found only contrast failures, fixed in `themes.css`: darker Paper & ink `--muted`, Storybook `--accent`, `--right`, `--wrong`, and Neon arcade `--wrong`.
+- Open: M7-AC7 (notch and home indicator on iPhone and iPad) is manual, for Stan.
+- Follow-up: the mic meter's live listening state isn't in the axe scan (it needs a real mic or the scripted input).
