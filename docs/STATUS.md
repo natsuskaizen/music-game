@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M7 Polish & PWA hardening is in progress (`docs/milestones/M7-polish.md`, issues #92–#97). M6 is done. M3 is built; its device ACs (AC6, AC7) are open for Stan.
-- **Next issue**: M7-6 (#97) accessibility pass. M7-5 (#96, reduced motion) is in review. M7-3's AC7 (notch and home indicator on devices) is manual, for Stan.
+- **Phase**: M7 Polish & PWA hardening is built (`docs/milestones/M7-polish.md`, issues #92–#97); its device AC7 is open for Stan, as are M3's AC6 and AC7. M6 is done.
+- **Next issue**: M8 kick-off (themes in Settings, Neon arcade fix), then F1/F3 backlog.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -66,22 +66,19 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Install hint | `core/install.ts` `shouldShowInstallHint(env, dismissed)`: iOS (iPhone/iPad/iPod, or a touch Mac for iPadOS) and not `navigator.standalone`; dismissal in localStorage `install-hint-dismissed`. `App.svelte` main and `UpdateBanner` use `max(base, env(safe-area-inset-*))` padding | M7-3 |
 | Celebration | `core/streak.ts` `celebrates(before, after)`: true when the first-try streak rises to 5, 10, 20, then every 10 (a miss or retry never does). `Quiz` calls the theme's `Feedback.celebrate` on the streak count, so each theme pulses it its own way | M7-4 |
 | Reduced motion | `components/feedback.ts` `prefersReducedMotion()` + `feedbackFor`: the `still` feedback skips every tween; the app has no CSS transitions. State, marks and the Continue rule are unchanged | M7-5 |
+| Contrast | Themes must pass axe color-contrast (4.5:1): `--muted`, `--accent` (with `--on-accent`), `--right` and `--wrong` were darkened/lightened per theme. New tokens need the same check | M7-6 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✱ · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M7-6 (#97): `e2e/a11y.spec.ts` scans Home, Settings, Stats, quiz and results with axe in all three themes (M7-AC4); contrast fixes in `themes.css`; M7 Summary filled in.
 - 2026-10-31: M7-5 (#96): `feedbackFor(theme, reduced)` returns a motionless `Feedback` under `prefers-reduced-motion` (no tweens or sparks, a right answer moves on at once); `Quiz` reads the setting per use (M7-AC3 unit + e2e).
 - 2026-10-31: M7-4 (#95): `core/streak.ts` names celebrated streaks (5, 10, 20, then every 10) and each theme's `Feedback` gets `celebrate`, which pulses the streak count in `Quiz` (M7-AC8 unit).
 - 2026-10-31: M7-3 (#94): `core/install.ts` decides the install hint (iOS tab, not standalone, not dismissed), `InstallHint.svelte` on Home saves the dismissal, and the shell, update banner pad with `env(safe-area-inset-*)` (M7-AC2 unit + e2e; AC7 manual).
 - 2026-10-31: M7-2 (#93): `e2e/update-prompt.spec.ts` serves a v1 build, swaps in v2 mid-quiz, and checks the banner shows, the question stays, and Update now reloads into v2 (M7-AC1 e2e).
-- 2026-10-31: M7-1 (#92): `MicMeter.svelte` (taller themed bar, tinted loud-enough zone from the threshold, "Loud enough"/"Too quiet" label, `aria-valuetext`); scripted input gains `scripted-level` (M7-AC6 e2e).
-- 2026-10-31: M7 kick-off: issues #92–#97 (mic meter redesign first; new AC6–AC8; AC4 moves from Lighthouse to axe), roadmap marks M6 Done and M7 In progress.
-- 2026-10-31: M6-4 (#86): `core/heatmap.ts` and the Stats screen with a per-note heat-map (M6-AC4 unit + e2e); M6 Summary filled in.
-- 2026-10-31: M6-3 (#85): `core/results.ts` and `Results` screen with accuracy, average time, three slowest notes, Play again and Home (M6-AC5 unit + e2e).
-- 2026-10-31: M6-2 (#84): `SprintBar` countdown in the quiz (single and sequence, not review), `timeUp` session event, pause on `visibilitychange` (M6-AC2 unit + e2e).
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
