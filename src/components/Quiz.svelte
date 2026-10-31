@@ -2,14 +2,22 @@
      The correct note sounds once the question is settled (design §14). -->
 <script lang="ts">
   import { needsRingerHint, playTone } from '../audio/tone';
-  import { KEY_RANGES } from '../core/keyboard';
   import { midiOf, pitchLabel } from '../core/pitch';
   import { notePool } from '../core/ranges';
-  import { firstTryPercent, isSettled, reduce, startSession, toneAfter, type Session } from '../core/session';
+  import {
+    firstTryPercent,
+    isSettled,
+    reduce,
+    startSession,
+    toneAfter,
+    type Answer,
+    type Session,
+  } from '../core/session';
   import type { ClefMode } from '../core/staff-layout';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
-  import Piano from './Piano.svelte';
+  import { inputById } from '../inputs';
+  import type { KeyMark } from '../inputs/types';
   import Staff from './Staff.svelte';
 
   let { theme }: { theme: Theme } = $props();
@@ -17,6 +25,8 @@
   const CLEFS: ClefMode[] = ['treble', 'bass', 'both'];
   const feedback = $derived(FEEDBACK[theme]);
   const ringerHint = needsRingerHint();
+  // M2-4 adds the input switcher and M2-5 the default-input setting; until then the piano answers.
+  const Input = inputById('piano').component;
 
   let mode = $state<ClefMode>('treble');
   // Medium is the default difficulty and the demo is endless; M2-5 makes both settings.
@@ -30,7 +40,7 @@
   const name = $derived(pitchLabel(quiz.note.pitch));
   const showsAnswer = $derived(isSettled(quiz.phase));
   const marks = $derived(
-    new Map<number, 'right' | 'wrong'>([
+    new Map<number, KeyMark>([
       ...quiz.misses.map((a) => [a.midi, 'wrong'] as const),
       ...(showsAnswer ? [[target, 'right'] as const] : []),
     ]),
@@ -57,9 +67,9 @@
     showQuestion(begin(next));
   }
 
-  async function press(midi: number) {
+  async function onAnswer(answer: Answer) {
     const before = quiz;
-    quiz = reduce(quiz, { type: 'answer', answer: { kind: 'pitch', midi } }, Math.random);
+    quiz = reduce(quiz, { type: 'answer', answer }, Math.random);
     const tone = toneAfter(before, quiz);
     if (tone !== undefined) playTone(tone);
     if (quiz.phase === before.phase || !noteEl) return;
@@ -105,7 +115,7 @@
     revealed={quiz.phase === 'reveal'}
     bind:noteEl
   />
-  <Piano range={KEY_RANGES[mode]} {marks} onpress={press} />
+  {#if Input}<Input {mode} {marks} emit={onAnswer} />{/if}
   <div class="continue">
     {#if quiz.phase === 'reveal'}<button type="button" onclick={advance}>Continue</button>{/if}
   </div>
