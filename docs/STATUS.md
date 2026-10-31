@@ -6,7 +6,7 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M2 single-note MVP done once #34 merges (`docs/milestones/M2-single-note.md`, issues #30–#34). M1 is done.
+- **Phase**: M2 single-note MVP complete once #34 merges (roadmap keeps it "In progress" until M3 starts: `npm run ac-report` needs one in-progress milestone) (`docs/milestones/M2-single-note.md`, issues #30–#34). M1 is done.
 - **Next issue**: first issue of M3 (mic input; write its issue list at the milestone start).
 - **Blocked on Stan**: nothing.
 
@@ -42,7 +42,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
