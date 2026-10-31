@@ -11,7 +11,7 @@ const MIDDLE = { treble: 4 * 7 + 6, bass: 3 * 7 + 1 }; // B4, D3 as diatonic ind
 
 export const diatonic = (n: { letter: Letter; octave: number }) => n.octave * 7 + LETTERS.indexOf(n.letter);
 export const staffPos = (n: Note) => diatonic(n) - MIDDLE[n.clef];
-export const hz = (n: Note) => 440 * 2 ** (((n.octave + 1) * 12 + SEMITONE[n.letter] - 69) / 12);
+export const hz = (n: Note) => 440 * 2 ** ((midiOf(n) - 69) / 12);
 export const label = (n: Note) => `${n.letter}${n.octave}`;
 
 /** Staff positions of the ledger lines a note needs (±6, ±8, ±10). */
@@ -45,16 +45,27 @@ export interface QuizState {
 export const start = (mode: ClefMode): QuizState =>
   ({ note: randomNote(mode), phase: 'ask', wrong: [], streak: 0, firstTry: 0, total: 0 });
 
+export const midiOf = (n: { letter: Letter; octave: number }) => (n.octave + 1) * 12 + SEMITONE[n.letter];
+
 /** Retry once, then reveal. A reveal waits for next(); nothing advances on its own after a miss. */
-export function answer(s: QuizState, l: Letter): QuizState {
+function grade(s: QuizState, ok: boolean, wrongLetter?: Letter): QuizState {
   if (s.phase !== 'ask' && s.phase !== 'retry') return s;
-  if (l === s.note.letter) {
+  if (ok) {
     const first = s.phase === 'ask';
     return { ...s, phase: 'right', total: s.total + 1,
       firstTry: s.firstTry + (first ? 1 : 0), streak: first ? s.streak + 1 : 0 };
   }
-  if (s.phase === 'ask') return { ...s, phase: 'retry', wrong: [l] };
-  return { ...s, phase: 'reveal', wrong: [...s.wrong, l], streak: 0, total: s.total + 1 };
+  const wrong = wrongLetter ? [...s.wrong, wrongLetter] : s.wrong;
+  if (s.phase === 'ask') return { ...s, phase: 'retry', wrong };
+  return { ...s, phase: 'reveal', wrong, streak: 0, total: s.total + 1 };
+}
+
+export const answer = (s: QuizState, l: Letter) => grade(s, l === s.note.letter, l === s.note.letter ? undefined : l);
+
+/** Grade a played key (on-screen piano or mic): exact pitch, or the same letter in any octave. */
+export function answerKey(s: QuizState, midi: number, exactOctave: boolean): QuizState {
+  const target = midiOf(s.note);
+  return grade(s, exactOctave ? midi === target : (((midi - target) % 12) + 12) % 12 === 0);
 }
 
 export const next = (s: QuizState, mode: ClefMode): QuizState =>

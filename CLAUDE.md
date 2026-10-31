@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Sight-reading quiz PWA for iPad/iPhone, hosted on GitHub Pages. Owner: Stan (lead engineer, Python background; likes code examples).
+Sight-reading quiz PWA for iPad/iPhone, hosted on GitHub Pages. Stack: Svelte 5 + SVG (Bravura glyphs) + GSAP, Vite, Dexie, Vitest, Playwright. Owner: Stan (lead engineer, Python background; likes code examples).
 
 ## Read first (and only what you need)
 - `docs/roadmap.md` for milestones, gates, and status.

@@ -1,5 +1,7 @@
 # Framework evaluation
 
+> **Decision (2026-10-31): Svelte 5 + SVG + GSAP.** Prototypes of both finalists are in `prototypes/compare/`.
+
 Versions checked on npm on 2026-10-30. What this app needs most is crisp notation,
 forms (settings, stats), testability for the CI gates, small offline bundles on iOS,
 and "pretty" animation. Physics, tilemaps, and sprite worlds are not needed.

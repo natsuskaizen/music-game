@@ -4,7 +4,7 @@
 technical risks early.
 
 ## Scope
-- One demo page, `?theme=` switch, with **3 themes** drawing the same screen (staff, a note,
+- Built in Svelte from `prototypes/compare/keyboard.html`. One demo page, `?theme=` switch, with **3 themes** drawing the same screen (staff, a note,
   answer pad, right/wrong feedback animation):
   1. *Paper & ink*: warm cream paper, engraved look, subtle motion.
   2. *Neon arcade*: dark background, glowing notes, punchy effects and streak counter.

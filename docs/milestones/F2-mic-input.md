@@ -15,7 +15,7 @@
 - F2-AC3 Detection of recorded piano samples for every note in range: ≥ 95% letter-correct, ≥ 90% octave-correct above C2 (unit, offline fixtures).
 - F2-AC4 Manual: on your piano, iPad and iPhone, normal room, a played note registers in under 0.3 s.
 
-Refs: design §4 (audio), M5 (keyboard, midi math).
+Refs: design §4.4 (mic), §3.3 (grader), M5 (keyboard). Prototype: `prototypes/compare/src/shared/mic.ts`.
 
 ## Summary (fill in at completion)
 

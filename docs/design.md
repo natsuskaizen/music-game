@@ -14,7 +14,8 @@ implementation PR is mostly typing.
    and **play notes audibly** (on/off and when).
 6. Notes an octave above/below the staff (ledger lines) are harder and should
    appear **more frequently**.
-7. **Polished, game-like graphics**, with **Phaser 4** as the candidate framework.
+7. **Polished, game-like graphics**. Phaser 4 was evaluated; Svelte 5 + SVG + GSAP was chosen (section 2).
+8. **Answer on a piano**: an on-screen keyboard, or by playing a real piano into the mic.
 
 Non-goals for v1: MIDI input, accidentals/key signatures, accounts or sync.
 Accidentals/key signatures are planned as a later feature (see the roadmap).
@@ -23,173 +24,113 @@ Accidentals/key signatures are planned as a later feature (see the roadmap).
 
 ## 2. Recommendation at a glance
 
-> **Framework under review**: [frameworks.md](frameworks.md) compares Phaser 4 with
-> four alternatives and recommends Svelte 5 + SVG + GSAP. The rows below that mention Phaser
-> will be updated once the choice is made; everything in `src/core/` is unaffected.
+**Decided: Svelte 5 + SVG + GSAP.** Phaser 4 and three other alternatives were compared in
+[frameworks.md](frameworks.md). Svelte won on crisp notation, a native-feeling scrollable keyboard,
+one shared audio setup for playback and mic, testability, and bundle size (~40 KB vs ~374 KB gz,
+measured in `prototypes/compare`).
 
 | Concern | Choice | Why |
 |---|---|---|
-| Build | **Vite + TypeScript** | Fast, static output, first-class PWA plugin, official Phaser templates use it |
-| Game / quiz screens | **Phaser 4** (4.2.1 on npm) | Tweens, particles, scene management, and touch input for the "pretty" part |
-| Notation | **Custom staff drawn in Phaser** with the **Bravura** SMuFL font | Each note is its own game object, so it can slide, glow, and burst; VexFlow is the fallback |
-| Menus, settings, stats | **Plain DOM overlay** (Preact or vanilla TS) | Forms, sliders, and scrolling lists are painful inside a canvas |
-| Audio | **Phaser sound manager** (Web Audio) + pitch-shifted **piano samples** | Already in Phaser, handles the iOS audio unlock, works offline once precached |
-| State | **Zustand vanilla store** | One store readable from both Phaser scenes and DOM screens |
+| Build | **Vite + TypeScript** | Fast, static output, first-class PWA plugin |
+| UI | **Svelte 5** (runes) | Little boilerplate, reads like HTML, compiles away to small JS |
+| Notation | **SVG staff** with the **Bravura** SMuFL font (3 KB subset) | Vector, sharp at any zoom; VexFlow 5 is the fallback for complex engraving |
+| Animation | **GSAP 3** | Tweens, elastic shakes, spark bursts; free including plugins |
+| Answer input | **Letter pad / on-screen piano / mic** | All three feed the same `answerKey()` grader (section 4.4, 9) |
+| Audio | **Web Audio**: one `AudioContext` for piano-sample playback and mic listening | Works offline once precached; one place to enforce "mute while listening" |
+| Pitch detection | **pitchy** (McLeod method) | Small, accurate for single piano notes |
+| State | **Svelte stores** | Built in; settings persisted to localStorage |
 | Offline | **vite-plugin-pwa** (Workbox `generateSW`, precache everything) | One config block gives a service worker and manifest |
 | Storage | **IndexedDB via Dexie 4** + JSON export/import | Durable, queryable attempt log; backup guards against iOS storage loss |
-| Tests | **Vitest** for the pure core | Selection/scoring logic is pure TS, like a Python domain layer |
-| Hosting | **GitHub Pages** (or any static HTTPS host) | Service workers require HTTPS; repo already on GitHub |
+| Tests | **Vitest** (core) + **Playwright WebKit** (UI) | DOM buttons and keys are directly testable by role and name |
+| Hosting | **GitHub Pages** | Service workers require HTTPS; deploys only when gates are green |
 
 If you've worked on Python projects, the shape will look familiar. `src/core/` is a pure domain
 package with no DOM (think `domain/` + `services/`), `src/storage/` is the repository
-layer, and Phaser plus the DOM screens are thin presentation layers on top. Phaser
-never decides which note comes next; it only draws what the core hands it.
+layer, and Svelte components are a thin presentation layer on top. Components never decide
+which note comes next; they render what the core hands them and report taps back.
 
 ---
 
-## 3. Framework & notation rendering
+## 3. Rendering & input
 
-### 3.1 Phaser 4: verdict
+Working prototypes of everything in this section are in `prototypes/compare/`
+(`npm run dev`, then open `/keyboard.html`).
 
-**Use it for the quiz screens, not for the whole app.** Verified on npm:
-`phaser@4.2.1` is current, ships an ESM build (`dist/phaser.esm.min.js`, about 1.4 MB
-minified, roughly 350 KB gzipped), and keeps both WebGL and Canvas renderers.
+### 3.1 Staff as SVG + Bravura glyphs
 
-| Phaser gives you | Watch out for |
-|---|---|
-| Tweens, particles, camera shake, scene transitions, which is the "pretty" part | No music notation, so you draw the staff yourself (3.2) |
-| Pointer/touch input on game objects with no 300ms delay | Text inputs, sliders, and scrolling lists in a canvas are painful, so keep Settings/Stats in the DOM |
-| Sound manager on Web Audio, including the iOS "unlock on first touch" dance | Text is rasterized, so set `resolution: devicePixelRatio` or it blurs on Retina |
-| `Scale.RESIZE` / `FIT` for iPad rotation and iPhone sizes | ~350 KB gz is fine once precached, but first load is heavier than a DOM-only app |
-| Same asset loader works with the service worker cache | Phaser 4 is newer than Phaser 3, so some community examples/plugins still target v3 |
+Drill notes don't need stems, beams, or rhythm, so draw **whole notes**. The staff is
+5 SVG lines, and the ledger lines come from the pitch math in section 6. Clefs and
+noteheads are SMuFL glyphs from Bravura (SIL OFL), subset to 5 glyphs (about 3 KB):
+`gClef` U+E050, `fClef` U+E062, `brace` U+E000, `noteheadWhole` U+E0A2, `noteheadBlack` U+E0A4.
 
-Shape of the hybrid: one `<canvas>` for Phaser (Home, Quiz, Results scenes) plus a
-DOM overlay `<div>` for Settings and Stats. Both read and write the same Zustand vanilla
-store, and Phaser pauses its scene while an overlay is open.
+SMuFL fonts are designed so 1 em = 4 staff spaces and each glyph's baseline sits on its
+reference line. That makes positioning plain arithmetic:
+
+```svelte
+<!-- Staff.svelte (trimmed from prototypes/compare/src/svelte/KeyboardQuiz.svelte) -->
+<svg viewBox="0 0 640 248">
+  {#each [-4, -2, 0, 2, 4] as p}<line x1={LEFT} x2={RIGHT} y1={yOf(p)} y2={yOf(p)} />{/each}
+  <!-- G clef baseline on the G4 line, F clef on the F3 line -->
+  <text class="smufl" x={LEFT + 12} y={clefY(note.clef)} font-size={4 * S}>{clefGlyph(note.clef)}</text>
+  <g bind:this={noteEl} class="note {phase}">
+    {#each ledgerPositions(pos) as p}<line x1={NOTE_X - S * 1.35} x2={NOTE_X + S * 1.35} y1={yOf(p)} y2={yOf(p)} />{/each}
+    <text class="smufl" x={NOTE_X} y={yOf(pos)} text-anchor="middle" font-size={4 * S}>{''}</text>
+  </g>
+</svg>
+```
 
 ```ts
-// src/game/main.ts
-import Phaser from 'phaser';
-import { QuizScene } from './scenes/QuizScene';
+// yOf: staff position (0 = middle line, +1 per line/space) → SVG y
+export const yOf = (pos: number) => MID_Y - pos * (S / 2);
+```
 
-export function startGame(parent: HTMLElement) {
-  return new Phaser.Game({
-    type: Phaser.AUTO,                 // WebGL, falls back to Canvas
-    parent,
-    backgroundColor: '#fdfaf3',
-    scale: { mode: Phaser.Scale.RESIZE, autoCenter: Phaser.Scale.CENTER_BOTH },
-    audio: { disableWebAudio: false },
-    scene: [BootScene, HomeScene, QuizScene, ResultsScene],
-  });
+Feedback animation is GSAP on the note's `<g>`: slide in, elastic shake on a miss, scale-and-fade
+plus a spark burst on a hit. Each one is a single `gsap.fromTo` call.
+
+**Fallback**: VexFlow 5 (`vexflow/bravura` entry, fonts embedded, offline-safe) renders SVG
+natively into the same DOM if we later need real engraving (accidentals spacing, key signatures in F1).
+
+### 3.2 On-screen piano keyboard
+
+Each key is a real `<button>` with `aria-label="C4"`. Keys are absolutely positioned: white
+keys side by side, black keys centered on the boundary after their white key.
+
+- **Range follows the clef setting**: treble E3–F6, bass G1–A4, both G1–F6.
+- **Sizing**: key width is `clamp(38px, available / whiteKeys, 60px)`. The treble range fits an
+  iPad in landscape. On iPhone the keyboard scrolls sideways with `overflow-x: auto`, so iOS supplies the
+  momentum and rubber-banding.
+- **Taps use `click`, not `pointerdown`**, so a swipe to scroll never registers as a key press.
+  `touch-action: manipulation` removes the double-tap zoom delay.
+- **Landmarks**: C keys are always labeled (C3, C4…) and middle C has a dot. A "Key names" setting labels every key.
+- **State is a CSS class per key**: `wrong` (red), `right` (green), `heard` (teal, the note the mic is hearing).
+
+```svelte
+<!-- Piano.svelte (trimmed) -->
+<div class="scroller" bind:clientWidth={viewW}>             <!-- overflow-x: auto -->
+  <div class="bed" style:width="{nWhite * W}px">
+    {#each keys as k (k.m)}
+      <button class="key {k.black ? 'black' : 'white'} {marks.get(k.m) ?? ''}"
+              style:left="{k.black ? k.wi * W - BW / 2 : k.wi * W}px"
+              aria-label={nameOf(k.m)} onclick={() => onpress(k.m)}></button>
+    {/each}
+  </div>
+</div>
+```
+
+Playwright can then drive it exactly like a person: `page.getByRole('button', { name: 'C4', exact: true }).click()`.
+
+### 3.3 One grader for every input
+
+Letter pad, keyboard, and mic all end in the same pure function, so the retry → reveal →
+Continue flow and stats work identically whatever you answer with:
+
+```ts
+// src/core/quiz.ts
+export function answerKey(s: QuizState, midi: number, exactOctave: boolean): QuizState {
+  const target = midiOf(s.note);
+  return grade(s, exactOctave ? midi === target : (((midi - target) % 12) + 12) % 12 === 0);
 }
 ```
-
-### 3.2 Notation inside Phaser: custom staff + Bravura glyphs (recommended)
-
-Drill notes don't need stems, beams, or rhythm, so draw **whole notes**. That
-removes most of what a notation engine is for. What's left is:
-
-- 5 staff lines and the ledger lines (Phaser `Graphics`), positioned with the pitch math in section 6.
-- Clefs, brace, and noteheads as **SMuFL glyphs** from the Bravura font (SIL Open Font License),
-  bundled as a `.woff2` and precached: `gClef` U+E050, `fClef` U+E062, `brace` U+E000, `noteheadWhole` U+E0A2.
-
-Every note is then an ordinary game object you can tween, tint, or explode into particles.
-
-```ts
-// src/game/staff/StaffView.ts
-import Phaser from 'phaser';
-import { staffPos, ledgerLines, type Pitch, type Clef } from '../../core/pitch';
-
-const GLYPH = { gClef: '', fClef: '', noteWhole: '' };
-
-export class StaffView extends Phaser.GameObjects.Container {
-  constructor(scene: Phaser.Scene, x: number, y: number,
-              private clef: Clef, private width: number, private space = 18) {
-    super(scene, x, y);
-    const g = scene.add.graphics().lineStyle(2, 0x222222);
-    for (let i = -2; i <= 2; i++) g.lineBetween(0, i * space, width, i * space); // y = 0 is the middle line
-    this.add(g);
-    const clefGlyph = scene.add.text(8, clef === 'treble' ? space : -space,
-      clef === 'treble' ? GLYPH.gClef : GLYPH.fClef, this.font(space * 4)).setOrigin(0, 0.5);
-    this.add(clefGlyph);
-    scene.add.existing(this);
-  }
-
-  /** y offset of a pitch relative to the middle line: each step is half a space. */
-  yOf(p: Pitch) { return -staffPos(p, this.clef) * (this.space / 2); }
-
-  addNote(p: Pitch, x: number): Phaser.GameObjects.Container {
-    const note = this.scene.add.container(x, this.yOf(p));
-    const pos = staffPos(p, this.clef);
-    const g = this.scene.add.graphics().lineStyle(2, 0x222222);
-    for (let i = 1; i <= ledgerLines(p, this.clef); i++) {
-      // ledger lines sit at staff positions ±6, ±8, ±10, drawn relative to the note
-      const ledgerPos = Math.sign(pos) * (4 + 2 * i);
-      const dy = -(ledgerPos - pos) * (this.space / 2);
-      g.lineBetween(-this.space, dy, this.space, dy);
-    }
-    const head = this.scene.add.text(0, 0, GLYPH.noteWhole, this.font(this.space * 4)).setOrigin(0.5);
-    note.add([g, head]);
-    this.add(note);
-    return note;
-  }
-
-  private font(px: number): Phaser.Types.GameObjects.Text.TextStyle {
-    return { fontFamily: 'Bravura', fontSize: `${px}px`, color: '#222', resolution: window.devicePixelRatio };
-  }
-}
-```
-
-```ts
-// In QuizScene: a new note slides in; a right answer pops, a wrong one shakes red.
-const note = staff.addNote(pitch, 180).setAlpha(0).setX(260);
-this.tweens.add({ targets: note, x: 180, alpha: 1, duration: 250, ease: 'Back.Out' });
-
-onCorrect: this.tweens.add({ targets: note, scale: 1.4, alpha: 0, duration: 200 });
-onWrong:   note.list.forEach(o => (o as any).setTint?.(0xdd3333));
-           this.cameras.main.shake(120, 0.004);
-```
-
-Load the font before the first scene draws text, or Phaser will rasterize a fallback font:
-
-```ts
-// BootScene.preload / or before new Phaser.Game(...)
-const bravura = new FontFace('Bravura', `url(${import.meta.env.BASE_URL}fonts/Bravura.woff2)`);
-document.fonts.add(await bravura.load());
-```
-
-Exact glyph offsets (clef baseline, notehead width) need a little tuning in the spike.
-Bravura's `bravura_metadata.json` lists the anchors if eyeballing isn't enough.
-
-### 3.3 Fallback: VexFlow 5 rendered to a texture
-
-If drawing the staff by hand turns out fiddly, VexFlow can produce an SVG string that
-Phaser loads as a texture. Verified on npm: `vexflow@5.0.0` has a `vexflow/bravura`
-entry that embeds its fonts as JS (no network fetch, offline-safe). The trade-off is that the whole
-staff becomes one static image, so per-note animation means re-rendering, and you
-must render at `devicePixelRatio` to stay crisp. VexFlow is also the easy choice for
-any **non-Phaser** view, such as a stats heat-map on the DOM Stats screen.
-
-```ts
-import { Renderer, Stave, StaveNote, Voice, Formatter } from 'vexflow/bravura';
-
-export function staffSvg(clef: 'treble' | 'bass', keys: string[]): string {
-  const div = document.createElement('div');
-  const r = new Renderer(div, Renderer.Backends.SVG);
-  r.resize(320, 200);
-  const ctx = r.getContext();
-  const stave = new Stave(10, 50, 300).addClef(clef).setContext(ctx).draw();
-  const notes = keys.map(k => new StaveNote({ clef, keys: [k], duration: 'w' }));
-  const voice = new Voice({ numBeats: 4 * keys.length, beatValue: 4 }).addTickables(notes);
-  new Formatter().joinVoices([voice]).format([voice], 220);
-  voice.draw(ctx, stave);
-  return div.innerHTML;
-}
-// Phaser: this.textures.addBase64('staff', 'data:image/svg+xml;base64,' + btoa(staffSvg(...)));
-```
-
-**abcjs** was also considered. It renders ABC text strings to SVG and has playback, but it fits
-the same "static image" bucket as VexFlow with less control, so it isn't recommended here.
 
 ---
 
@@ -197,9 +138,8 @@ the same "static image" bucket as VexFlow with less control, so it isn't recomme
 
 ### 4.1 Approach
 
-Use Phaser's sound manager (Web Audio under the hood) with **real piano samples**
-at every third semitone, pitch-shifted to the in-between notes using the sound's
-`detune` (in cents). Shifting ±1 semitone is inaudible as an artifact.
+Use Web Audio directly with **real piano samples** at every third semitone,
+pitch-shifted to the in-between notes using `AudioBufferSourceNode.detune` (in cents). Shifting ±1 semitone is inaudible as an artifact.
 
 - The playable range is G1 to F6 (MIDI 31 to 89), so about 20 samples are needed.
 - Source: the **Salamander Grand Piano** samples (CC-BY 3.0, credit in an About screen).
@@ -216,17 +156,23 @@ export const hz = (p: Pitch) => 440 * 2 ** ((midi(p) - 69) / 12);
 ```
 
 ```ts
-// src/game/audio/piano.ts
+// src/audio/piano.ts
 const SAMPLE_MIDIS = Array.from({ length: 21 }, (_, i) => 30 + i * 3); // 30, 33, ... 90
+const buffers = new Map<number, AudioBuffer>();
 
-export function preloadPiano(scene: Phaser.Scene) {
-  for (const m of SAMPLE_MIDIS) scene.load.audio(`p${m}`, [`audio/piano/${m}.m4a`, `audio/piano/${m}.mp3`]);
+export async function loadPiano(ctx: AudioContext) {
+  await Promise.all(SAMPLE_MIDIS.map(async m => {
+    const res = await fetch(`${import.meta.env.BASE_URL}audio/piano/${m}.m4a`); // served from SW precache offline
+    buffers.set(m, await ctx.decodeAudioData(await res.arrayBuffer()));
+  }));
 }
 
-export function playPitch(scene: Phaser.Scene, p: Pitch, volume = 0.8) {
+export function playPitch(ctx: AudioContext, p: Pitch, volume = 0.8) {
   const target = midi(p);
   const nearest = SAMPLE_MIDIS.reduce((a, b) => (Math.abs(b - target) < Math.abs(a - target) ? b : a));
-  scene.sound.play(`p${nearest}`, { detune: (target - nearest) * 100, volume });
+  const src = new AudioBufferSourceNode(ctx, { buffer: buffers.get(nearest)!, detune: (target - nearest) * 100 });
+  src.connect(new GainNode(ctx, { gain: volume })).connect(ctx.destination);
+  src.start();
 }
 ```
 
@@ -234,9 +180,9 @@ export function playPitch(scene: Phaser.Scene, p: Pitch, volume = 0.8) {
 
 | Gotcha | Mitigation |
 |---|---|
-| Audio stays locked until a user gesture | Phaser unlocks on the first touch automatically; the Home screen's "Start" tap covers it |
+| Audio stays locked until a user gesture | Create/resume the shared `AudioContext` inside the Home screen's "Start" tap handler |
 | On iPhone, the **ring/silent switch mutes Web Audio** by default | Set `navigator.audioSession.type = 'playback'` (Safari 16.4+) when sound is enabled; feature-detect it. Confirm on device in the spike |
-| AudioContext gets suspended when the app is backgrounded | Phaser resumes on focus; also resume on `visibilitychange` to be safe |
+| AudioContext gets suspended when the app is backgrounded | `ctx.resume()` on `visibilitychange` and on the next tap |
 
 ```ts
 // src/pwa/audioSession.ts
@@ -256,7 +202,38 @@ export function preferPlaybackSession() {
 | `onWrong` | Play only after a miss | Reinforces mistakes without slowing a fast streak |
 
 In sequence mode, `afterAnswer` plays each note as it's tapped, so a correct run
-sounds like the melody, which is a nice reward.
+sounds like the melody, which is a nice reward. **While the mic is listening, playback is
+always muted** so the app never hears itself.
+
+### 4.4 Listening to a real piano (mic input, roadmap F2)
+
+The mic shares the playback `AudioContext`. An `AnalyserNode` feeds `pitchy` about 60 times
+a second. A note counts once it holds for 4 frames (~65 ms) with clarity > 0.9. The same
+note can fire again only after a short silence or a different note. The resulting MIDI number goes
+through `answerKey()` like a tap. A working version is in `prototypes/compare/src/shared/mic.ts`.
+
+```ts
+const stream = await navigator.mediaDevices.getUserMedia({
+  audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }, // keep the raw piano tone
+});
+const analyser = ctx.createAnalyser();
+analyser.fftSize = 4096;                         // ~85 ms window, enough for low bass notes
+ctx.createMediaStreamSource(stream).connect(analyser);
+const detector = PitchDetector.forFloat32Array(analyser.fftSize);
+
+// per animation frame:
+const [hz, clarity] = detector.findPitch(buf, ctx.sampleRate);
+const midi = clarity > 0.9 ? Math.round(69 + 12 * Math.log2(hz / 440)) : -1;
+if (stableFor(midi, 4)) onNote(midi);            // → answerKey(state, midi, exactOctave)
+```
+
+| Limitation | Handling |
+|---|---|
+| Octave errors from piano overtones | Letters-only mode ignores octave. Exact mode takes a majority over frames |
+| Lowest notes (around G1) are slow and less reliable | Larger window for bass-heavy ranges; documented, not hidden |
+| Single notes only | Fine for both modes. Chords would need an ML model (out of scope) |
+| iOS may re-ask mic permission per launch of the home-screen app | Ask only when "Listen" is tapped; remember the choice in settings |
+| Digital piano over USB/Bluetooth MIDI | Not possible in iOS Safari (no Web MIDI). The mic works with any piano |
 
 ---
 
@@ -271,16 +248,17 @@ It launches full-screen, runs offline from the service worker cache, and has its
 ```ts
 // vite.config.ts
 import { defineConfig } from 'vite';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
   base: '/music-game/', // GitHub Pages project path
   plugins: [
+    svelte(),
     VitePWA({
       registerType: 'prompt', // show "Update available" instead of silently swapping mid-quiz
       includeAssets: ['apple-touch-icon.png'],
-      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2,m4a,mp3}'], // precache everything, incl. font + piano samples
-                 maximumFileSizeToCacheInBytes: 3 * 1024 * 1024 }, // headroom: Phaser alone is ~1.4 MB minified, close to the 2 MB default
+      workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2,m4a,mp3}'] }, // precache everything, incl. font + piano samples
       manifest: {
         name: 'Sight Reading Trainer',
         short_name: 'SightRead',
@@ -640,10 +618,13 @@ export interface Settings {
     | { kind: 'off' }
     | { kind: 'perNote'; seconds: number }     // countdown per question; timeout = miss
     | { kind: 'session'; seconds: number };    // sprint: as many as you can in N seconds
-  answerInput: 'letters' | 'lettersOctave' | 'piano';
+  answerInput: 'letters' | 'lettersOctave' | 'piano' | 'mic';
   //  letters        A–G buttons; any octave counts (the default; the fallback you asked for)
   //  lettersOctave  A–G plus an octave picker; must match exactly (e.g. C6)
-  //  piano          on-screen keyboard spanning the active range; tap the exact key
+  //  piano          on-screen keyboard spanning the active range (section 3.2)
+  //  mic            play it on your real piano (section 4.4); keyboard shows what it hears
+  exactOctave: boolean;            // piano/mic: must the octave match? (on by default)
+  showKeyNames: boolean;           // label every key, not just the Cs
   showOctaveOnFeedback: boolean;   // "C6" vs "C"
   ledgerBoost: number;             // exposes WeightConfig.ledgerBoost as a slider
   sound: {
@@ -655,7 +636,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Settings = {
   clef: 'treble', range: 'ledger3', mode: 'single', sequenceLength: 6,
-  questionsPerSession: 20, timer: { kind: 'off' }, answerInput: 'letters', showOctaveOnFeedback: true, ledgerBoost: 0.6,
+  questionsPerSession: 20, timer: { kind: 'off' }, answerInput: 'letters', exactOctave: true, showKeyNames: false, showOctaveOnFeedback: true, ledgerBoost: 0.6,
   sound: { when: 'afterAnswer', volume: 0.8, ignoreSilentSwitch: true },
 };
 ```
@@ -714,19 +695,16 @@ src/
   core/            # pure TS, 100% unit-testable (your "domain" package)
     pitch.ts  ranges.ts  scoring.ts  selector.ts  quiz.ts  settings.ts  types.ts
   storage/         # Dexie DB, repositories, backup/import
-  state/           # Zustand vanilla store shared by Phaser and the DOM overlay
-  game/            # Phaser 4
-    main.ts
-    scenes/        # BootScene, HomeScene, QuizScene, ResultsScene
-    staff/         # StaffView, GrandStaffView (Bravura glyphs + Graphics)
-    ui/            # LetterPad, TimerBar, particles/feedback
-    audio/         # piano sampler (playPitch)
-  overlay/         # DOM screens: Settings, Stats (heat-map), InstallHint
+  audio/           # shared AudioContext, piano sampler, mic listener (pitchy)
+  lib/             # Svelte stores (settings, session), GSAP helpers
+  components/      # Staff, GrandStaff, Note, LetterPad, Piano, TimerBar, Sparks
+  screens/         # Home, Quiz, Results, Stats (heat-map), Settings
   pwa/             # SW registration, update prompt, persistence, audio session
-  main.ts
-tests/             # Vitest: pitch math, weights, simulation, reducer
+  App.svelte  main.ts
+tests/             # Vitest: pitch math, grading, weights, simulation, mic stability filter
+e2e/               # Playwright WebKit iPhone/iPad: AC-tagged flows
 public/
-  fonts/Bravura.woff2
+  fonts/bravura-subset.woff2
   audio/piano/*.m4a  # ~20 Salamander samples
   icons, apple-touch-icon
 ```
@@ -743,5 +721,6 @@ See [docs/roadmap.md](roadmap.md) for the milestones, one doc each, and the qual
 | Sequence errors | Retry once, then reveal, then wait for Continue; applies to both modes (8.4) |
 | Look and feel | Early spike (M1) shows several themes on device; pick one there |
 | Answer precision | Configurable: `letters` / `lettersOctave` / `piano` (section 9) |
-| Answer input | On-screen piano keyboard, with the letter pad as the simple fallback |
+| Answer input | On-screen piano keyboard, with the letter pad as the simple fallback; mic input from a real piano (F2) |
+| Framework | Svelte 5 + SVG + GSAP ([frameworks.md](frameworks.md)); Phaser 4 evaluated and not chosen |
 | Accidentals / key signatures | A later feature (F1 in the roadmap) |

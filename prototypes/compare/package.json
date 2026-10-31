@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:single": "SINGLE=1 vite build --outDir dist-single"
+    "build:single": "SINGLE=1 vite build --outDir dist-single",
+    "build:keyboard": "SINGLE=1 PAGE=keyboard vite build --outDir dist-keyboard"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^6.0.0",
@@ -16,6 +17,7 @@
   },
   "dependencies": {
     "gsap": "3.15.0",
-    "phaser": "4.2.1"
+    "phaser": "4.2.1",
+    "pitchy": "^4.1.0"
   }
 }

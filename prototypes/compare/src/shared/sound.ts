@@ -4,11 +4,17 @@ import { hz, type Note } from './quiz';
 
 let ctx: AudioContext | null = null;
 
+/** One AudioContext for both playback and mic listening. */
+export function audioCtx() {
+  ctx ??= new AudioContext();
+  if (ctx.state === 'suspended') void ctx.resume();
+  return ctx;
+}
+
 /** Simple plucked tone. The real app would use piano samples (design §4). */
 export function playNote(n: Note) {
   if (!get(settings).sound) return;
-  ctx ??= new AudioContext();
-  if (ctx.state === 'suspended') void ctx.resume();
+  const ctx = audioCtx();
   const t = ctx.currentTime;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();

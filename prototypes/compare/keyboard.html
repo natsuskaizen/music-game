@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Piano Keyboard Quiz</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&display=swap">
+<style>
+  /* Layout: a practice-room bench. Two music stands side by side on wide screens, tabbed on phones. */
+  :root {
+    --bg: #eaeef1; --fg: #17202a; --muted: #566170; --line: #d3dae0; --surface: #f8fafb; --accent: #0e6e74;
+    --display: 'Bricolage Grotesque', 'Avenir Next', system-ui, sans-serif;
+    --body: 'Atkinson Hyperlegible', system-ui, -apple-system, sans-serif;
+    /* The stage is a sheet of music paper in both themes. */
+    --paper: #fdfdfb; --stage-ink: #1d2433; --stage-muted: #5b6475; --stage-line: #c9ced6;
+    --stage-key: #f3f5f7; --stage-key-down: #e4e8ec; --stage-accent: #0e6e74; --right: #1f7a3a; --wrong: #b8432a; --piano-case: #23272e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #0f151b; --fg: #e6ebef; --muted: #9ba6b2; --line: #26313b; --surface: #161e26; --accent: #5cc3c9; color-scheme: dark; }
+  }
+  :root[data-theme="dark"] { --bg: #0f151b; --fg: #e6ebef; --muted: #9ba6b2; --line: #26313b; --surface: #161e26; --accent: #5cc3c9; color-scheme: dark; }
+
+  html, body { background: var(--bg); color: var(--fg); }
+  body { font: 16px/1.5 var(--body); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding-block: 28px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+    display: grid; gap: 22px; }
+  header { display: grid; gap: 6px; }
+  .eyebrow { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+  h1 { font: 700 clamp(28px, 4.4vw, 44px)/1.05 var(--display); margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+  .lede { margin: 0; color: var(--muted); max-width: 64ch; }
+
+  .wrap { max-width: 1000px; }
+  #app { display: grid; gap: 14px; }
+  .notes { display: grid; gap: 8px; border-top: 1px solid var(--line); padding-top: 18px; }
+  .notes h3 { margin: 0; font: 700 18px var(--display); }
+  .notes ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; max-width: 80ch; color: var(--muted); }
+  .notes strong { color: var(--fg); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Sight-reading quiz · Svelte mock-up</div>
+    <h1>Find it on the keyboard</h1>
+    <p class="lede">Read the note, then tap that key. Miss once and you get one more try; miss twice and the right key lights up until you tap Continue. On a phone, swipe the keyboard sideways to reach other octaves.</p>
+  </header>
+  <div id="app"></div>
+  <section class="notes">
+    <h3>Things to try</h3>
+    <ul>
+      <li><strong>Octave must match</strong> on: only the exact key counts (C6 is not C5). Off: any key with the right letter counts.</li>
+      <li><strong>Both</strong> clefs: the keyboard widens to the full range, G1 to F6. Middle C has a teal dot.</li>
+      <li><strong>Listen with mic</strong>: plays from your real piano count as taps. This preview page may block the microphone; the installed app will ask for permission instead.</li>
+    </ul>
+  </section>
+</div>
+<script type="module" src="/src/keyboard.ts"></script>
+</body>
+</html>

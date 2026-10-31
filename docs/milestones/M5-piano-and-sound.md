@@ -14,7 +14,7 @@
 - M5-AC3 Each sound option triggers playback at the right moment (e2e with a stubbed audio player).
 - M5-AC4 Manual: the piano is usable on iPhone (key size ≥ 40 px, scroll) and sounds right on device.
 
-Refs: design §4, §9.
+Refs: design §3.2, §3.3, §4, §9. Prototype: `prototypes/compare/keyboard.html`.
 
 ## Summary (fill in at completion)
 
