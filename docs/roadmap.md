@@ -24,7 +24,7 @@ Milestone doc (scope + ACs + issue list)
 
 | # | Milestone | Outcome | Status |
 |---|---|---|---|
-| M0 | [Foundation & quality gates](milestones/M0-foundation.md) | Scaffold, CI gates, AC status report, Pages deploy, installable PWA shell | Not started |
+| M0 | [Foundation & quality gates](milestones/M0-foundation.md) | Scaffold, CI gates, AC status report, Pages deploy, installable PWA shell | In progress |
 | M1 | [Look & feel spike](milestones/M1-look-and-feel.md) | 3 themes on device; staff/audio/offline risks retired; theme picked | Not started |
 | M2 | [Single-note MVP](milestones/M2-single-note.md) | Playable single-note quiz with letter pad, retry/reveal/continue, clef settings | Not started |
 | M3 | [Progress tracking & smart review](milestones/M3-tracking.md) | Stats in IndexedDB, weighted selection, review mode, backup | Not started |
