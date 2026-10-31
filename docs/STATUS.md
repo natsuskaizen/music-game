@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M7 Polish & PWA hardening is built (`docs/milestones/M7-polish.md`, issues #92–#97); its device AC7 is open for Stan, as are M3's AC6 and AC7. M6 is done.
-- **Next issue**: M8 kick-off (marked In progress in the roadmap) (themes in Settings, Neon arcade fix), then F1/F3 backlog.
+- **Phase**: M8 Themes in Settings is in progress (`docs/milestones/M8-themes.md`, issues #105–#106). M7's device AC7 is open for Stan, as are M3's AC6 and AC7.
+- **Next issue**: M8-1 (#105) note position fix in every theme, then M8-2 (#106) theme setting; then F1/F3 backlog.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -74,11 +74,11 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M8 kick-off: issue list in the M8 doc, issues #105 (note position, closes #36/#38) and #106 (theme setting).
 - 2026-10-31: M7-6 (#97): `e2e/a11y.spec.ts` scans Home, Settings, Stats, quiz and results with axe in all three themes (M7-AC4); contrast fixes in `themes.css`; M7 Summary filled in.
 - 2026-10-31: M7-5 (#96): `feedbackFor(theme, reduced)` returns a motionless `Feedback` under `prefers-reduced-motion` (no tweens or sparks, a right answer moves on at once); `Quiz` reads the setting per use (M7-AC3 unit + e2e).
 - 2026-10-31: M7-4 (#95): `core/streak.ts` names celebrated streaks (5, 10, 20, then every 10) and each theme's `Feedback` gets `celebrate`, which pulses the streak count in `Quiz` (M7-AC8 unit).
 - 2026-10-31: M7-3 (#94): `core/install.ts` decides the install hint (iOS tab, not standalone, not dismissed), `InstallHint.svelte` on Home saves the dismissal, and the shell, update banner pad with `env(safe-area-inset-*)` (M7-AC2 unit + e2e; AC7 manual).
-- 2026-10-31: M7-2 (#93): `e2e/update-prompt.spec.ts` serves a v1 build, swaps in v2 mid-quiz, and checks the banner shows, the question stays, and Update now reloads into v2 (M7-AC1 e2e).
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
