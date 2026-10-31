@@ -8,10 +8,13 @@ declare global {
   }
 }
 
-// Stands in for Safari's audioSession (present or missing) and records the frequency of every tone started.
+// Stands in for Safari's audioSession (present or missing) on a touch device and records the frequency of every tone started.
 async function stubAudio(page: Page, withSession: boolean) {
   await page.addInitScript((present) => {
-    Object.defineProperty(navigator, 'audioSession', { value: present ? { type: 'auto' } : undefined });
+    const session = present ? { type: 'auto' } : undefined;
+    Object.defineProperty(Navigator.prototype, 'audioSession', { get: () => session });
+    // iPhone and iPad report 5 touch points; Playwright's WebKit emulation doesn't always.
+    Object.defineProperty(Navigator.prototype, 'maxTouchPoints', { get: () => 5 });
     window.tones = [];
     const start: OscillatorNode['start'] = Reflect.get(OscillatorNode.prototype, 'start');
     OscillatorNode.prototype.start = function (when) {
