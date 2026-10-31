@@ -6,22 +6,16 @@ import { mkdirSync, mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { SAMPLE_MIDIS } from '../../src/core/samples.ts';
+import { fetchSalamander } from './salamander.ts';
 
-const SOURCE = 'https://raw.githubusercontent.com/tonejs/audio/master/salamander';
 const OUT = 'public/audio/piano';
 const CLIP_S = 1.5;
 const FADE_S = 0.3;
-const NAMES: Record<number, string> = { 0: 'C', 3: 'Ds', 6: 'Fs', 9: 'A' };
-
-function sourceName(midi: number): string {
-  return `${NAMES[midi % 12] ?? ''}${String(Math.floor(midi / 12) - 1)}`;
-}
 
 const work = mkdtempSync(join(tmpdir(), 'salamander-'));
 mkdirSync(OUT, { recursive: true });
 for (const midi of SAMPLE_MIDIS) {
-  const src = join(work, `${sourceName(midi)}.mp3`);
-  execFileSync('curl', ['-fsS', '-o', src, `${SOURCE}/${sourceName(midi)}.mp3`]);
+  const src = fetchSalamander(midi, work);
   execFileSync('ffmpeg', [
     ...['-y', '-loglevel', 'error', '-i', src, '-t', String(CLIP_S)],
     ...['-af', `afade=t=out:st=${String(CLIP_S - FADE_S)}:d=${String(FADE_S)}`],

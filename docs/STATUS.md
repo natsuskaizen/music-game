@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M3 Real piano & sound (`docs/milestones/M3-mic-and-sound.md`, issues #45–#50). M2 is done.
-- **Next issue**: M3-4 (#48) `pitchy` + recorded-piano fixtures, accuracy test.
+- **Next issue**: M3-5 (#49) `mic` input (`getUserMedia`, analyser on the shared context).
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -42,6 +42,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Piano sound | `core/samples.ts` (21 samples every 3rd semitone, F#1–F#6; `nearestSample`, `detuneCents`); `audio/context.ts` is the one shared `AudioContext` (iOS playback session, ringer hint); `audio/piano.ts` `loadPiano`/`playPitch` (synth `audio/tone.ts` covers the first note until samples decode); `npm run piano-samples` builds `public/audio/piano/*.m4a` (340 KB, precached) from Salamander (CC BY 3.0, credit on Home and `docs/credits.md`) | M3-1 |
 | Sound settings | `core/sound.ts`: `SoundSettings` (on, onShow, onWrong, volume 0.4/0.8/1, ignoreSilentSwitch) and the pure `noteToPlay(before, after, sound)` that replaced `toneAfter`: a phase change plays when settled, on a first miss (onWrong) or on a new question (onShow), nothing when `on` is off. Stored under `Settings.sound`; `setIgnoreSilentSwitch` flips the iOS audio session type live | M3-2 |
 | Mic filter | `core/listen.ts`: `hzToMidi` (±30 cents), pure `listenStep(state, frame, config)` fires a note after 4 frames of one letter with clarity > 0.9, octave by majority; same note re-fires only after 3 gap frames, a different note fires at once. `DEFAULT_LISTEN` (internal) holds the tunables for M3-4 | M3-3 |
+| Detection fixtures | `tests/fixtures/piano/<midi>.wav` (0.4 s, 44.1 kHz mono, nearest Salamander sample pitch-shifted ≤ 1 semitone); `tests/core/listen-accuracy.test.ts` slides a 4096 `PitchDetector` at 735-sample hops through `listenStep`. `DEFAULT_LISTEN` stays as is | M3-4 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -49,15 +50,12 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✱ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M3-4 (#48): `pitchy` + 59 recorded-piano fixtures G1–F6 (`npm run piano-fixtures`); accuracy test at 100% letter and octave with the M3-3 defaults, so no tuning (M3-AC5).
 - 2026-10-31: M3-3 (#47): `core/listen.ts` pitch-to-note filter (Hz → MIDI ±30 cents, stability, octave majority, re-fire rule; M3-AC3, AC4).
 - 2026-10-31: M3-2 (#46): sound settings (master, on show, on wrong, volume, silent switch) and the pure `noteToPlay` rule replacing `toneAfter` (M3-AC2).
 - 2026-10-31: M3-1 (#45): piano samples + `playPitch` with detune, shared `AudioContext` module, sample build script, CC-BY credit (M3-AC1; AC7 needs a device check in airplane mode).
 - 2026-10-31: M3 kick-off: issue list M3-1..6 (#45–#50) in the milestone doc, new M3-AC8 (mute while listening, heard-key highlight); M2 marked Done.
 - 2026-10-31: M2-5 (#34): Home + Settings screens, `core/settings.ts` with `migrateSettings`, localStorage persistence, session results with Play again; M2 Summary filled in (M2-AC6).
-- 2026-10-31: M2-4 (#33): quiz screen with the input switcher and `ActiveInput`; e2e for retry, reveal and Continue, grand staff stave placement, and switching input mid-quiz (M2-AC3, AC4, AC5, AC8 e2e). The scripted headless input is e2e-build only.
-- 2026-10-31: Token savings (not a roadmap issue): CLAUDE.md drops the local reviewer subagent for a self-check, adds the backup-run early exit and a two-message rule, and says issue threads run on Sonnet.
-- 2026-10-31: M2-3 (#32): input plug-ins (`src/inputs/`), the on-screen piano is the first input and emits `Answer`; the demo quiz renders the registered input. Contract suite runs on every registered input plus a headless fake (M2-AC7), and answers from two inputs share one question's attempts (M2-AC8 unit).
-- 2026-10-31: M2-2 (#31): `core/session.ts` session reducer with `Answer` + exact-pitch `gradeAnswer` and a done phase after the session length, replacing `core/quiz.ts`; the demo quiz runs on it (a clef switch starts a new session). M2-AC3 (unit), M2-AC9.
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
