@@ -30,13 +30,34 @@ for (const theme of THEMES) {
       await expect(svg.locator('.ledger')).toHaveCount(staff.ledgers);
       await svg.screenshot({ path: shot(staff.file) });
     }
-    await expect(gallery.locator('svg[role="img"]').last().locator('.staff-line:not(.ledger)')).toHaveCount(
-      11,
-    );
+    await expect(
+      gallery.getByRole('img', { name: 'C4 on the treble staff' }).locator('.staff-line:not(.ledger)'),
+    ).toHaveCount(11);
     await testInfo.attach(`${theme} page`, {
       body: await page.screenshot({ fullPage: true, path: shot('page') }),
       contentType: 'image/png',
     });
+  });
+}
+
+for (const theme of THEMES) {
+  test(`M5-AC4 ${theme} theme draws 16 notes in 3 measures with ledger lines and no overlap`, async ({
+    page,
+  }, testInfo) => {
+    await page.goto(`./?theme=${theme}`);
+    await expectBravuraLoaded(page);
+    const svg = page
+      .getByRole('region', { name: 'Staff gallery' })
+      .getByRole('img', { name: 'Sequence of 16 notes in 3 measures' });
+    await expect(svg.locator('.note')).toHaveCount(16);
+    expect(await svg.locator('.ledger').count()).toBeGreaterThan(0);
+    const heads = await svg
+      .locator('.note .glyph')
+      .evaluateAll((els) => els.map((el) => el.getBoundingClientRect()));
+    heads.slice(1).forEach((head, i) => {
+      expect(head.left).toBeGreaterThanOrEqual(heads[i]?.right ?? 0);
+    });
+    await svg.screenshot({ path: `reports/screenshots/${theme}-${testInfo.project.name}-sequence.png` });
   });
 }
 
