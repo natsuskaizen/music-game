@@ -35,6 +35,7 @@
   import { loadStats, recordAttempt, requestPersistence } from '../storage/db';
   import type { KeyMark } from '../inputs/types';
   import ActiveInput from './ActiveInput.svelte';
+  import SprintBar from './SprintBar.svelte';
   import Staff from './Staff.svelte';
 
   let {
@@ -160,6 +161,7 @@
   }
 
   function advance() {
+    if (quiz.phase === 'done') return; // the sprint ended while a right answer was still animating
     if (run && isSettled(quiz.phase)) outcomes = [...outcomes, quiz.phase === 'right' ? 'right' : 'wrong'];
     showQuestion(step({ type: 'next' }));
   }
@@ -211,6 +213,14 @@
     <span>Streak <b>{quiz.streak}</b></span>
     <span>First try <b>{firstTryPercent(quiz)}%</b></span>
   </div>
+  {#if settings.timer && !review && quiz.phase !== 'done'}
+    <SprintBar
+      difficulty={settings.difficulty}
+      onTimeUp={() => {
+        quiz = step({ type: 'timeUp' });
+      }}
+    />
+  {/if}
   {#if ringerHint}<p class="hint">Turn the ringer on for sound.</p>{/if}
   <p class="msg {quiz.phase}" aria-live="polite">
     {#if quiz.phase === 'retry'}Not quite. One more try.

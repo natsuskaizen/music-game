@@ -190,3 +190,24 @@ describe('answerContinues (design §8.4)', () => {
     expect(answerContinues(session({ phase: 'right' }), key(60))).toBe(false);
   });
 });
+
+describe('timeUp (design §14)', () => {
+  test('M6-AC2 ends an unanswered question without counting it as a miss', () => {
+    const done = reduce(session({ total: 3, firstTry: 2 }), { type: 'timeUp' }, first);
+    expect(done).toMatchObject({ phase: 'done', total: 3, firstTry: 2 });
+  });
+
+  test('M6-AC2 ends a question mid-retry with no attempt recorded', () => {
+    const retry = press(session(), midiOf(C6.pitch));
+    const done = reduce(retry, { type: 'timeUp' }, first);
+    expect(done.phase).toBe('done');
+    expect(done.total).toBe(0);
+    expect(settledAttempt(retry, done, { ts: 0, input: 'x', ms: 0, answer: key(1) })).toBeUndefined();
+  });
+
+  test('M6-AC2 a finished session stays finished', () => {
+    const done = reduce(session(), { type: 'timeUp' }, first);
+    expect(next(done).phase).toBe('done');
+    expect(press(done, midiOf(C4.pitch)).phase).toBe('done');
+  });
+});

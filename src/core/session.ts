@@ -41,8 +41,8 @@ export function withPool(s: Session, pool: ClefNote[]): Session {
   return { ...s, pool };
 }
 
-/** What the UI can tell the session: an answer, or `next` after a right answer's animation or the Continue tap. */
-export type SessionEvent = { type: 'answer'; answer: Answer } | { type: 'next' };
+/** What the UI can tell the session: an answer, `next` after a right answer's animation or the Continue tap, or `timeUp` when the sprint ends. */
+export type SessionEvent = { type: 'answer'; answer: Answer } | { type: 'next' } | { type: 'timeUp' };
 
 /** A fresh session with an empty score and its first note from `pool`. */
 export function startSession(
@@ -54,8 +54,12 @@ export function startSession(
   return { pool, questionsPerSession, phase: 'ask', note, misses: [], streak: 0, firstTry: 0, total: 0 };
 }
 
-/** Applies one event. Events that don't fit the phase (an answer during a reveal, `next` while asking) change nothing. */
+/**
+ * Applies one event. Events that don't fit the phase (an answer during a reveal, `next` while asking) change nothing.
+ * `timeUp` ends the session at once; the unfinished question was never counted, so it is not a miss (design §14).
+ */
 export function reduce(s: Session, e: SessionEvent, pick: Picker): Session {
+  if (e.type === 'timeUp') return { ...s, phase: 'done' };
   if (e.type === 'answer') return s.phase === 'ask' || s.phase === 'retry' ? answer(s, e.answer) : s;
   return isSettled(s.phase) ? next(s, pick) : s;
 }
