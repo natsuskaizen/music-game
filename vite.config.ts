@@ -8,11 +8,11 @@ export default defineConfig({
   base: '/music-game/',
   plugins: [
     svelte(),
-    // Installable, offline-first shell (design §5.1). `prompt` waits for an update prompt (M7) instead of
-    // swapping versions mid-quiz.
+    // Installable, offline-first shell (design §5.1). `prompt` keeps a new version waiting until the person taps
+    // the Update button (src/pwa/update.ts), so it never swaps in mid-quiz.
     VitePWA({
       registerType: 'prompt',
-      injectRegister: 'script',
+      injectRegister: false,
       workbox: { globPatterns: ['**/*.{js,css,html,svg,png,woff2,m4a,mp3}'] },
       manifest: {
         name: 'Sight Reading Trainer',

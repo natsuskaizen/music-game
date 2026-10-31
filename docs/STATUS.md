@@ -54,6 +54,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Sequence | `core/sequence.ts` `makeSequence(pool, difficulty, { picker, random })` returns `Measure[]` of `{ note, duration }`. Hard's 3 measures force 12–16 notes (design's 10 can't fill 3 bars). Notes split evenly over measures; each measure has `count - 4` beats of two eighths, the rest quarters (always beamable pairs) | M5-1 |
 | Cursor | `core/cursor.ts`: `SequenceRun` `{ notes, index, session }`; `stepRun` reuses `reduce` with a picker that returns the next note and `questionsPerSession = notes.length`, so retry → reveal → Continue and per-note `settledAttempt` are unchanged. The index moves only on `next`; a single note is a run of one. Quiz adopts it in M5-4 | M5-2 |
 | Milestone status | A milestone with only manual device ACs left is "Built, device checks open" on the roadmap, so the next one can be the single In progress (`ac-report` needs exactly one) | roadmap |
+| App updates | `registerType: 'prompt'`, registered by `watchForUpdates()` in `App.svelte`: the new service worker waits until the person taps **Update now** (`UpdateBanner`), which reloads into it. Needed because an installed PWA otherwise keeps the old build until every window closes | design §5.2 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -63,12 +64,9 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✱
 ## Recent
 - 2026-10-31: M5-2 (#73): sequence cursor in `core/cursor.ts` (`startRun`, `stepRun`, `sequenceNotes`; M5-AC2 unit, M5-AC3).
 - 2026-10-31: M5-1 (#72): `makeSequence` in `core/sequence.ts` (sizes by difficulty, chains the picker, fills 4/4 measures with quarters and eighth pairs; M5-AC1).
+- 2026-10-31: Update banner (not a roadmap issue, Stan's ask): a waiting new version shows "Update now" on every screen (`src/pwa/update.ts`, `UpdateBanner.svelte`); checks at launch, on return and hourly; never swaps by itself. New AC M7-AC5 (unit) in the M7 doc; M7 keeps the install hint and the e2e proof.
 - 2026-10-31: M5 kick-off: issues #72–#75 listed, roadmap marks M4 Done and M5 In progress.
 - 2026-10-31: M4-6 (#63): JSON export/import in Settings (share sheet or download, validated, replace-on-restore), M4 Summary written (M4-AC6).
-- 2026-10-31: M4-5 (#62): Review weak notes: `weakNotes` pool, session ends when empty, Home button (M4-AC5).
-- 2026-10-31: M4-4 (#61): Dexie storage, `recordAttempt`, and `learnedPicker` (weighted, stepwise) drive the quiz; stats survive a reload.
-- 2026-10-31: Mic fix from Stan's iPhone test (M3-AC9): audio session `play-and-record` while listening (iOS refused the mic under `playback`, so no prompt), error message when the mic is blocked, level meter, context resumes on return to the app. Needs re-test on the iPhone.
-- 2026-10-31: M4-3 (#60): `pickStepwise` (steps of 1–3, ~10% jumps of three kinds) now drives the session (M4-AC4); doc nits from the M4-2 review fixed.
 
 ## Known issues / open questions
 - Neon arcade draws the quiz note off its pitch after a few answers (leftover GSAP transform); tests read the `aria-label`, so they missed it. Fix and a drawn-position e2e check in M8 (#36).
