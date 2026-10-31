@@ -8,6 +8,8 @@ export interface Feedback {
   enter(note: SVGGElement): void;
   wrong(note: SVGGElement): void;
   right(note: SVGGElement): Promise<void>;
+  /** A pulse on the streak count when it reaches a celebrated length (`core/streak.ts`). */
+  celebrate(count: HTMLElement): void;
 }
 
 const ORIGIN = { transformOrigin: '50% 50%' };
@@ -32,6 +34,9 @@ const paper: Feedback = {
   async right(note) {
     await gsap.to(note, { opacity: 0, duration: 0.35, delay: 0.35 });
   },
+  celebrate(count) {
+    gsap.fromTo(count, { scale: 1.4 }, { scale: 1, duration: 0.5, ease: 'power2.out' });
+  },
 };
 
 const storybook: Feedback = {
@@ -55,6 +60,13 @@ const storybook: Feedback = {
       .timeline()
       .to(note, { scale: 1.4, duration: 0.2, ease: 'back.out(3)', ...ORIGIN })
       .to(note, { scale: 0, opacity: 0, duration: 0.3, delay: 0.25, ease: 'back.in(2)', ...ORIGIN });
+  },
+  celebrate(count) {
+    gsap.fromTo(
+      count,
+      { scale: 2, rotation: -15 },
+      { scale: 1, rotation: 0, duration: 0.8, ease: 'elastic.out(1.2, 0.35)' },
+    );
   },
 };
 
@@ -81,6 +93,13 @@ const arcade: Feedback = {
       .timeline()
       .to(note, { scale: 1.3, duration: 0.12, ease: 'steps(3)', ...ORIGIN })
       .to(note, { keyframes: { opacity: [1, 0, 1, 0] }, scale: 2, duration: 0.35, delay: 0.25, ...ORIGIN });
+  },
+  celebrate(count) {
+    gsap.fromTo(
+      count,
+      { scale: 2.2 },
+      { keyframes: { opacity: [0, 1, 0.3, 1] }, scale: 1, duration: 0.5, ease: 'steps(4)' },
+    );
   },
 };
 
