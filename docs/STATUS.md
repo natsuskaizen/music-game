@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M2 single-note MVP in progress (`docs/milestones/M2-single-note.md`, issues #30–#34). M1 stays in progress until Stan's device checks and theme pick.
-- **Next issue**: M2-2 (#31) session reducer + `gradeAnswer`, replacing `core/quiz.ts`. Build on Paper & ink unless Stan picks another theme.
+- **Next issue**: M2-3 (#32) input plug-ins: `InputMethod`, registry, on-screen piano input emitting `Answer`, contract suite + fake input. Build on Paper & ink unless Stan picks another theme.
 - **Blocked on Stan** (not stop points; steps in the M1 doc "Device checks and theme pick"): M1-AC2 silent switch and M1-AC3 airplane mode on iPhone and iPad; M1-AC4 theme pick, which defaults to Paper & ink on 2026-11-01. Issue #23 stays open until these are ticked.
 
 ## Decisions so far
@@ -30,10 +30,11 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Themes | Paper & ink (default), Storybook and Neon arcade (`?theme=arcade`, back by Stan's call); a theme switch in Settings is M8 | design §14, M8 doc |
 | Staff | `src/core/pitch.ts` + `staff-layout.ts` (pure geometry), `components/Staff.svelte` draws it; Bravura subset inlined by Vite (offline from first paint); grand staff middle lines 10 spaces apart | M1-1 |
 | Theme tokens | `src/themes.css` CSS variables; Paper & ink on `:root`, Storybook overrides via `data-theme`; `?theme=` read by `core/theme.ts`; components use only tokens | M1-2 |
-| Demo quiz | `core/quiz.ts` reducer (ask → retry → reveal, exact octave) and `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. Spike: M2 replaces it with the `InputMethod` registry and §8.3 session | M1-3 |
-| Answer sound | `audio/tone.ts`: one shared `AudioContext` made on the first tap, `audioSession.type = 'playback'`, a triangle tone with a 1.2 s decay; `core/quiz.ts` `toneAfter` plays the correct note on right or reveal (not on the first miss). Without `audioSession` a touch device shows a ringer hint. Added M1-AC5 for the automated part; AC2 stays manual | M1-4 |
+| Demo quiz | `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. M2-4 replaces it with the quiz screen | M1-3 |
+| Answer sound | `audio/tone.ts`: one shared `AudioContext` made on the first tap, `audioSession.type = 'playback'`, a triangle tone with a 1.2 s decay; `core/session.ts` `toneAfter` plays the correct note on right or reveal (not on the first miss). Without `audioSession` a touch device shows a ringer hint. Added M1-AC5 for the automated part; AC2 stays manual | M1-4 |
 | Icons | Paper & ink icons and theme color (default pick); `npm run icons` renders the PNGs from `public/icon.svg` via Playwright | M1-5 |
 | Note pool | `core/ranges.ts` `notePool(mode, difficulty)` from the §14 table (bounds written as pitches); `core/selector.ts` `pickNote` is uniform and never repeats, until M4's weighted ordering. The demo quiz uses Medium | M2-1 |
+| Session | `core/session.ts`: `reduce(session, event, random)` with `answer` / `next` events; phases ask → retry → reveal or right → `next` → done after `questionsPerSession` (undefined = endless). `Answer` is `{ kind: 'pitch', midi }` only (letter answers are F3); `gradeAnswer` is exact pitch. Timer events wait for the sprint timer | M2-2 |
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
@@ -41,6 +42,7 @@ M0 ✓ · M1 ✱ · M2 ✱ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M2-2 (#31): `core/session.ts` session reducer with `Answer` + exact-pitch `gradeAnswer` and a done phase after the session length, replacing `core/quiz.ts`; the demo quiz runs on it (a clef switch starts a new session). M2-AC3 (unit), M2-AC9.
 - 2026-10-31: M8 Themes in Settings added to the roadmap (near the end): theme switch in Settings, Paper & ink default, and the arcade note-position bug (#36).
 - 2026-10-31: Neon arcade theme (#29, `?theme=arcade`, not a roadmap issue): dark CRT page, glow tokens (`--page-art`, `--text-glow`, `--mark-glow`, `none` elsewhere; no CSS filter on the staff SVG, it made WebKit repaint too slowly for the GSAP feedback), flicker/glitch/burst GSAP feedback with unit tests (GSAP on a stand-in object); e2e and screenshots cover it.
 - 2026-10-31: M2 started: issue list in the M2 doc, issues #30–#34. M2-1 (#30): difficulty note pools (`core/ranges.ts`), uniform `pickNote` (`core/selector.ts`), full-range staff position and ledger tests (M2-AC1, AC2); the demo quiz now asks Medium-range notes.
