@@ -18,6 +18,7 @@
 - M3-AC4 The stability filter rejects single-frame blips and accepts a held note (unit, with recorded sample buffers).
 - M3-AC5 Detection of recorded piano samples for every note in range: ≥ 95% letter-correct, ≥ 90% octave-correct above C2 (unit, offline fixtures).
 - M3-AC6 Manual: on your piano, iPad and iPhone, normal room, a played note registers in under 0.3 s, and samples sound right.
+- M3-AC7 Manual: the answer sound plays in airplane mode after install, on iPhone and iPad (#39).
 
 Refs: design §3.3, §3.4, §4, §14. Prototypes: `prototypes/compare/keyboard.html`, `prototypes/compare/src/shared/mic.ts`.
 
