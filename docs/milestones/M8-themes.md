@@ -16,7 +16,12 @@
 - M8-AC3 Each theme passes the M1 device checks on iPhone and iPad (manual).
 
 ## Issues
-_Written when the milestone starts._ Known so far: #36 (Neon arcade note position, M8-AC2), #38 (Storybook note slightly off its line, M8-AC2).
+| Id | Issue | ACs |
+|---|---|---|
+| M8-1 (#105) | Note position: drawn-position e2e for every theme first (test plan in #36), then clear the leftover GSAP transform in `components/feedback.ts`. Closes #36 (Neon arcade) and #38 (Storybook) | AC2 |
+| M8-2 (#106) | Theme setting: `Settings.theme` (Paper & ink default, migrated), a Theme control in Settings that re-skins at once, Home `?theme=` links removed (`?theme=` stays as a test hook that wins over the setting); M8 Summary | AC1 |
+
+AC3 is a manual device check for Stan; it stays open and doesn't block building.
 
 ## Summary (fill in at completion)
 
