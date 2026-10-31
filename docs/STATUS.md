@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M8 Themes in Settings is in progress (`docs/milestones/M8-themes.md`, issues #105–#106; M8-1 done). M7's device AC7 is open for Stan, as are M3's AC6 and AC7.
-- **Next issue**: M8-2 (#106) theme setting; then F1/F3 backlog.
+- **Phase**: M8 Themes in Settings is built and stays "In progress" on the roadmap, the last milestone (`docs/milestones/M8-themes.md`); device AC3 is open for Stan, as are M7's AC7 and M3's AC6 and AC7.
+- **Next issue**: none queued; F1/F3 are backlog.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -28,7 +28,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Difficulty | Easy / Medium / Hard sets range, ledger weighting, sequence size, timer; ledger counts never shown | design §14 |
 | Ordering | Mostly within a third, ~10% jumps (clef, octave) | design §14 |
 | Sound / timer | Note always plays after answer (master off switch); timer is a sprint (one bar per session, 60/50/40 s by difficulty) | design §14 |
-| Themes | Paper & ink (Stan's M1 pick, default), Storybook and Neon arcade (`?theme=arcade`, back by Stan's call); a theme switch in Settings is M8 | design §14, M8 doc |
+| Themes | Paper & ink (Stan's M1 pick, default), Storybook and Neon arcade (`?theme=arcade`, back by Stan's call); switch in Settings (`Settings.theme`); `?theme=` is a test hook that wins | design §14, M8 doc |
 | Staff | `src/core/pitch.ts` + `staff-layout.ts` (pure geometry), `components/Staff.svelte` draws it; Bravura subset inlined by Vite (offline from first paint); grand staff middle lines 10 spaces apart | M1-1 |
 | Theme tokens | `src/themes.css` CSS variables; Paper & ink on `:root`, Storybook overrides via `data-theme`; `?theme=` read by `core/theme.ts`; components use only tokens | M1-2 |
 | Demo quiz | `core/keyboard.ts` layout; `Piano`/`Quiz` components; GSAP styles per theme in `components/feedback.ts`. M2-4 replaces it with the quiz screen | M1-3 |
@@ -70,10 +70,11 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✱ built (device AC open) · F1, F3 backlog
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-10-31: M8-2 (#106): `Settings.theme` and a Theme control in Settings; Home links removed; `activeTheme` lets `?theme=` override (M8-AC1 unit + e2e); M8 Summary filled in.
 - 2026-10-31: M8-1 (#105): `e2e/note-position.spec.ts` checks the drawn note (no leftover transform, notehead on its y) after five answers in every theme (M8-AC2); `ORIGIN` in `feedback.ts` sets `smoothOrigin: false`, which fixes Neon arcade (#36) and Storybook (#38).
 - 2026-10-31: M8 kick-off: issue list in the M8 doc, issues #105 (note position, closes #36/#38) and #106 (theme setting).
 - 2026-10-31: M7-6 (#97): `e2e/a11y.spec.ts` scans Home, Settings, Stats, quiz and results with axe in all three themes (M7-AC4); contrast fixes in `themes.css`; M7 Summary filled in.

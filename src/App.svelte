@@ -11,9 +11,7 @@
   import { loadSettings, saveSettings, type Settings } from './core/settings';
   import type { NoteStat } from './core/stats';
   import { applyUpdate, watchForUpdates } from './pwa/update';
-  import { THEME_NAMES, type Theme } from './core/theme';
-
-  let { theme }: { theme: Theme } = $props();
+  import { activeTheme } from './core/theme';
 
   let updateReady = $state(false);
   watchForUpdates(() => (updateReady = true));
@@ -25,6 +23,11 @@
     settings = next;
     saveSettings(localStorage, next);
   }
+
+  const theme = $derived(activeTheme(location.search, settings.theme));
+  $effect(() => {
+    document.documentElement.dataset.theme = theme;
+  });
 
   // `n('treble', 'A5', 'eighth')`: a note from its clef, pitch name and duration.
   const n = (clef: Clef, name: string, duration: 'quarter' | 'eighth') => ({
@@ -68,11 +71,6 @@
 <UpdateBanner ready={updateReady} onUpdate={applyUpdate} />
 <main>
   <h1>Sight Reading</h1>
-  <nav aria-label="Theme">
-    {#each Object.entries(THEME_NAMES) as [id, name] (id)}
-      <a href="?theme={id}" aria-current={id === theme ? 'page' : undefined}>{name}</a>
-    {/each}
-  </nav>
   {#if screen === 'quiz'}
     <Quiz {theme} {settings} onHome={() => (screen = 'home')} />
   {:else if screen === 'review'}
@@ -115,23 +113,6 @@
       max(2rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
     max-width: 760px;
     margin: 0 auto;
-  }
-  nav {
-    display: flex;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-  }
-  nav a {
-    color: var(--muted);
-    padding: 0.35rem 0.9rem;
-    border: var(--surface-border);
-    border-radius: var(--surface-radius);
-    text-decoration: none;
-  }
-  nav a[aria-current='page'] {
-    color: var(--surface);
-    background: var(--accent);
   }
   figure {
     margin: 0 0 1.5rem;
