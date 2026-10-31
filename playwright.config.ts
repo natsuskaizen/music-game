@@ -7,7 +7,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   reporter: process.env.CI ? [['list'], ['json', { outputFile: 'reports/e2e.json' }]] : 'list',
   use: { baseURL: 'http://localhost:4173/music-game/' },
-  webServer: { command: 'npm run build && npm run preview', url: 'http://localhost:4173/music-game/' },
+  // An e2e-mode build adds the scripted test input (src/inputs/scripted.ts), in its own folder so dist/ stays the shipped build.
+  webServer: {
+    command: 'npx vite build --mode e2e --outDir dist-e2e && npx vite preview --outDir dist-e2e',
+    url: 'http://localhost:4173/music-game/',
+  },
   projects: [
     { name: 'iphone', use: { ...devices['iPhone 15'] } },
     { name: 'ipad', use: { ...devices['iPad (gen 11)'] } },

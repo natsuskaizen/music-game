@@ -1,26 +1,12 @@
-import { expect, test, type Page } from '@playwright/test';
-import { staffTarget } from './staff-target';
-
-async function setup(page: Page, theme: string) {
-  await page.goto(`./?theme=${theme}`);
-  const quiz = page.getByRole('region', { name: 'Quiz' });
-  const { staffName, target } = await staffTarget(quiz);
-  const keys = quiz.locator(`.key:not([aria-label="${target}"])`);
-  return {
-    quiz,
-    target,
-    staffName,
-    keys,
-    key: (name: string) => quiz.getByRole('button', { name, exact: true }),
-  };
-}
+import { expect, test } from '@playwright/test';
+import { openQuiz } from './quiz-page';
 
 for (const theme of ['paper', 'storybook', 'arcade']) {
   test(`M1-AC1 ${theme}: two misses reveal the note and wait for Continue`, async ({ page }, testInfo) => {
-    const { quiz, target, staffName, keys, key } = await setup(page, theme);
-    await keys.nth(0).click();
+    const { quiz, target, staffName, wrongKeys, key } = await openQuiz(page, `?theme=${theme}`);
+    await wrongKeys.nth(0).click();
     await expect(quiz.getByText('Not quite. One more try.')).toBeVisible();
-    await keys.nth(1).click();
+    await wrongKeys.nth(1).click();
     await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
     await expect(key(target)).toHaveClass(/right/);
     await expect(quiz.locator('.key.wrong')).toHaveCount(2);
@@ -39,7 +25,7 @@ for (const theme of ['paper', 'storybook', 'arcade']) {
   });
 
   test(`M1-AC1 ${theme}: a right answer scores and moves to the next note`, async ({ page }) => {
-    const { quiz, target, key } = await setup(page, theme);
+    const { quiz, target, key } = await openQuiz(page, `?theme=${theme}`);
     await key(target).click();
     await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
     await expect(quiz.getByText('Find this note on the keyboard.')).toBeVisible();
@@ -49,8 +35,7 @@ for (const theme of ['paper', 'storybook', 'arcade']) {
 }
 
 test('M1-AC1 the clef switch changes the staff and the keyboard range', async ({ page }) => {
-  await page.goto('./');
-  const quiz = page.getByRole('region', { name: 'Quiz' });
+  const { quiz } = await openQuiz(page);
   await quiz.getByRole('radio', { name: 'bass' }).click();
   await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', / on the bass staff$/);
   await expect(quiz.getByRole('button', { name: 'G1', exact: true })).toBeVisible();

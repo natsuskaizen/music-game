@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
-import { staffTarget } from './staff-target';
-import { hzOf, midiOf, type Pitch } from '../src/core/pitch';
+import { openQuiz, pitchOfLabel } from './quiz-page';
+import { hzOf, midiOf } from '../src/core/pitch';
 
 declare global {
   interface Window {
@@ -22,16 +22,13 @@ async function stubAudio(page: Page, withSession: boolean) {
       Reflect.apply(start, this, [when]);
     };
   }, withSession);
-  await page.goto('./');
-  const quiz = page.getByRole('region', { name: 'Quiz' });
-  const { target } = await staffTarget(quiz);
+  const { quiz, target } = await openQuiz(page);
   return { quiz, target, tones: () => page.evaluate(() => window.tones) };
 }
 
 // The rounded frequency of a key label such as "C4".
 function hzOfLabel(label: string): number {
-  const pitch: Pitch = { letter: label[0] as Pitch['letter'], octave: Number(label.slice(1)) };
-  return Math.round(hzOf(midiOf(pitch)));
+  return Math.round(hzOf(midiOf(pitchOfLabel(label))));
 }
 
 test('M1-AC5 a right answer plays the note with a playback audio session', async ({ page }) => {
