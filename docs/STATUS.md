@@ -29,7 +29,7 @@ M0 ✱ · M1 ○ · M2 ○ · M3 ○ · M4 ○ · M5 ○ · M6 ○ · M7 ○ · 
 ## Recent
 - 2026-10-31: Research, design, framework comparison, Svelte keyboard mock-up (`prototypes/compare/`), roadmap and gates. All in PR #1.
 - 2026-10-31: M0-1 scaffold: Vite 7 + Svelte 5 + TS (strict), Prettier; `npm run check` = format, svelte-check, build. `src/` folders from design §11 are created with their first file, not as empty placeholders.
-- 2026-10-31: M0-2 test harness: Vitest (coverage ≥ 90% on `src/core`, part of `npm run check`) and Playwright on WebKit iPhone 15 / iPad gen 11 (`npm run e2e`). CI must run `npx playwright install --with-deps webkit` (M0-4). Runs now chain issues until a stop point.
+- 2026-10-31: M0-2 test harness: Vitest (coverage ≥ 90% on `src/core`, part of `npm run check`) and Playwright on WebKit iPhone 15 / iPad gen 11 (`npm run e2e`). CI must run `npx playwright install --with-deps webkit` (M0-4). Each issue now runs in a fresh thread, chained by the coordinator; the 2-hour scheduled task is the backup.
 
 ## Known issues / open questions
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
