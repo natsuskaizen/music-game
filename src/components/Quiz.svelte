@@ -32,7 +32,7 @@
   import { applyAttempt, newStat, weakNotes, type Attempt, type NoteStat } from '../core/stats';
   import type { Theme } from '../core/theme';
   import { celebrates } from '../core/streak';
-  import { FEEDBACK } from './feedback';
+  import { feedbackFor, prefersReducedMotion } from './feedback';
   import { available, inputById } from '../inputs';
   import { loadStats, recordAttempt, requestPersistence } from '../storage/db';
   import type { KeyMark } from '../inputs/types';
@@ -54,7 +54,19 @@
     review?: ReadonlyMap<string, NoteStat>;
   } = $props();
 
-  const feedback = $derived(FEEDBACK[theme]);
+  // Read per use, so a system setting change applies without a reload.
+  const feedback = {
+    enter: (n: SVGGElement) => {
+      feedbackFor(theme, prefersReducedMotion()).enter(n);
+    },
+    wrong: (n: SVGGElement) => {
+      feedbackFor(theme, prefersReducedMotion()).wrong(n);
+    },
+    right: (n: SVGGElement) => feedbackFor(theme, prefersReducedMotion()).right(n),
+    celebrate: (n: HTMLElement) => {
+      feedbackFor(theme, prefersReducedMotion()).celebrate(n);
+    },
+  };
   let streakEl = $state<HTMLElement>();
   const ringerHint = needsRingerHint();
   void loadPiano(); // the Start tap that opened this screen lets iOS start audio

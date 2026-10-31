@@ -103,6 +103,19 @@ const arcade: Feedback = {
   },
 };
 
+const noop = () => undefined;
+
+// Reduced motion: no tweens. Stops any queued one and leaves the note shown; a right answer lets the quiz move on at once.
+const still: Feedback = {
+  enter(note) {
+    gsap.killTweensOf(note);
+    gsap.set(note, { clearProps: 'all' });
+  },
+  wrong: noop,
+  right: () => Promise.resolve(),
+  celebrate: noop,
+};
+
 const SPARKS = 14;
 
 // A ring of dots flying out from the note; they remove themselves when done.
@@ -133,3 +146,13 @@ function sparkle(note: SVGGElement) {
 
 /** The feedback style for a theme. */
 export const FEEDBACK: Record<Theme, Feedback> = { paper, storybook, arcade };
+
+/** True when the person asked the system for less motion. */
+export function prefersReducedMotion(): boolean {
+  return typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+/** The theme's feedback, or the motionless one under reduced motion (state still changes; only the movement is skipped). */
+export function feedbackFor(theme: Theme, reduced: boolean): Feedback {
+  return reduced ? still : FEEDBACK[theme];
+}
