@@ -9,7 +9,10 @@ const STAFFS = [
 test('M1-AC1 renders treble, bass, and grand staff with ledger notes', async ({ page }, testInfo) => {
   await page.goto('./');
   await page.evaluate(async () => document.fonts.ready);
-  expect(await page.evaluate(() => document.fonts.check('16px Bravura'))).toBe(true);
+  const bravura = await page.evaluate(() =>
+    [...document.fonts].filter((face) => face.family === 'Bravura').map((face) => face.status),
+  );
+  expect(bravura).toEqual(['loaded']);
   for (const staff of STAFFS) {
     const svg = page.getByRole('img', { name: staff.name });
     await expect(svg.locator('.ledger')).toHaveCount(staff.ledgers);

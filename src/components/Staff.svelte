@@ -1,7 +1,15 @@
 <!-- Draws one whole note on a treble, bass, or grand staff, with its ledger lines (design §3.1). Kept after the M1 spike. -->
 <script lang="ts">
   import { ledgerPositions, pitchLabel, staffPos, type ClefNote } from '../core/pitch';
-  import { SPACE, clefLinePos, stavesFor, systemBounds, yOf, type ClefMode } from '../core/staff-layout';
+  import {
+    SPACE,
+    STAFF_LINES,
+    clefLinePos,
+    stavesFor,
+    systemBounds,
+    yOf,
+    type ClefMode,
+  } from '../core/staff-layout';
 
   let { mode, note }: { mode: ClefMode; note: ClefNote } = $props();
 
@@ -13,7 +21,6 @@
   const RIGHT = 616;
   const NOTE_X = 340;
   const LEDGER_HALF = 1.35 * SPACE;
-  const LINES = [-4, -2, 0, 2, 4];
 
   const staves = $derived(stavesFor(mode));
   const bounds = $derived(systemBounds(staves));
@@ -26,7 +33,7 @@
 
 <svg viewBox="0 0 {WIDTH} {bounds.height}" role="img" aria-label={label}>
   {#each staves as stave (stave.clef)}
-    {#each LINES as p (p)}
+    {#each STAFF_LINES as p (p)}
       <line class="staff-line" x1={LEFT} x2={RIGHT} y1={yOf(stave, p)} y2={yOf(stave, p)} />
     {/each}
     <text class="glyph" x={LEFT + SPACE * 0.75} y={yOf(stave, clefLinePos(stave.clef))} font-size={GLYPH_SIZE}

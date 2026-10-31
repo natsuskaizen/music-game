@@ -7,6 +7,9 @@ export type ClefMode = Clef | 'both';
 /** One staff space. SMuFL glyphs are 4 spaces per em, so glyph font size is 4 × SPACE. */
 export const SPACE = 16;
 
+/** Staff positions of a stave's five lines, bottom to top (0 is the middle line). */
+export const STAFF_LINES = [-4, -2, 0, 2, 4];
+
 /** One stave of a system: its clef and the y of its middle line. */
 export interface Stave {
   clef: Clef;
