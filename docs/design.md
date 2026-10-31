@@ -504,13 +504,13 @@ weight = difficulty × weakness × slowness × staleness
 // src/core/selector.ts
 export interface WeightConfig {
   ledgerBoost: number;   // per ledger line; 0.6 means 3 ledger lines ≈ 2.8× an on-staff note
-  weaknessGain: number;  // 3: a note at 0% accuracy is 4× a note at 100%
+  weaknessGain: number;  // 6: a note at 40% accuracy is at least 3× a note at 95% (M4-AC2)
   targetMs: number;      // "fast enough" response time
   exploration: number;   // 0.15: share of picks that ignore stats (keeps coverage)
 }
 
 export const DEFAULT_WEIGHTS: WeightConfig =
-  { ledgerBoost: 0.6, weaknessGain: 3, targetMs: 2500, exploration: 0.15 };
+  { ledgerBoost: 0.6, weaknessGain: 6, targetMs: 2500, exploration: 0.15 };
 
 export function weight(p: Pitch, clef: Clef, s: NoteStat | undefined, cfg: WeightConfig, now: number) {
   const difficulty = 1 + cfg.ledgerBoost * ledgerLines(p, clef);
