@@ -25,18 +25,18 @@ Milestone doc (scope + ACs + issue list)
 | # | Milestone | Outcome | Status |
 |---|---|---|---|
 | M0 | [Foundation & quality gates](milestones/M0-foundation.md) | Scaffold, CI gates, AC status report, Pages deploy, installable PWA shell | Done |
-| M1 | [Look & feel spike](milestones/M1-look-and-feel.md) | 3 themes on device; staff/audio/offline risks retired; theme picked | In progress |
-| M2 | [Single-note MVP](milestones/M2-single-note.md) | Playable single-note quiz with letter pad, retry/reveal/continue, clef settings | Not started |
-| M3 | [Progress tracking & smart review](milestones/M3-tracking.md) | Stats in IndexedDB, weighted selection, review mode, backup | Not started |
-| M4 | [Sequence mode](milestones/M4-sequence.md) | Multi-note quiz | Not started |
-| M5 | [Piano input & sound](milestones/M5-piano-and-sound.md) | Piano keyboard input, answer-precision options, piano sound | Not started |
-| M6 | [Timer & challenge](milestones/M6-timer.md) | Per-note and sprint timers, results and stats screens | Not started |
+| M1 | [Look & feel spike](milestones/M1-look-and-feel.md) | 2 themes on device; staff/audio/offline risks retired; theme picked | In progress |
+| M2 | [Single-note MVP](milestones/M2-single-note.md) | Playable single-note quiz on the on-screen piano, retry/reveal/continue, difficulty, home | Not started |
+| M3 | [Real piano & sound](milestones/M3-mic-and-sound.md) | Mic input from a real piano, piano samples, sound settings | Not started |
+| M4 | [Tracking, review & ordering](milestones/M4-tracking.md) | Stats in IndexedDB, weighted stepwise ordering, review mode, backup | Not started |
+| M5 | [Sequence mode](milestones/M5-sequence.md) | Multi-note quiz in measures, sized by difficulty | Not started |
+| M6 | [Timer & results](milestones/M6-timer.md) | Sprint timer, results and stats screens | Not started |
 | M7 | [Polish & PWA hardening](milestones/M7-polish.md) | Update prompt, install hint, effects, accessibility | Not started |
 | F1 | [Accidentals & key signatures](milestones/F1-accidentals.md) | Later feature | Backlog |
-| F2 | [Play on a real piano](milestones/F2-mic-input.md) | Answer by playing the note; the app hears it through the mic | After M5 |
+| F3 | [Write or say the letter](milestones/F3-letter-inputs.md) | Handwriting and voice letter inputs | Backlog |
 
 Order rationale: gates first, so every later PR reports status. Then the riskiest unknowns
-(look, iOS audio, offline) before building features. Then value in the order you'll use it.
+(look, iOS audio, offline) before building features. Then value in the order you'll use it: the real-piano input comes early because it's how you practice (design §14).
 
 ## Quality gates (set up in M0, required on every PR)
 

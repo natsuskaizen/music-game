@@ -3,9 +3,9 @@
 ## What we're building
 A sight-reading trainer for piano, for Stan. It's an offline web app (PWA) installed on his iPad and iPhone from GitHub Pages.
 - **Modes**: single note (treble, bass, or both on a grand staff) and multi-note sequences.
-- **Answering**: pluggable inputs (letter pad, on-screen piano, mic listening to a real piano, more later).
-- **Learning**: tracks every answer and brings weak notes back more often. Ledger-line notes up to an octave beyond the staff are weighted higher.
-- **Settings**: clef, range, timer (off / per note / sprint), sound, which inputs, whether the octave must match.
+- **Answering**: pluggable inputs (on-screen piano, mic listening to a real piano; writing or saying the letter later).
+- **Learning**: tracks every answer and brings weak notes back more often. Notes mostly move stepwise; difficulty (easy/medium/hard) sets the range and how often ledger notes appear.
+- **Settings**: clef, mode, difficulty, timer (off / sprint), sound, default input. Decisions: `docs/design.md` §14.
 - **Feedback rule**: never auto-advance after a miss. Retry once, then reveal, then wait for Continue.
 
 Stan is a lead engineer with a Python background who learns codebases through code examples. He wants
@@ -32,9 +32,10 @@ Svelte 5 + SVG (Bravura glyphs) + GSAP, Vite, TypeScript, Dexie (IndexedDB), Web
 - When a milestone's last issue closes: fill in its Summary (5–10 lines), update the roadmap status, and refresh all of STATUS.md (trim Recent to the last ~5 lines).
 
 ## Autonomous mode (authorized by Stan, 2026-10-31)
-Each issue gets its own fresh thread, so context stays small. A run does **one issue**. When its PR merges, it asks the coordinator for a new thread for the next issue, unless the next item is a stop point. A scheduled task every 2 hours is the backup if the chain stalls.
+Each issue gets its own fresh thread, so context stays small. A run does **one issue**. When its PR merges, it asks the coordinator for a new thread for the next issue, unless the next item is a stop point. A scheduled task every hour is the backup if the chain stalls; delete it once the roadmap is complete.
 1. Read STATUS.md. If a PR from the loop is still open, check it: fix red CI or review findings (max 2 attempts per issue), then stop.
-2. If a **stop point** is next, update STATUS.md "Blocked on Stan", notify, and stop. Stop points: a milestone's end, any "working session" item, M1 device checks or theme pick, a gate failing twice on the same issue, or anything needing a repo setting or secret.
+2. If a **stop point** is next, update STATUS.md "Blocked on Stan", notify, and stop. Stop points: a gate failing twice on the same issue, or anything needing a repo setting or secret.
+   Not stop points (Stan, 2026-10-31): a milestone's end (fill in the Summary, post a short summary, carry on); a pending manual device AC (leave it open, keep building; the milestone stays not-done until Stan ticks it); the M1 theme pick (if none within a day of the demo, use Paper & ink).
 3. Otherwise take the next issue: branch, build, test, `npm run check`, run the code-reviewer agent, fix blocking findings, update STATUS.md (Now, Recent, handoff notes), and open the PR. After it merges, ask the coordinator for the next issue's thread.
 4. Merging: once branch protection requires the CI and review checks (after M0-4/M0-5), enable **auto-merge**, and GitHub merges only when every check is green. Before that, leave the PR for Stan to merge.
 Never merge by hand, never use `review-override`, and never change gates to make a PR pass.
