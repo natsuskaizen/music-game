@@ -6,12 +6,31 @@ const session = (navigator as AudioSessionNavigator).audioSession;
 
 let ctx: AudioContext | undefined;
 let ignoreSilentSwitch = true;
+let recording = false;
+
+/** The session type to use: iOS refuses mic capture under 'playback', so recording needs 'play-and-record'. */
+function applySessionType(): void {
+  if (session) session.type = recording ? 'play-and-record' : ignoreSilentSwitch ? 'playback' : 'auto';
+}
 
 /** Sets whether sound plays with the silent switch on; takes effect at once, even after the context exists. */
 export function setIgnoreSilentSwitch(ignore: boolean): void {
   ignoreSilentSwitch = ignore;
-  if (session) session.type = ignore ? 'playback' : 'auto';
+  applySessionType();
 }
+
+/** Switches the iOS audio session for mic capture on or off; call before `getUserMedia` and again on stop. */
+export function setRecording(on: boolean): void {
+  recording = on;
+  applySessionType();
+}
+
+/** iOS suspends audio while the app is in the background: wake the context when the app is shown again. */
+function resumeWhenVisible(): void {
+  if (document.visibilityState === 'visible' && ctx && ctx.state !== 'running')
+    ctx.resume().catch(() => undefined);
+}
+document.addEventListener('visibilitychange', resumeWhenVisible);
 
 /** True on a touch device that can't opt out of the silent switch, where iOS may mute the sound. */
 export function needsRingerHint(): boolean {

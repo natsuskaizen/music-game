@@ -60,6 +60,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✱ · M5 ○
 ## Recent
 - 2026-10-31: M4-5 (#62): Review weak notes: `weakNotes` pool, session ends when empty, Home button (M4-AC5).
 - 2026-10-31: M4-4 (#61): Dexie storage, `recordAttempt`, and `learnedPicker` (weighted, stepwise) drive the quiz; stats survive a reload.
+- 2026-10-31: Mic fix from Stan's iPhone test (M3-AC9): audio session `play-and-record` while listening (iOS refused the mic under `playback`, so no prompt), error message when the mic is blocked, level meter, context resumes on return to the app. Needs re-test on the iPhone.
 - 2026-10-31: M4-3 (#60): `pickStepwise` (steps of 1–3, ~10% jumps of three kinds) now drives the session (M4-AC4); doc nits from the M4-2 review fixed.
 - 2026-10-31: M4-2 (#59): `pickWeighted` and `weight` in `core/selector.ts` (M4-AC2, AC3).
 - 2026-10-31: M4-1 (#58): `core/stats.ts` with `applyAttempt`, `credit` and `statKey` (M4-AC1).
@@ -75,4 +76,4 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✱ · M5 ○
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
 - WebKit can't be downloaded in the cloud sessions, so e2e runs there on Chromium as a smoke test; CI is the WebKit source of truth.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
-- iOS: mic permission may re-prompt per launch (M3). The answer tone is silent in airplane mode (#39, M3-AC7).
+- iOS: mic permission may re-prompt per launch (M3). Stan's iPhone test: no mic prompt at all and sound dropped after app switching; fixed in M3-AC9, awaiting re-test. The answer tone is silent in airplane mode (#39, M3-AC7).
