@@ -17,6 +17,8 @@
   let mode = $state<ClefMode>('treble');
   let quiz = $state(startQuiz('treble', Math.random));
   let noteEl = $state<SVGGElement>();
+  // Counts questions, so an animation that ends after the quiz moved on doesn't advance it again.
+  let asked = 0;
 
   const target = $derived(midiOf(quiz.note.pitch));
   const name = $derived(pitchLabel(quiz.note.pitch));
@@ -34,6 +36,7 @@
   });
 
   function advance() {
+    asked++;
     quiz = nextQuestion(quiz, mode, Math.random);
     if (noteEl) feedback.enter(noteEl);
   }
@@ -51,9 +54,10 @@
       feedback.wrong(noteEl);
       return;
     }
+    const answered = asked;
     await feedback.right(noteEl);
     // A clef change during the animation has already moved on.
-    if (quiz.phase === 'right') advance();
+    if (asked === answered) advance();
   }
 </script>
 
