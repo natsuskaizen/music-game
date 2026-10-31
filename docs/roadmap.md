@@ -17,7 +17,7 @@ Milestone doc (scope + ACs + issue list)
 1. At the start of a milestone, its issue list becomes GitHub issues under a GitHub milestone.
    Each issue names the ACs it satisfies.
 2. **One issue = one branch = one PR** into `main`. PRs stay small, so reviews and fixes stay cheap.
-3. Before opening the PR, Claude runs the **code-reviewer agent** locally on the diff and fixes what it finds.
+3. Before opening the PR, Claude checks its diff against the **code-reviewer agent**'s checklist and fixes what it finds. The agent itself runs once, in CI.
 4. On the PR, **every gate below must pass**, including the code-quality and AI review gates. Then it merges and deploys.
 5. **Every PR updates [`STATUS.md`](STATUS.md)**, the short living summary that `CLAUDE.md` auto-loads into each new session.
    When the last issue closes: fill in the milestone Summary, update the status table here, and refresh STATUS.md in full.
