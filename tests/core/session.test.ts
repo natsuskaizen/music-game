@@ -20,7 +20,7 @@ const press = (s: Session, midi: number) => reduce(s, { type: 'answer', answer: 
 const next = (s: Session) => reduce(s, { type: 'next' }, first);
 const session = (over: Partial<Session> = {}): Session => ({
   pool,
-  length: undefined,
+  questionsPerSession: undefined,
   phase: 'ask',
   note: C4,
   misses: [],
@@ -30,7 +30,7 @@ const session = (over: Partial<Session> = {}): Session => ({
   ...over,
 });
 
-describe('gradeAnswer: exact pitch (design §3.2)', () => {
+describe('gradeAnswer: exact pitch (design §14)', () => {
   test('M2-AC9 the right key in the right octave is correct', () => {
     expect(gradeAnswer(C6, key(midiOf(C6.pitch)))).toBe(true);
   });
@@ -94,8 +94,8 @@ describe('reduce: next question and session end (design §8.3)', () => {
   });
 
   test('M2-AC3 the session is done after its length, and an endless one never is', () => {
-    expect(next(session({ phase: 'right', length: 3, total: 3 })).phase).toBe('done');
-    expect(next(session({ phase: 'right', length: 3, total: 2 })).phase).toBe('ask');
+    expect(next(session({ phase: 'right', questionsPerSession: 3, total: 3 })).phase).toBe('done');
+    expect(next(session({ phase: 'right', questionsPerSession: 3, total: 2 })).phase).toBe('ask');
     expect(next(session({ phase: 'right', total: 500 })).phase).toBe('ask');
   });
 
@@ -109,7 +109,7 @@ describe('reduce: next question and session end (design §8.3)', () => {
 test('M2-AC3 startSession begins with an empty score on a note from the pool', () => {
   expect(startSession(notePool('bass', 'medium'), 20, first)).toMatchObject({
     phase: 'ask',
-    length: 20,
+    questionsPerSession: 20,
     total: 0,
     streak: 0,
     misses: [],

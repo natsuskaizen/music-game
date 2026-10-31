@@ -1,5 +1,5 @@
 // The quiz session as a reducer (design §8.3, §8.4): a miss gets one retry, then the answer is revealed and the
-// session waits for the next event. It ends after `length` questions. Inputs only produce an `Answer` (design §3.4).
+// session waits for the next event. It ends after `questionsPerSession` questions. Inputs only produce an `Answer` (design §3.4).
 import { midiOf, type ClefNote } from './pitch';
 import { pickNote, type Random } from './selector';
 
@@ -9,7 +9,7 @@ export interface Answer {
   midi: number;
 }
 
-/** Whether `answer` names `note` exactly: same pitch and octave, so C5 is wrong for C6 (design §3.2). */
+/** Whether `answer` names `note` exactly: same pitch and octave, so C5 is wrong for C6 (design §14). */
 export function gradeAnswer(note: ClefNote, answer: Answer): boolean {
   return answer.midi === midiOf(note.pitch);
 }
@@ -17,11 +17,16 @@ export function gradeAnswer(note: ClefNote, answer: Answer): boolean {
 /** Where a question stands: waiting, second try after one miss, revealed after two, answered right, or session over. */
 type Phase = 'ask' | 'retry' | 'reveal' | 'right' | 'done';
 
-/** One session: its note pool and length, the current question, and the running score. */
+/** Whether the question is settled (answered right, or revealed), so the answer shows and `next` may move on. */
+export function isSettled(phase: Phase): boolean {
+  return phase === 'right' || phase === 'reveal';
+}
+
+/** One session: its note pool and question count, the current question, and the running score. */
 export interface Session {
   pool: ClefNote[];
   /** Questions per session; `undefined` is endless (design §14). */
-  length: number | undefined;
+  questionsPerSession: number | undefined;
   phase: Phase;
   note: ClefNote;
   misses: Answer[];
@@ -34,15 +39,19 @@ export interface Session {
 export type SessionEvent = { type: 'answer'; answer: Answer } | { type: 'next' };
 
 /** A fresh session with an empty score and its first note from `pool`. */
-export function startSession(pool: ClefNote[], length: number | undefined, random: Random): Session {
+export function startSession(
+  pool: ClefNote[],
+  questionsPerSession: number | undefined,
+  random: Random,
+): Session {
   const note = pickNote(pool, random);
-  return { pool, length, phase: 'ask', note, misses: [], streak: 0, firstTry: 0, total: 0 };
+  return { pool, questionsPerSession, phase: 'ask', note, misses: [], streak: 0, firstTry: 0, total: 0 };
 }
 
 /** Applies one event. Events that don't fit the phase (an answer during a reveal, `next` while asking) change nothing. */
 export function reduce(s: Session, e: SessionEvent, random: Random): Session {
   if (e.type === 'answer') return s.phase === 'ask' || s.phase === 'retry' ? answer(s, e.answer) : s;
-  return s.phase === 'right' || s.phase === 'reveal' ? next(s, random) : s;
+  return isSettled(s.phase) ? next(s, random) : s;
 }
 
 function answer(s: Session, a: Answer): Session {
@@ -64,14 +73,13 @@ function scoreRight(s: Session): Session {
 }
 
 function next(s: Session, random: Random): Session {
-  if (s.length !== undefined && s.total >= s.length) return { ...s, phase: 'done' };
+  if (s.questionsPerSession !== undefined && s.total >= s.questionsPerSession) return { ...s, phase: 'done' };
   return { ...s, note: pickNote(s.pool, random, s.note), phase: 'ask', misses: [] };
 }
 
 /** The note to sound when an event settles the question (right, or revealed after two misses); design §14. */
 export function toneAfter(before: Session, after: Session): number | undefined {
-  const settled = after.phase === 'right' || after.phase === 'reveal';
-  return settled && after.phase !== before.phase ? midiOf(after.note.pitch) : undefined;
+  return isSettled(after.phase) && after.phase !== before.phase ? midiOf(after.note.pitch) : undefined;
 }
 
 /** First-try accuracy as a whole percentage, 0 before any answer. */

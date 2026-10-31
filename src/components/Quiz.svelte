@@ -5,7 +5,7 @@
   import { KEY_RANGES } from '../core/keyboard';
   import { midiOf, pitchLabel } from '../core/pitch';
   import { notePool } from '../core/ranges';
-  import { firstTryPercent, reduce, startSession, toneAfter, type Session } from '../core/session';
+  import { firstTryPercent, isSettled, reduce, startSession, toneAfter, type Session } from '../core/session';
   import type { ClefMode } from '../core/staff-layout';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
@@ -28,7 +28,7 @@
 
   const target = $derived(midiOf(quiz.note.pitch));
   const name = $derived(pitchLabel(quiz.note.pitch));
-  const showsAnswer = $derived(quiz.phase === 'right' || quiz.phase === 'reveal');
+  const showsAnswer = $derived(isSettled(quiz.phase));
   const marks = $derived(
     new Map<number, 'right' | 'wrong'>([
       ...quiz.misses.map((a) => [a.midi, 'wrong'] as const),
@@ -41,20 +41,20 @@
     if (noteEl) feedback.enter(noteEl);
   });
 
-  function showNew(next: Session) {
+  function showQuestion(next: Session) {
     asked++;
     quiz = next;
     if (noteEl) feedback.enter(noteEl);
   }
 
   function advance() {
-    showNew(reduce(quiz, { type: 'next' }, Math.random));
+    showQuestion(reduce(quiz, { type: 'next' }, Math.random));
   }
 
   // A clef change starts a fresh session on that clef's pool.
   function setMode(next: ClefMode) {
     mode = next;
-    showNew(begin(next));
+    showQuestion(begin(next));
   }
 
   async function press(midi: number) {
