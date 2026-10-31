@@ -14,7 +14,7 @@
     type Answer,
     type Session,
   } from '../core/session';
-  import type { ClefMode } from '../core/staff-layout';
+  import type { Settings } from '../core/settings';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
   import { available, inputById } from '../inputs';
@@ -22,19 +22,21 @@
   import ActiveInput from './ActiveInput.svelte';
   import Staff from './Staff.svelte';
 
-  let { theme }: { theme: Theme } = $props();
+  let { theme, settings, onHome }: { theme: Theme; settings: Settings; onHome: () => void } = $props();
 
-  const CLEFS: ClefMode[] = ['treble', 'bass', 'both'];
   const feedback = $derived(FEEDBACK[theme]);
   const ringerHint = needsRingerHint();
   const inputs = available();
-  // M2-5 makes the starting input a setting (the default input); until then it's the piano.
-  let input = $state.raw(inputById('piano'));
-
-  let mode = $state<ClefMode>('treble');
-  // Medium is the default difficulty and the demo is endless; M2-5 makes both settings.
-  const begin = (clef: ClefMode) => startSession(notePool(clef, 'medium'), undefined, Math.random);
-  let quiz = $state(begin('treble'));
+  const begin = () =>
+    startSession(
+      notePool(settings.clef, settings.difficulty),
+      settings.questionsPerSession || undefined,
+      Math.random,
+    );
+  // The default input starts; the switcher changes it for this quiz only.
+  const defaultInput = () => inputById(settings.input);
+  let input = $state.raw(defaultInput());
+  let quiz = $state(begin());
   let noteEl = $state<SVGGElement>();
   // Counts questions, so an animation that ends after the quiz moved on doesn't advance it again.
   let asked = 0;
@@ -64,12 +66,6 @@
     showQuestion(reduce(quiz, { type: 'next' }, Math.random));
   }
 
-  // A clef change starts a fresh session on that clef's pool.
-  function setMode(next: ClefMode) {
-    mode = next;
-    showQuestion(begin(next));
-  }
-
   async function onAnswer(answer: Answer) {
     const before = quiz;
     quiz = reduce(quiz, { type: 'answer', answer }, Math.random);
@@ -82,25 +78,14 @@
     }
     const answered = asked;
     await feedback.right(noteEl);
-    // A clef change during the animation has already moved on.
+    // Play again during the animation has already moved on.
     if (asked === answered) advance();
   }
 </script>
 
 <section class="quiz" aria-label="Quiz">
   <div class="bar">
-    <div class="seg" role="radiogroup" aria-label="Clef">
-      {#each CLEFS as clef (clef)}
-        <button
-          type="button"
-          role="radio"
-          aria-checked={mode === clef}
-          onclick={() => {
-            setMode(clef);
-          }}>{clef}</button
-        >
-      {/each}
-    </div>
+    <button type="button" class="home" onclick={onHome}>Home</button>
     {#if inputs.length > 1}
       <select
         aria-label="Input"
@@ -122,17 +107,31 @@
     {:else if quiz.phase === 'right'}Yes, {name}!
     {:else}Find this note on the keyboard.{/if}
   </p>
-  <Staff
-    {mode}
-    note={quiz.note}
-    mark={quiz.phase === 'right' ? 'right' : quiz.phase === 'ask' ? undefined : 'wrong'}
-    revealed={quiz.phase === 'reveal'}
-    bind:noteEl
-  />
-  <ActiveInput method={input} {mode} {marks} emit={onAnswer} />
-  <div class="continue">
-    {#if quiz.phase === 'reveal'}<button type="button" onclick={advance}>Continue</button>{/if}
-  </div>
+  {#if quiz.phase === 'done'}
+    <div class="results">
+      <p class="msg right">
+        Session done: {quiz.firstTry} of {quiz.total} right on the first try ({firstTryPercent(quiz)}%).
+      </p>
+      <button
+        type="button"
+        onclick={() => {
+          showQuestion(begin());
+        }}>Play again</button
+      >
+    </div>
+  {:else}
+    <Staff
+      mode={settings.clef}
+      note={quiz.note}
+      mark={quiz.phase === 'right' ? 'right' : quiz.phase === 'ask' ? undefined : 'wrong'}
+      revealed={quiz.phase === 'reveal'}
+      bind:noteEl
+    />
+    <ActiveInput method={input} mode={settings.clef} {marks} emit={onAnswer} />
+    <div class="continue">
+      {#if quiz.phase === 'reveal'}<button type="button" onclick={advance}>Continue</button>{/if}
+    </div>
+  {/if}
 </section>
 
 <style>
@@ -153,15 +152,12 @@
     align-items: center;
     color: var(--muted);
   }
-  .seg {
-    display: inline-flex;
-    border: var(--surface-border);
-    border-radius: var(--surface-radius);
-    overflow: hidden;
+  .home {
     margin-right: auto;
   }
   select,
-  .seg button,
+  .home,
+  .results button,
   .continue button {
     font: 700 0.95rem var(--font);
     text-transform: capitalize;
@@ -178,12 +174,18 @@
     font-size: 1rem;
     text-transform: none;
   }
-  .seg button {
+  .home {
     padding: 0.35rem 0.9rem;
     background: none;
     color: var(--muted);
   }
-  .seg button[aria-checked='true'],
+  .results {
+    display: grid;
+    justify-items: center;
+    gap: 1rem;
+    padding: 1rem 0;
+  }
+  .results button,
   .continue button {
     background: var(--accent);
     color: var(--on-accent);
@@ -212,6 +214,7 @@
     display: flex;
     justify-content: center;
   }
+  .results button,
   .continue button {
     padding: 0.75rem 2rem;
     border-radius: var(--surface-radius);

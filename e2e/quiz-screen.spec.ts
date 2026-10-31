@@ -46,8 +46,7 @@ test('M2-AC4 a second miss reveals the note and only Continue moves on', async (
 });
 
 test('M2-AC5 both shows a grand staff with each note on its own stave', async ({ page }) => {
-  const { quiz, key } = await openQuiz(page);
-  await quiz.getByRole('radio', { name: 'both' }).click();
+  const { quiz, key } = await openQuiz(page, '', 'both');
   const staff = quiz.getByRole('img');
   // Two staves of five lines plus the system's left barline.
   await expect(staff.locator('.staff-line:not(.ledger)')).toHaveCount(11);
