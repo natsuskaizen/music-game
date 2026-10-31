@@ -1,8 +1,10 @@
-<!-- M1 demo quiz: read the note, tap its key. A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4). -->
+<!-- M1 demo quiz: read the note, tap its key. A miss gets one retry, then the answer is revealed and the quiz waits for Continue (design §8.4).
+     The correct note sounds once the question is settled (design §14). -->
 <script lang="ts">
+  import { needsRingerHint, playTone } from '../audio/tone';
   import { KEY_RANGES } from '../core/keyboard';
   import { midiOf, pitchLabel } from '../core/pitch';
-  import { answerKey, firstTryPercent, nextQuestion, startQuiz } from '../core/quiz';
+  import { answerKey, firstTryPercent, nextQuestion, startQuiz, toneAfter } from '../core/quiz';
   import type { ClefMode } from '../core/staff-layout';
   import type { Theme } from '../core/theme';
   import { FEEDBACK } from './feedback';
@@ -13,6 +15,7 @@
 
   const CLEFS: ClefMode[] = ['treble', 'bass', 'both'];
   const feedback = $derived(FEEDBACK[theme]);
+  const ringerHint = needsRingerHint();
 
   let mode = $state<ClefMode>('treble');
   let quiz = $state(startQuiz('treble', Math.random));
@@ -47,9 +50,11 @@
   }
 
   async function press(midi: number) {
-    const before = quiz.phase;
+    const before = quiz;
     quiz = answerKey(quiz, midi);
-    if (quiz.phase === before || !noteEl) return;
+    const tone = toneAfter(before, quiz);
+    if (tone !== undefined) playTone(tone);
+    if (quiz.phase === before.phase || !noteEl) return;
     if (quiz.phase !== 'right') {
       feedback.wrong(noteEl);
       return;
@@ -78,6 +83,7 @@
     <span>Streak <b>{quiz.streak}</b></span>
     <span>First try <b>{firstTryPercent(quiz)}%</b></span>
   </div>
+  {#if ringerHint}<p class="hint">Turn the ringer on for sound.</p>{/if}
   <p class="msg {quiz.phase}" aria-live="polite">
     {#if quiz.phase === 'retry'}Not quite. One more try.
     {:else if quiz.phase === 'reveal'}It's {name}. Tap Continue.
@@ -142,6 +148,11 @@
   }
   b {
     color: var(--text);
+  }
+  .hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.85rem;
   }
   .msg {
     margin: 0;
