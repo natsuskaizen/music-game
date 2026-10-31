@@ -1,6 +1,6 @@
 import { gsap } from 'gsap';
 import { describe, expect, test } from 'vitest';
-import { FEEDBACK } from '../../src/components/feedback';
+import { FEEDBACK, feedbackFor } from '../../src/components/feedback';
 
 // GSAP animates plain objects too, so a stand-in note shows where each animation leaves it, without a DOM.
 // `ownerSVGElement: null` makes the spark burst skip itself.
@@ -46,5 +46,22 @@ describe('arcade feedback', () => {
     const note = fakeNote();
     await arcade.right(asNote(note));
     expect(note.opacity).toBe(0);
+  });
+});
+
+describe('reduced motion', () => {
+  test('M7-AC3 reduced motion: nothing animates, a right answer resolves at once and the note stays shown', async () => {
+    for (const theme of ['paper', 'storybook', 'arcade'] as const) {
+      const still = feedbackFor(theme, true);
+      const note = fakeNote();
+      still.wrong(asNote(note));
+      await still.right(asNote(note));
+      expect(gsap.getTweensOf(note)).toHaveLength(0);
+      expect(note.x).toBe(5);
+    }
+  });
+
+  test('M7-AC3 reduced motion: off, a theme keeps its own feedback', () => {
+    expect(feedbackFor('arcade', false)).toBe(FEEDBACK.arcade);
   });
 });
