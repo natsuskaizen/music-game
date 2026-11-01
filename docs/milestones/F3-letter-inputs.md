@@ -6,7 +6,7 @@
 - Two `InputMethod`s (design §3.4): handwriting (stroke recognizer for A–G) and speech (on-device recognition where iOS Safari allows it).
 - Both are letter-only, so they skip the octave check.
 
-Acceptance criteria to be written when this is scheduled.
+Scheduled as [M9](M9-accidentals-and-letters.md), which holds the acceptance criteria and issues.
 
 ## Summary (fill in at completion)
 
