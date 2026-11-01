@@ -81,9 +81,9 @@ describe('loadSettings / saveSettings', () => {
 
 describe('migrateSettings micLevel', () => {
   test('M3-AC10 the mic loudness defaults to the middle level and keeps a known level', () => {
-    expect(DEFAULT_SETTINGS.micLevel).toBe(0.5);
-    expect(migrateSettings({ micLevel: 0.65 }).micLevel).toBe(0.65);
-    expect(migrateSettings({ micLevel: 0.9 }).micLevel).toBe(0.5);
+    expect(DEFAULT_SETTINGS.micLevel).toBe(0.3);
+    expect(migrateSettings({ micLevel: 0.45 }).micLevel).toBe(0.45);
+    expect(migrateSettings({ micLevel: 0.9 }).micLevel).toBe(0.3);
   });
 });
 
