@@ -39,3 +39,9 @@ AC5 (piano check) is a manual device check for Stan; it stays open and doesn't b
 M10-4 retires M9-AC6 and M9-AC8 (speech); M10-2 reverses M9-AC5 (letters ignored accidentals).
 
 ## Summary (fill in at completion)
+
+- **Shipped**: handwriting reads G (AC1) and letter answers need the right ♯/♭, with ♯/♭ toggles on the pad (AC2). The key picker names each key with its relative minor (AC3). Speech input is gone (AC4).
+- **Quiz feel**: Skip replaces Continue in both modes, so a miss keeps the question open until it is right or skipped (AC6). Keyboard highlights fade (AC7). A sequence advances only on the right note or Skip (AC8), and the current note has a halo in the new `--current` colour (AC9).
+- **Settings**: `Settings.accidentalsOnNote` (off by default, independent of the key picker) hides the key signature and writes every sharp or flat beside its note (AC10). Grading and stat keys don't change.
+- **Mic**: levels and detector floor lowered (AC5 unit).
+- **Open**: M10-AC5's piano check is Stan's manual device check. M9-AC7's finger check still applies to the handwriting changes.

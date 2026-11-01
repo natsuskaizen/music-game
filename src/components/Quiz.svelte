@@ -280,11 +280,19 @@
     />
   {:else}
     {#if run}
-      <Staff mode={settings.clef} {key} sequence={measures} marks={sequenceMarks} current={run.index} />
+      <Staff
+        mode={settings.clef}
+        {key}
+        onNote={settings.accidentalsOnNote}
+        sequence={measures}
+        marks={sequenceMarks}
+        current={run.index}
+      />
     {:else}
       <Staff
         mode={settings.clef}
         {key}
+        onNote={settings.accidentalsOnNote}
         note={quiz.note}
         mark={quiz.phase === 'right' ? 'right' : quiz.phase === 'ask' ? undefined : 'wrong'}
         {heard}

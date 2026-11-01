@@ -70,8 +70,14 @@ export function keyAccidental(key: KeySignature, letter: Pitch['letter']): Accid
 /**
  * The accidental each note of one measure shows, or `undefined` for none. A note shows one only where it differs from
  * the key signature or from an earlier accidental on the same line or space of the measure (a natural cancels them).
+ * With `onNote` there is no key signature on the staff, so every sharp or flat is written beside its note (M10-10).
  */
-export function measureAccidentals(notes: ClefNote[], key: KeySignature): (Accidental | undefined)[] {
+export function measureAccidentals(
+  notes: ClefNote[],
+  key: KeySignature,
+  onNote = false,
+): (Accidental | undefined)[] {
+  if (onNote) return notes.map(({ pitch }) => (pitch.accidental === 0 ? undefined : pitch.accidental));
   const inForce = new Map<string, Accidental>();
   return notes.map((note) => {
     const where = `${note.clef}:${String(staffPos(note))}`;

@@ -44,6 +44,8 @@ export interface Span {
   from: number;
   to: number;
   key?: KeySignature;
+  /** Write each altered note's accidental beside it instead of in a key signature. */
+  onNote?: boolean;
 }
 
 /** Narrowest slot per duration: wide enough that neighbouring noteheads and their ledger lines never touch. */
@@ -74,11 +76,12 @@ const sum = (values: number[]) => values.reduce((total, value) => total + value,
  * Noteheads left to right, each in a slot sized by its duration (plus room for an accidental); slots are stretched so
  * the measures fill the span.
  */
-function placeHeads(measures: Measure[], staves: Stave[], { from, to, key = 0 }: Span) {
+function placeHeads(measures: Measure[], staves: Stave[], { from, to, key = 0, onNote }: Span) {
   const shown = measures.map((measure) =>
     measureAccidentals(
       measure.map((n) => n.note),
       key,
+      onNote,
     ),
   );
   const slotWidths = measures.map((measure, m) =>

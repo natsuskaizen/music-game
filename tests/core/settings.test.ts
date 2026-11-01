@@ -116,3 +116,12 @@ describe('migrateSettings accidentals and key', () => {
     expect(migrateSettings({ key: '2' }).key).toBe(0);
   });
 });
+
+test('M10-AC10 accidentals on the note are off by default and only a stored boolean is kept', () => {
+  expect(migrateSettings({}).accidentalsOnNote).toBe(false);
+  expect(migrateSettings({ accidentalsOnNote: true }).accidentalsOnNote).toBe(true);
+  expect(migrateSettings({ accidentalsOnNote: 'yes', key: 2 })).toMatchObject({
+    accidentalsOnNote: false,
+    key: 2,
+  });
+});
