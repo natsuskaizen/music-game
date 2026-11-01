@@ -19,7 +19,7 @@ test('M2-AC6 clef, difficulty and session length persist across reloads', async 
 test('M2-AC6 the default input starts the quiz', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('button', { name: 'Settings' }).click();
-  await page.getByRole('combobox').selectOption('scripted');
+  await page.getByRole('combobox', { name: 'Default input' }).selectOption('scripted');
   await page.reload();
   await page.getByRole('button', { name: 'Start' }).click();
   await expect(page.getByText('Listening: Scripted (test)')).toBeVisible();

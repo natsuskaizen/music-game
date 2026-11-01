@@ -1,5 +1,6 @@
-<!-- Settings (design §14): theme, difficulty, questions per session, timer, the default answer input, mic loudness, and sound. Changes save at once. -->
+<!-- Settings (design §14): theme, difficulty, questions per session, timer, accidentals and key signature, the default answer input, mic loudness, and sound. Changes save at once. -->
 <script lang="ts">
+  import { KEY_SIGNATURES, keySignatureName, type KeyChoice } from '../core/key-signature';
   import { MIC_LEVELS } from '../core/listen';
   import { DIFFICULTIES, SESSION_LENGTHS, type Settings } from '../core/settings';
   import { SPRINT_SECONDS } from '../core/sprint';
@@ -42,6 +43,16 @@
         ? 'That file is not a backup. Nothing changed.'
         : `Restored ${String(count)} answers.`;
     });
+  // Random first, then none, sharps and flats; a select's value is a string, so options carry their index.
+  const KEY_OPTIONS: { value: KeyChoice; text: string }[] = [
+    { value: 'random', text: 'Random each session' },
+    ...[0, ...KEY_SIGNATURES.filter((k) => k > 0), ...KEY_SIGNATURES.filter((k) => k < 0).reverse()].map(
+      (value) => ({
+        value,
+        text: keySignatureName(value) || 'None (C major)',
+      }),
+    ),
+  ];
   const setSound = (change: Partial<SoundSettings>) => {
     onchange({ ...settings, sound: { ...settings.sound, ...change } });
   };
@@ -91,6 +102,28 @@
       }}
     />
     Timer: race the clock ({SPRINT_SECONDS[settings.difficulty]} s for the session)
+  </label>
+  <label class="check">
+    <input
+      type="checkbox"
+      checked={settings.accidentals}
+      onchange={(e) => {
+        onchange({ ...settings, accidentals: e.currentTarget.checked });
+      }}
+    />
+    Include sharps, flats and naturals
+  </label>
+  <label class="row">
+    <span>Key signature</span>
+    <select
+      value={String(KEY_OPTIONS.findIndex((option) => option.value === settings.key))}
+      onchange={(e) => {
+        const key = KEY_OPTIONS[Number(e.currentTarget.value)]?.value ?? 0;
+        onchange({ ...settings, key });
+      }}
+    >
+      {#each KEY_OPTIONS as option, i (option.value)}<option value={String(i)}>{option.text}</option>{/each}
+    </select>
   </label>
   {#if inputs.length > 1}
     <label class="row">

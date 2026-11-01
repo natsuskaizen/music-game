@@ -1,6 +1,14 @@
 import { describe, expect, test } from 'vitest';
-import { ledgerPositions, noteAt, pitchLabel, staffPos, type Clef } from '../../src/core/pitch';
-import { notePool, type Difficulty } from '../../src/core/ranges';
+import {
+  ledgerPositions,
+  noteAt,
+  pitchLabel,
+  staffPos,
+  type Clef,
+  type ClefNote,
+} from '../../src/core/pitch';
+import { PLAIN, notePool, reviewPool, type Difficulty } from '../../src/core/ranges';
+import { newStat, weakNotes, type NoteStat } from '../../src/core/stats';
 
 const labels = (clef: Clef | 'both', difficulty: Difficulty) =>
   notePool(clef, difficulty).map((note) => pitchLabel(note.pitch));
@@ -57,5 +65,52 @@ describe('notePool follows the difficulty table (design §14)', () => {
   test('M2-AC2 both uses each stave’s own column', () => {
     const both = notePool('both', 'easy');
     expect(both).toEqual([...notePool('treble', 'easy'), ...notePool('bass', 'easy')]);
+  });
+});
+
+describe('notePool spelling (M9)', () => {
+  const spelledLabels = (notes: ClefNote[]) => notes.map((note) => pitchLabel(note.pitch));
+
+  test('M9-AC3 the default spelling gives the same naturals as before, for every clef and difficulty', () => {
+    for (const clef of ['treble', 'bass', 'both'] as const)
+      for (const difficulty of ['easy', 'medium', 'hard'] as const) {
+        const pool = notePool(clef, difficulty);
+        expect(notePool(clef, difficulty, PLAIN)).toEqual(pool);
+        expect(pool.every((note) => !('accidental' in note.pitch))).toBe(true);
+      }
+  });
+
+  test('M9-AC4 in G major every F is F#, and the staff positions are unchanged', () => {
+    const pool = notePool('treble', 'medium', { key: 1, accidentals: false });
+    expect(pool.map((note) => staffPos(note))).toEqual(
+      notePool('treble', 'medium').map((note) => staffPos(note)),
+    );
+    expect(spelledLabels(pool).filter((name) => name.startsWith('F'))).toEqual(['F#4', 'F#5']);
+  });
+
+  test('M9-AC4 altered notes beyond the keyboard are left out (Eb3, F#6 on Hard)', () => {
+    const names = spelledLabels(notePool('treble', 'hard', { key: 0, accidentals: true }));
+    expect(names).not.toContain('Eb3');
+    expect(names).not.toContain('F#6');
+    expect(names).toContain('E3');
+    expect(names).toContain('F6');
+  });
+});
+
+describe('reviewPool', () => {
+  const weak = (key: string): [string, NoteStat] => [
+    key,
+    { ...newStat(key), attempts: 3, box: 0, ewmaAcc: 0.2 },
+  ];
+
+  test('M9-AC3 with natural stats only it reviews the same notes as the natural pool', () => {
+    const stats = new Map([weak('treble:C4'), weak('treble:G5')]);
+    expect(reviewPool('treble', 'medium', stats)).toEqual(weakNotes(notePool('treble', 'medium'), stats));
+  });
+
+  test('M9-AC4 a note missed in any key or with an accidental comes back, spelled as it was asked', () => {
+    const stats = new Map([weak('treble:F#4'), weak('treble:Gb4'), weak('treble:E#5'), weak('bass:C4')]);
+    const names = reviewPool('treble', 'medium', stats).map((note) => pitchLabel(note.pitch));
+    expect(names.sort()).toEqual(['E#5', 'F#4', 'Gb4']);
   });
 });

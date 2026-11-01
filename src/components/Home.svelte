@@ -1,8 +1,8 @@
 <!-- Home (design §14): pick the clef and Single or Sequence, open Settings, or Start with the last settings. -->
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { notePool } from '../core/ranges';
-  import { weakNotes, type NoteStat } from '../core/stats';
+  import { reviewPool } from '../core/ranges';
+  import type { NoteStat } from '../core/stats';
   import { loadStats } from '../storage/db';
   import { CLEFS, MODES, type QuizMode, type Settings } from '../core/settings';
   import type { ClefMode } from '../core/staff-layout';
@@ -27,7 +27,7 @@
 
   // Review needs stored stats; until they load, or if storage is unavailable, there is nothing to review.
   let stats = $state<ReadonlyMap<string, NoteStat>>(new Map());
-  const weakCount = $derived(weakNotes(notePool(settings.clef, settings.difficulty), stats).length);
+  const weakCount = $derived(reviewPool(settings.clef, settings.difficulty, stats).length);
   onMount(() => {
     loadStats()
       .then((stored) => {

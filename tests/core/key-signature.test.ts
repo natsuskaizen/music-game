@@ -1,11 +1,15 @@
 import { describe, expect, test } from 'vitest';
 import {
+  KEY_SIGNATURES,
+  keyAccidental,
   keySignatureMarks,
   keySignatureName,
   keySignatureWidth,
   measureAccidentals,
+  sessionKey,
+  spellNotes,
 } from '../../src/core/key-signature';
-import { noteAt, type Accidental, type ClefNote, type Pitch } from '../../src/core/pitch';
+import { noteAt, pitchLabel, type Accidental, type ClefNote, type Pitch } from '../../src/core/pitch';
 import { SPACE } from '../../src/core/staff-layout';
 
 const treble = (letter: Pitch['letter'], octave: number, accidental?: Accidental): ClefNote => ({
@@ -81,5 +85,52 @@ describe('measureAccidentals', () => {
   test('M9-AC2 the same line on the other stave is not affected', () => {
     const grand: ClefNote[] = [treble('B', 4, -1), { pitch: { letter: 'D', octave: 3 }, clef: 'bass' }];
     expect(measureAccidentals(grand, 0)).toEqual([-1, undefined]);
+  });
+});
+
+describe('spellNotes', () => {
+  const naturals = (...names: string[]) =>
+    names.map((name) => treble(name[0] as Pitch['letter'], Number(name.slice(1))));
+  const labels = (notes: ClefNote[]) => notes.map((note) => pitchLabel(note.pitch));
+
+  test('M9-AC3 C major without accidentals returns the naturals unchanged, with no accidental field', () => {
+    const pool = naturals('E4', 'F4', 'B4');
+    expect(spellNotes(pool, { key: 0, accidentals: false })).toEqual(pool);
+  });
+
+  test('M9-AC4 a key signature spells each note as it sounds: F is F# in G major, B is Bb in F major', () => {
+    const pool = naturals('E4', 'F4', 'B4');
+    expect(labels(spellNotes(pool, { key: 1, accidentals: false }))).toEqual(['E4', 'F#4', 'B4']);
+    expect(labels(spellNotes(pool, { key: -1, accidentals: false }))).toEqual(['E4', 'F4', 'Bb4']);
+    expect(labels(spellNotes(pool, { key: 7, accidentals: false }))).toEqual(['E#4', 'F#4', 'B#4']);
+  });
+
+  test('M9-AC4 accidentals add flat, natural and sharp of each letter, without rare spellings outside the key', () => {
+    const pool = naturals('E4', 'F4', 'G4');
+    expect(labels(spellNotes(pool, { key: 0, accidentals: true }))).toEqual([
+      'Eb4',
+      'E4',
+      'F4',
+      'F#4',
+      'Gb4',
+      'G4',
+      'G#4',
+    ]);
+    expect(labels(spellNotes(pool, { key: -7, accidentals: true }))).toContain('Fb4');
+  });
+});
+
+describe('sessionKey', () => {
+  test('M9-AC4 a fixed key is kept and random draws one of the 15 key signatures', () => {
+    expect(sessionKey(-3, () => 0.99)).toBe(-3);
+    expect(sessionKey('random', () => 0)).toBe(-7);
+    expect(sessionKey('random', () => 0.999)).toBe(7);
+    expect(KEY_SIGNATURES).toHaveLength(15);
+  });
+
+  test('M9-AC4 keyAccidental gives the sounding alteration of a letter in a key', () => {
+    expect(keyAccidental(2, 'C')).toBe(1);
+    expect(keyAccidental(2, 'G')).toBe(0);
+    expect(keyAccidental(-2, 'E')).toBe(-1);
   });
 });
