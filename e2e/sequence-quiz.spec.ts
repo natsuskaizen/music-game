@@ -12,7 +12,7 @@ async function scriptedAnswer(page: Page, label: string) {
   await page.evaluate((detail) => window.dispatchEvent(new CustomEvent('scripted-answer', { detail })), midi);
 }
 
-test('M5-AC2 a sequence moves on only with Skip or the right note, and ends after every note', async ({
+test('M5-AC2 M10-AC8 a sequence moves on only with Skip or the right note, and ends after every note', async ({
   page,
 }) => {
   await page.goto('./');
