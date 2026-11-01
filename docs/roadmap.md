@@ -34,7 +34,7 @@ Milestone doc (scope + ACs + issue list)
 | M7 | [Polish & PWA hardening](milestones/M7-polish.md) | Mic meter redesign, update proof, install hint, effects, accessibility | Built, device checks open |
 | M8 | [Themes in Settings](milestones/M8-themes.md) | Theme switch in Settings (Paper & ink default), Neon arcade fixed | Built, device checks open |
 | M9 | [Accidentals, key signatures & letter answers](milestones/M9-accidentals-and-letters.md) | Sharps, flats, key signatures; write the letter (from F1, F3; speech removed in M10) | Built, device checks open |
-| M10 | [Quiz fixes from device use](milestones/M10-quiz-fixes.md) | Handwriting G, accidental letters, key names, speech removed, mic sensitivity, Skip instead of Continue, fading key highlights, current-note marker, accidentals on the note | In progress |
+| M10 | [Quiz fixes from device use](milestones/M10-quiz-fixes.md) | Handwriting G, accidental letters, key names, speech removed, mic sensitivity, Skip instead of Continue, fading key highlights, current-note marker, accidentals on the note | Built, device checks open |
 
 Order rationale: gates first, so every later PR reports status. Then the riskiest unknowns
 (look, iOS audio, offline) before building features. Then value in the order you'll use it: the real-piano input comes early because it's how you practice (design §14).

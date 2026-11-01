@@ -30,6 +30,7 @@
   let {
     mode,
     key = 0,
+    onNote = false,
     note,
     sequence,
     marks = [],
@@ -41,6 +42,8 @@
     mode: ClefMode;
     /** Sharps (positive) or flats (negative) in the key signature after each clef. */
     key?: KeySignature;
+    /** Draw no key signature: each sharp or flat is written beside its note instead (M10-10). */
+    onNote?: boolean;
     /** The one note to read; leave out when drawing a `sequence`. */
     note?: ClefNote;
     /** Measures to read in order, drawn instead of `note`. */
@@ -86,10 +89,11 @@
   const braceStretch = $derived((bounds.bottom - bounds.top) / GLYPH_SIZE);
   const noteStave = $derived(staves.find((stave) => stave.clef === note?.clef));
   const pos = $derived(note ? staffPos(note) : 0);
-  const noteAccidental = $derived(note && measureAccidentals([note], key)[0]);
-  const sequenceFrom = $derived(KEY_FROM + keySignatureWidth(key) + SEQUENCE_GAP);
+  const noteAccidental = $derived(note && measureAccidentals([note], key, onNote)[0]);
+  const drawnKey = $derived(onNote ? 0 : key);
+  const sequenceFrom = $derived(KEY_FROM + keySignatureWidth(drawnKey) + SEQUENCE_GAP);
   const layout = $derived(
-    sequence && layoutSequence(sequence, staves, { from: sequenceFrom, to: RIGHT, key }),
+    sequence && layoutSequence(sequence, staves, { from: sequenceFrom, to: RIGHT, key, onNote }),
   );
   // A sequence too long for the staff widens it; the SVG scales to fit.
   const right = $derived(Math.max(RIGHT, layout?.barlines.at(-1) ?? RIGHT));
@@ -128,7 +132,7 @@
     <text class="glyph" x={LEFT + SPACE * 0.75} y={yOf(stave, clefLinePos(stave.clef))} font-size={GLYPH_SIZE}
       >{GLYPH[stave.clef]}</text
     >
-    {#each keySignatureMarks(stave.clef, key) as mark (mark.dx)}
+    {#each keySignatureMarks(stave.clef, drawnKey) as mark (mark.dx)}
       <text class="glyph key-signature" x={KEY_FROM + mark.dx} y={yOf(stave, mark.pos)} font-size={GLYPH_SIZE}
         >{ACCIDENTAL_GLYPH[mark.accidental]}</text
       >

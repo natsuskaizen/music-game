@@ -51,3 +51,26 @@ test('M9-AC4 the key signature and accidentals settings persist across reloads',
   await expect(page.getByRole('combobox', { name: 'Key signature' })).toHaveValue('0');
   await expect(page.getByRole('checkbox', { name: 'Include sharps, flats and naturals' })).toBeChecked();
 });
+
+test('M10-AC10 accidentals on the note: the setting draws no key signature and sharps beside every note', async ({
+  page,
+}) => {
+  await page.goto('./');
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page
+    .getByRole('combobox', { name: 'Key signature' })
+    .selectOption({ label: 'C♯ major / A♯ minor (7♯)' });
+  await page
+    .getByRole('checkbox', { name: 'Write sharps and flats on the note, with no key signature' })
+    .check();
+  await page.reload();
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await expect(page.getByRole('checkbox', { name: /Write sharps and flats on the note/ })).toBeChecked();
+  await page.getByRole('button', { name: 'Back', exact: true }).click();
+  await page.getByRole('radio', { name: 'sequence' }).click();
+  await page.getByRole('button', { name: 'Start' }).click();
+  const quiz = page.getByRole('region', { name: 'Quiz' });
+  await expect(quiz.locator('.key-signature')).toHaveCount(0);
+  // In C♯ major every note is sharp, so each one carries its own sign.
+  await expect(quiz.locator('.accidental')).not.toHaveCount(0);
+});

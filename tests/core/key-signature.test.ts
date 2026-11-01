@@ -145,3 +145,9 @@ test('M10-AC3 keyLabel names the major, its relative minor and the signature', (
     'C♭ major / A♭ minor (7♭)',
   ]);
 });
+
+test('M10-AC10 with accidentals on the note every sharp or flat is written, even a repeat in the measure', () => {
+  const notes = [treble('F', 5, 1), treble('F', 5, 1), treble('B', 4, -1), treble('G', 4)];
+  expect(measureAccidentals(notes, 0, true)).toEqual([1, 1, -1, undefined]);
+  expect(measureAccidentals(notes, 0)).toEqual([1, undefined, -1, undefined]);
+});

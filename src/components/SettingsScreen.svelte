@@ -125,6 +125,16 @@
       {#each KEY_OPTIONS as option, i (option.value)}<option value={String(i)}>{option.text}</option>{/each}
     </select>
   </label>
+  <label class="check">
+    <input
+      type="checkbox"
+      checked={settings.accidentalsOnNote}
+      onchange={(e) => {
+        onchange({ ...settings, accidentalsOnNote: e.currentTarget.checked });
+      }}
+    />
+    Write sharps and flats on the note, with no key signature
+  </label>
   {#if inputs.length > 1}
     <label class="row">
       <span>Default input</span>

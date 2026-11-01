@@ -35,6 +35,8 @@ export interface Settings {
   accidentals: boolean;
   /** Key signature: a fixed one (0 is none) or a random one per session (M9). */
   key: KeyChoice;
+  /** Write each sharp or flat beside its note instead of in a key signature (M10-10). Off by default. */
+  accidentalsOnNote: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -50,6 +52,7 @@ export const DEFAULT_SETTINGS: Settings = {
   theme: 'paper',
   accidentals: false,
   key: 0,
+  accidentalsOnNote: false,
 };
 
 const KEY_CHOICES: KeyChoice[] = [...KEY_SIGNATURES, 'random'];
@@ -95,6 +98,7 @@ export function migrateSettings(raw: unknown): Settings {
     theme: oneOf(stored.theme, THEME_IDS, d.theme),
     accidentals: flag(stored.accidentals, d.accidentals),
     key: oneOf(stored.key, KEY_CHOICES, d.key),
+    accidentalsOnNote: flag(stored.accidentalsOnNote, d.accidentalsOnNote),
   };
 }
 
