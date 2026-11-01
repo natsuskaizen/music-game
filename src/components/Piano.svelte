@@ -85,7 +85,6 @@
   .white {
     height: 100%;
     z-index: 1;
-    --fade-to: var(--key-white);
     background: var(--key-white);
     border: 1px solid var(--key-white-edge);
     border-top: 0;
@@ -93,49 +92,66 @@
   .black {
     height: 62%;
     z-index: 2;
-    --fade-to: var(--key-black);
     background: var(--key-black);
   }
   .key:active {
     filter: brightness(0.92);
   }
-  .key.right {
-    background: var(--right);
-    box-shadow: 0 0 var(--mark-glow) var(--right);
-    animation: fade 900ms ease-out forwards;
-  }
   .key.heard {
     background: var(--accent);
     box-shadow: 0 0 var(--mark-glow) var(--accent);
   }
-  .key.wrong {
-    background: var(--wrong);
-    box-shadow: 0 0 var(--mark-glow) var(--wrong);
+  /* A right or wrong mark is a layer over the key that fades by opacity, which the browser animates without repainting. */
+  .key.right::after,
+  .key.wrong::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
     animation: fade 900ms ease-out forwards;
   }
-  /* Back to the key's own colour by the time core/flash.ts drops the mark. */
+  .key.right::after {
+    background: var(--right);
+    box-shadow: 0 0 var(--mark-glow) var(--right);
+  }
+  .key.wrong::after {
+    background: var(--wrong);
+    box-shadow: 0 0 var(--mark-glow) var(--wrong);
+  }
   @keyframes fade {
     to {
-      background: var(--fade-to);
-      box-shadow: 0 0 0 transparent;
+      opacity: 0;
     }
   }
   @media (prefers-reduced-motion: reduce) {
-    .key.right,
-    .key.wrong {
+    .key.right::after,
+    .key.wrong::after,
+    .right span,
+    .wrong span {
       animation: none;
     }
   }
   span {
+    position: relative;
+    z-index: 1;
     font: 700 11px var(--font);
     color: var(--key-label);
     margin-bottom: 9px;
     pointer-events: none;
   }
-  .heard span,
+  .heard span {
+    color: var(--on-accent);
+  }
   .right span,
   .wrong span {
     color: var(--on-accent);
+    animation: label 900ms ease-out forwards;
+  }
+  @keyframes label {
+    to {
+      color: var(--key-label);
+    }
   }
   i {
     position: absolute;
