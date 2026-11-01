@@ -4,7 +4,7 @@ import { midiOf, type Accidental, type ClefNote, type Letter } from './pitch';
 import type { Picker } from './selector';
 import { statKey, type Attempt } from './stats';
 
-/** What an input reports: an exact pitch from keys or the mic, or a letter with its accidental from writing or speech (design §3.4, §14). No `accidental` means natural. */
+/** What an input reports: an exact pitch from keys or the mic, or a letter with its accidental from writing (design §3.4, §14). No `accidental` means natural. */
 export type Answer =
   { kind: 'pitch'; midi: number } | { kind: 'letter'; letter: Letter; accidental?: Accidental };
 
