@@ -1,12 +1,17 @@
-// Pure music model (design §6): letters only, no accidentals in v1, so staff positions are plain arithmetic.
+// Pure music model (design §6): a pitch is spelled (letter, accidental, octave). The letter and octave place it on the
+// staff; the accidental only changes how it sounds, so staff positions stay plain arithmetic.
 const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const;
 
 /** The clef of one stave. */
 export type Clef = 'treble' | 'bass';
 
-/** A natural pitch in scientific notation; C4 is middle C. */
+/** Semitones a written accidental moves the letter: flat, natural, sharp. */
+type Accidental = -1 | 0 | 1;
+
+/** A spelled pitch in scientific notation; C4 is middle C. No `accidental` means natural, so pre-M9 pitches and stat keys are unchanged. */
 export interface Pitch {
   letter: (typeof LETTERS)[number];
+  accidental?: Accidental;
   octave: number;
 }
 
@@ -41,9 +46,9 @@ export function noteAt(clef: Clef, pos: number): ClefNote {
   return { pitch: { letter, octave: Math.floor(index / LETTERS.length) }, clef };
 }
 
-/** MIDI number of a pitch (C4 = 60), the common currency of key presses and, later, the mic (design §3.3). */
+/** MIDI number of a pitch (C4 = 60), the common currency of key presses and the mic (design §3.3). F♯4 and G♭4 share one. */
 export function midiOf(pitch: Pitch): number {
-  return (pitch.octave + 1) * 12 + SEMITONE[pitch.letter];
+  return (pitch.octave + 1) * 12 + SEMITONE[pitch.letter] + (pitch.accidental ?? 0);
 }
 
 /** The natural a MIDI note is written on, and whether it needs a sharp: a black key sits on the natural below it. */
@@ -66,7 +71,9 @@ export function ledgerPositions(pos: number): number[] {
   return out;
 }
 
-/** The note's name with its octave, e.g. "C4", as shown in feedback and labels. */
+const ACCIDENTAL_MARK: Record<Accidental, string> = { [-1]: 'b', 0: '', 1: '#' };
+
+/** The spelled name with its octave, e.g. "C4" or "F#5", as shown in feedback and used in stat keys (a natural has no mark). */
 export function pitchLabel(pitch: Pitch): string {
-  return `${pitch.letter}${String(pitch.octave)}`;
+  return `${pitch.letter}${ACCIDENTAL_MARK[pitch.accidental ?? 0]}${String(pitch.octave)}`;
 }

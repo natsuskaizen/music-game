@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M9 Accidentals, key signatures & letter answers (`docs/milestones/M9-accidentals-and-letters.md`) is in progress, the F1 and F3 backlog scheduled by Stan; M8 is built with device AC3 open, as are M7's AC7 and M3's AC6 and AC7.
-- **Next issue**: M9-1 spelled pitch in core.
+- **Next issue**: M9-2 draw accidentals and key signatures on the staff.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -67,6 +67,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Celebration | `core/streak.ts` `celebrates(before, after)`: true when the first-try streak rises to 5, 10, 20, then every 10 (a miss or retry never does). `Quiz` calls the theme's `Feedback.celebrate` on the streak count, so each theme pulses it its own way | M7-4 |
 | Reduced motion | `components/feedback.ts` `prefersReducedMotion()` + `feedbackFor`: the `still` feedback skips every tween; the app has no CSS transitions. State, marks and the Continue rule are unchanged | M7-5 |
 | Contrast | Themes must pass axe color-contrast (4.5:1): `--muted`, `--accent` (with `--on-accent`), `--right` and `--wrong` were darkened/lightened per theme. New tokens need the same check | M7-6 |
+| Spelled pitch | `Pitch.accidental?: -1 \| 0 \| 1` (missing = natural, so every existing literal, pool and stored stat key is unchanged); `midiOf` adds it, `staffPos` ignores it, `pitchLabel`/`statKey` spell it ASCII (`treble:F#5`, `treble:Gb5`). `writtenPitch` still returns `{ pitch, sharp }` for the heard mark; M9-2 may fold it in. `sameNote` in `selector.ts` compares staff positions, so F and F♯ count as a repeat: revisit in M9-3 | M9-1 |
 | M9 plan | F1 (accidentals, key signatures) and F3 (letter inputs) are one milestone, ordered core → staff → settings → letter answers → speech → handwriting | M9 doc |
 
 ## Milestones
@@ -74,11 +75,11 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M9-1 (#111): spelled pitch: optional `accidental` on `Pitch`, midi and stat key spell it, naturals and old stats unchanged (M9-AC1, AC3 unit).
 - 2026-11-01: M9 kick-off: F1 and F3 merged into one milestone, issue list in the M9 doc, roadmap flip.
 - 2026-10-31: M8-2 (#106): `Settings.theme` and a Theme control in Settings; Home links removed; `activeTheme` lets `?theme=` override (M8-AC1 unit + e2e); M8 Summary filled in.
 - 2026-10-31: M8-1 (#105): `e2e/note-position.spec.ts` checks the drawn note (no leftover transform, notehead on its y) after five answers in every theme (M8-AC2); `ORIGIN` in `feedback.ts` sets `smoothOrigin: false`, which fixes Neon arcade (#36) and Storybook (#38).
 - 2026-10-31: M8 kick-off: issue list in the M8 doc, issues #105 (note position, closes #36/#38) and #106 (theme setting).
-- 2026-10-31: M7-6 (#97): `e2e/a11y.spec.ts` scans Home, Settings, Stats, quiz and results with axe in all three themes (M7-AC4); contrast fixes in `themes.css`; M7 Summary filled in.
 
 ## Known issues / open questions
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.

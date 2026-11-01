@@ -86,3 +86,27 @@ describe('writtenPitch', () => {
     }
   });
 });
+
+describe('spelled pitch', () => {
+  const fSharp = { letter: 'F', accidental: 1, octave: 5 } as const;
+  const gFlat = { letter: 'G', accidental: -1, octave: 5 } as const;
+
+  test('M9-AC1 an accidental moves the midi number but not the staff position', () => {
+    expect(midiOf(fSharp)).toBe(78);
+    expect(midiOf(gFlat)).toBe(78);
+    expect(midiOf({ letter: 'C', accidental: -1, octave: 4 })).toBe(59);
+    expect(staffPos({ pitch: fSharp, clef: 'treble' })).toBe(staffPos(note('F', 5, 'treble')));
+    expect(staffPos({ pitch: gFlat, clef: 'treble' })).toBe(staffPos(note('G', 5, 'treble')));
+  });
+
+  test('M9-AC1 the label keeps letter, accidental and octave, so enharmonics differ', () => {
+    expect(pitchLabel(fSharp)).toBe('F#5');
+    expect(pitchLabel(gFlat)).toBe('Gb5');
+  });
+
+  test('M9-AC3 a natural reads the same with or without an explicit accidental', () => {
+    const explicit = { letter: 'C', accidental: 0, octave: 6 } as const;
+    expect(pitchLabel(explicit)).toBe('C6');
+    expect(midiOf(explicit)).toBe(midiOf({ letter: 'C', octave: 6 }));
+  });
+});

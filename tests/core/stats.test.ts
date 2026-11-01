@@ -35,6 +35,18 @@ test('M4-AC1 statKey separates the same pitch on two clefs', () => {
   expect(statKey({ pitch, clef: 'bass' })).toBe('bass:C4');
 });
 
+test('M9-AC1 statKey spells the accidental, so F#5 and Gb5 are tracked apart', () => {
+  expect(statKey({ pitch: { letter: 'F', accidental: 1, octave: 5 }, clef: 'treble' })).toBe('treble:F#5');
+  expect(statKey({ pitch: { letter: 'G', accidental: -1, octave: 5 }, clef: 'treble' })).toBe('treble:Gb5');
+});
+
+test('M9-AC3 natural notes keep their pre-accidental keys, so stored stats still match', () => {
+  const stored = new Map([['treble:C6', { ...fresh(), key: 'treble:C6', attempts: 3, box: 0 as const }]]);
+  const c6 = { pitch: { letter: 'C', accidental: 0, octave: 6 } as const, clef: 'treble' as const };
+  expect(statKey(c6)).toBe('treble:C6');
+  expect(weakNotes([c6], stored)).toEqual([c6]);
+});
+
 test('M4-AC1 the first attempt replaces the starting guess', () => {
   const s = applyAttempt(fresh(), attempt(1, true, { ms: 1800, ts: 42 }));
   expect(s).toMatchObject({
