@@ -16,7 +16,9 @@ async function scriptedAnswer(page: Page, label: string) {
   await page.evaluate((detail) => window.dispatchEvent(new CustomEvent('scripted-answer', { detail })), midi);
 }
 
-test('M2-AC3 M10-AC7 a first miss allows a second try, the question stays and the red key fades', async ({ page }) => {
+test('M2-AC3 M10-AC7 a first miss allows a second try, the question stays and the red key fades', async ({
+  page,
+}) => {
   const { quiz, staffName, target, wrongKeys, key } = await openQuiz(page);
   await wrongKeys.nth(0).click();
   await expect(quiz.getByText(RETRY)).toBeVisible();
