@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M9 Accidentals, key signatures & letter answers (`docs/milestones/M9-accidentals-and-letters.md`) is in progress, the F1 and F3 backlog scheduled by Stan; M8 is built with device AC3 open, as are M7's AC7 and M3's AC6 and AC7.
-- **Next issue**: M9-2 draw accidentals and key signatures on the staff.
+- **Next issue**: M9-3 settings and spelled note pool (accidentals toggle, key signature choice or random).
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -68,6 +68,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Reduced motion | `components/feedback.ts` `prefersReducedMotion()` + `feedbackFor`: the `still` feedback skips every tween; the app has no CSS transitions. State, marks and the Continue rule are unchanged | M7-5 |
 | Contrast | Themes must pass axe color-contrast (4.5:1): `--muted`, `--accent` (with `--on-accent`), `--right` and `--wrong` were darkened/lightened per theme. New tokens need the same check | M7-6 |
 | Spelled pitch | `Pitch.accidental?: -1 \| 0 \| 1` (missing = natural, so every existing literal, pool and stored stat key is unchanged); `midiOf` adds it, `staffPos` ignores it, `pitchLabel`/`statKey` spell it ASCII (`treble:F#5`, `treble:Gb5`). `writtenPitch` still returns `{ pitch, sharp }` for the heard mark; M9-2 may fold it in. `sameNote` in `selector.ts` compares staff positions, so F and F♯ count as a repeat: revisit in M9-3 | M9-1 |
+| Staff accidentals | Bravura subset adds flat/natural/sharp (U+E260–E262, from the 1.392 release, design §3.1). `core/key-signature.ts`: `KeySignature` (+sharps / −flats), `keySignatureMarks` (standard order, bass a third lower), `measureAccidentals` (shown only where a note differs from the key or an earlier accidental on that line or space in the measure). `Staff` takes `key`; `layoutSequence` takes `key` in its `Span`, gives a note with an accidental 1.6 spaces more room, and never squeezes below 0.8, so an overlong sequence widens the staff. The heard sharp uses the Bravura glyph. `keyAccidental` stays internal until M9-3 grades by key | M9-2 |
 | M9 plan | F1 (accidentals, key signatures) and F3 (letter inputs) are one milestone, ordered core → staff → settings → letter answers → speech → handwriting | M9 doc |
 
 ## Milestones
@@ -75,11 +76,11 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M9-2: accidentals and key signatures on the staff (glyphs, `core/key-signature.ts`, layout room, gallery examples; M9-AC2 unit + e2e).
 - 2026-11-01: M9-1 (#111): spelled pitch: optional `accidental` on `Pitch`, midi and stat key spell it, naturals and old stats unchanged (M9-AC1, AC3 unit).
 - 2026-11-01: M9 kick-off: F1 and F3 merged into one milestone, issue list in the M9 doc, roadmap flip.
 - 2026-10-31: M8-2 (#106): `Settings.theme` and a Theme control in Settings; Home links removed; `activeTheme` lets `?theme=` override (M8-AC1 unit + e2e); M8 Summary filled in.
 - 2026-10-31: M8-1 (#105): `e2e/note-position.spec.ts` checks the drawn note (no leftover transform, notehead on its y) after five answers in every theme (M8-AC2); `ORIGIN` in `feedback.ts` sets `smoothOrigin: false`, which fixes Neon arcade (#36) and Storybook (#38).
-- 2026-10-31: M8 kick-off: issue list in the M8 doc, issues #105 (note position, closes #36/#38) and #106 (theme setting).
 
 ## Known issues / open questions
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.

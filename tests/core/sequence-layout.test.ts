@@ -112,3 +112,51 @@ describe('layoutSequence', () => {
     expect(notes[1]?.stave.clef).toBe('bass');
   });
 });
+
+describe('layoutSequence with accidentals', () => {
+  const sharp = (letter: Letter, octave: number) => ({
+    pitch: { letter, octave, accidental: 1 as const },
+    clef: 'treble' as const,
+  });
+  const eighths = (...notes: ReturnType<typeof treble>[]): Measure =>
+    notes.map((note) => ({ note, duration: 'eighth' }));
+
+  test('M9-AC2 an accidental sits just left of its notehead and clear of the note before it', () => {
+    const measure = eighths(treble('E', 5), sharp('F', 5), sharp('F', 5), treble('G', 5));
+    const { notes } = layoutSequence([measure], stavesFor('treble'), SPAN);
+    expect(notes.map((n) => n.accidental?.accidental)).toEqual([undefined, 1, undefined, undefined]);
+    const [before, marked] = notes;
+    const sign = marked?.accidental;
+    if (!before || !marked || !sign) throw new Error('expected a sharp after a note');
+    expect(sign.x).toBeLessThan(marked.x - HEAD_WIDTH / 2);
+    // A sharp is one space wide; it starts right of the previous notehead's edge.
+    expect(sign.x - SPACE).toBeGreaterThan(before.x + HEAD_WIDTH / 2);
+  });
+
+  test('M9-AC2 the key signature decides which notes show an accidental', () => {
+    const measure = quarters(sharp('F', 5), treble('F', 5));
+    const { notes } = layoutSequence([measure], stavesFor('treble'), { ...SPAN, key: 1 });
+    expect(notes.map((n) => n.accidental?.accidental)).toEqual([undefined, 0]);
+  });
+
+  test('M9-AC2 a Hard sequence of all sharps after a seven-flat key runs past the span instead of crowding', () => {
+    const span = { from: 240, to: 616, key: -7 };
+    const sharpen = (sequence: Measure[]): Measure[] =>
+      sequence.map((m) =>
+        m.map(({ note, duration }) => ({
+          note: { ...note, pitch: { ...note.pitch, accidental: 1 } },
+          duration,
+        })),
+      );
+    // Left edge of what a note draws: its accidental (one space wide) or its notehead.
+    const leftOf = (n: { x: number; accidental?: { x: number } }) =>
+      n.accidental ? n.accidental.x - SPACE : n.x - HEAD_WIDTH / 2;
+    for (const sequence of hardSequences().slice(0, 50)) {
+      const { notes, barlines } = layoutSequence(sharpen(sequence), stavesFor('both'), span);
+      notes.slice(1).forEach((next, i) => {
+        expect(leftOf(next)).toBeGreaterThanOrEqual((notes[i]?.x ?? 0) + HEAD_WIDTH / 2);
+      });
+      expect(barlines.at(-1)).toBeGreaterThanOrEqual(span.to - 0.001);
+    }
+  });
+});

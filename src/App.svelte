@@ -5,6 +5,7 @@
   import SettingsScreen from './components/SettingsScreen.svelte';
   import StatsScreen from './components/StatsScreen.svelte';
   import Staff from './components/Staff.svelte';
+  import type { KeySignature } from './core/key-signature';
   import type { Clef, ClefNote, Pitch } from './core/pitch';
   import type { Measure } from './core/sequence';
   import type { ClefMode } from './core/staff-layout';
@@ -29,9 +30,18 @@
     document.documentElement.dataset.theme = theme;
   });
 
+  // `p('F#5')`: a pitch from its name, with an optional # or b.
+  const p = (name: string): Pitch => {
+    const accidental = ({ '#': 1, b: -1 } as const)[name.charAt(1)];
+    return {
+      letter: name.charAt(0) as Pitch['letter'],
+      ...(accidental && { accidental }),
+      octave: Number(name.at(-1)),
+    };
+  };
   // `n('treble', 'A5', 'eighth')`: a note from its clef, pitch name and duration.
   const n = (clef: Clef, name: string, duration: 'quarter' | 'eighth') => ({
-    note: { pitch: { letter: name.charAt(0) as Pitch['letter'], octave: Number(name.slice(1)) }, clef },
+    note: { pitch: p(name), clef },
     duration,
   });
   // 16 notes in 3 measures with ledger lines on both staves, the largest sequence (M5-AC4).
@@ -60,11 +70,31 @@
     ],
   ];
 
-  // M1 spike gallery: the extremes of the hard range (3 ledger lines) and middle C on a grand staff.
-  const EXAMPLES: { title: string; mode: ClefMode; note: ClefNote }[] = [
-    { title: 'Treble', mode: 'treble', note: { pitch: { letter: 'F', octave: 6 }, clef: 'treble' } },
-    { title: 'Bass', mode: 'bass', note: { pitch: { letter: 'G', octave: 1 }, clef: 'bass' } },
-    { title: 'Grand staff', mode: 'both', note: { pitch: { letter: 'C', octave: 4 }, clef: 'treble' } },
+  // In B♭ major: naturals cancel the key's flats, and an accidental holds to the end of its measure (M9-AC2).
+  const KEY_SEQUENCE: Measure[] = [
+    [
+      n('treble', 'E5', 'quarter'),
+      n('treble', 'E5', 'quarter'),
+      n('treble', 'F#5', 'eighth'),
+      n('treble', 'F#5', 'eighth'),
+      n('treble', 'Gb5', 'quarter'),
+    ],
+    [
+      n('bass', 'Bb2', 'quarter'),
+      n('bass', 'B2', 'quarter'),
+      n('bass', 'C#3', 'eighth'),
+      n('bass', 'D3', 'eighth'),
+      n('bass', 'Bb2', 'quarter'),
+    ],
+  ];
+
+  // M1 spike gallery: the extremes of the hard range (3 ledger lines) and middle C on a grand staff; then key signatures and accidentals (M9).
+  const EXAMPLES: { title: string; mode: ClefMode; note: ClefNote; key?: KeySignature }[] = [
+    { title: 'Treble', mode: 'treble', note: { pitch: p('F6'), clef: 'treble' } },
+    { title: 'Bass', mode: 'bass', note: { pitch: p('G1'), clef: 'bass' } },
+    { title: 'Grand staff', mode: 'both', note: { pitch: p('C4'), clef: 'treble' } },
+    { title: 'A major', mode: 'treble', key: 3, note: { pitch: p('G5'), clef: 'treble' } },
+    { title: 'A♭ major', mode: 'bass', key: -4, note: { pitch: p('F#3'), clef: 'bass' } },
   ];
 </script>
 
@@ -94,13 +124,17 @@
     <section aria-label="Staff gallery">
       {#each EXAMPLES as example (example.title)}
         <figure>
-          <Staff mode={example.mode} note={example.note} />
+          <Staff mode={example.mode} key={example.key} note={example.note} />
           <figcaption>{example.title}</figcaption>
         </figure>
       {/each}
       <figure>
         <Staff mode="both" sequence={SEQUENCE} />
         <figcaption>Sequence</figcaption>
+      </figure>
+      <figure>
+        <Staff mode="both" key={-2} sequence={KEY_SEQUENCE} />
+        <figcaption>Sequence in B♭ major</figcaption>
       </figure>
     </section>
   {/if}

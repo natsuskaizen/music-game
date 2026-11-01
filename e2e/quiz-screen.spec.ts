@@ -146,13 +146,13 @@ test('M3-AC12 the heard note shows on the staff at its position, and leaves with
     'y',
     String(yOf(treble, staffPos({ pitch: pitchOfLabel('E4'), clef: 'treble' }))),
   );
-  await expect(quiz.locator('.heard .sharp')).toHaveCount(0);
+  await expect(quiz.locator('.heard .accidental')).toHaveCount(0);
   await heard(midiOf(pitchOfLabel('F4')) + 1);
   await expect(mark).toHaveAttribute(
     'y',
     String(yOf(treble, staffPos({ pitch: pitchOfLabel('F4'), clef: 'treble' }))),
   );
-  await expect(quiz.locator('.heard .sharp')).toHaveCount(1);
+  await expect(quiz.locator('.heard .accidental')).toHaveCount(1);
   await heard(null);
   await expect(mark).toHaveCount(0);
 });
