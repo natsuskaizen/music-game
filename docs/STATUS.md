@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M9 Accidentals, key signatures & letter answers (`docs/milestones/M9-accidentals-and-letters.md`) is in progress, the F1 and F3 backlog scheduled by Stan; M8 is built with device AC3 open, as are M7's AC7 and M3's AC6 and AC7.
-- **Next issue**: M9-5 speech input (on-device recognition where iOS Safari allows it, spoken letters mapped to A–G).
+- **Next issue**: M9-6 handwriting input (canvas strokes and an A–G recognizer) and the M9 Summary. M9-AC8 (speech on Stan's iPhone and iPad) is a manual device check.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -71,6 +71,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Staff accidentals | Bravura subset adds flat/natural/sharp (U+E260–E262, from the 1.392 release, design §3.1). `core/key-signature.ts`: `KeySignature` (+sharps / −flats), `keySignatureMarks` (standard order, bass a third lower), `measureAccidentals` (shown only where a note differs from the key or an earlier accidental on that line or space in the measure). `Staff` takes `key`; `layoutSequence` takes `key` in its `Span`, gives a note with an accidental 1.6 spaces more room, and never squeezes below 0.8, so an overlong sequence widens the staff. The heard sharp uses the Bravura glyph. | M9-2 |
 | Spelled pool | `Settings.accidentals` (off) and `Settings.key` (`KeyChoice`: −7..7 or `'random'`, 0 default; `migrateSettings` rejects anything else). `spellNotes` in `key-signature.ts` spells each natural as it sounds in the key (F in G major is F♯, so grading by midi and the stat key both follow) and with accidentals adds flat/natural/sharp, minus E♯ B♯ C♭ F♭ unless the key has them. `notePool(mode, difficulty, spelling = PLAIN)` drops notes beyond the keyboard (E♭3, F♯6 on Hard). `sessionKey` draws a random key per session (Play again redraws). Review uses `reviewPool`: weak notes from every spelling, written in C major. `sameNote` stays by staff position, so F never follows F♯ (a step is 1–3 positions) | M9-3 |
 | Letter answers | `Answer = { kind: 'pitch', midi } \| { kind: 'letter', letter }`; a letter is right when it matches the note's letter (a sharp or flat is the same letter), so no new stats fields, and `isLetter` (pitch.ts) validates stored or recognized letters. Letter misses mark no piano key | M9-4 |
+| Speech input | `core/speech.ts` `lettersIn(transcript)` maps spoken words to letters ("see"/"sea" C, "bee" B, "gee" G; other words skipped). `inputs/speech.ts` is a headless `speech` input on `SpeechRecognition`/`webkitSpeechRecognition` (en-US, continuous, interim results), emitting each new letter of a result once, restarting when iOS ends a session, and rejecting on a refused permission. Not `listens` (notes still play, no meter); hidden without a recognizer | M9-5 |
 | M9 plan | F1 (accidentals, key signatures) and F3 (letter inputs) are one milestone, ordered core → staff → settings → letter answers → speech → handwriting | M9 doc |
 
 ## Milestones
@@ -78,10 +79,10 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M9-5: speech input: say the letter, `lettersIn` maps spoken words to A–G, hidden without a recognizer (M9-AC6 unit; AC8 manual).
 - 2026-11-01: M9-4: letter answers: `Answer` is a pitch or a letter, `gradeAnswer` ignores the octave for letters, backups accept them (M9-AC5 unit).
 - 2026-11-01: M9-3: accidentals and key signature settings; quiz, sequences and review use the spelled pool (M9-AC3, AC4 unit + e2e).
 - 2026-11-01: M9-2: accidentals and key signatures on the staff (glyphs, `core/key-signature.ts`, layout room, gallery examples; M9-AC2 unit + e2e).
-- 2026-11-01: M9-1 (#111): spelled pitch: optional `accidental` on `Pitch`, midi and stat key spell it, naturals and old stats unchanged (M9-AC1, AC3 unit).
 - 2026-11-01: M9 kick-off: F1 and F3 merged into one milestone, issue list in the M9 doc, roadmap flip.
 
 ## Known issues / open questions
@@ -89,4 +90,5 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 - WebKit can't be downloaded in the cloud sessions, so e2e runs there on Chromium as a smoke test; CI is the WebKit source of truth.
 - The `CLAUDE_CODE_OAUTH_TOKEN` from `claude setup-token` expires after about a year. If the AI review starts failing to authenticate, regenerate it.
 - The Stats screen heat rows show the natural pool only; spelled notes (F♯, B♭) appear in its seen-notes list.
+- Speech recognition is the browser's: Safari may need Siri/dictation turned on, and may use Apple's servers when on-device recognition isn't available, so it can fail offline (M9-AC8 checks it on device).
 - iOS: mic permission may re-prompt per launch (M3). Stan's iPhone test: no mic prompt at all and sound dropped after app switching; fixed in M3-AC9, awaiting re-test. The answer tone is silent in airplane mode (#39, M3-AC7).
