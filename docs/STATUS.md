@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M10 (`docs/milestones/M10-quiz-fixes.md`) is In progress: ten fixes from Stan's device use, one issue and PR each, in order M10-1 to M10-10. M9 is "Built, device checks open".
-- **Next issue**: M10-3 (key picker lists keys with relative minor). M10-2 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
+- **Next issue**: M10-4 (remove speech input). M10-3 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -80,6 +80,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M10-3: the key picker lists keys by name with the relative minor and signature ("G major / E minor (1♯)"); `keyLabel` in `key-signature.ts`; stored values unchanged (M10-AC3 unit + e2e).
 - 2026-11-01: M10-2: letter answers carry an accidental (F is wrong for F♯); the handwriting pad has ♯/♭ toggles that apply to the next letter (M10-AC2 unit + e2e).
 - 2026-11-01: M10-1: handwriting reads G: three more G templates (short bar, low bar, hook) and a near-closed C template so C doesn't drift to G; fixtures add four hard G forms (M10-AC1 unit; finger check is M9-AC7).
 - 2026-11-01: M10 kick-off: milestone doc, roadmap row and ten issues. Speech (M9-5) is to be removed (M10-4); the Continue button becomes Skip (M10-6).

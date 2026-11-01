@@ -1,6 +1,6 @@
 <!-- Settings (design §14): theme, difficulty, questions per session, timer, accidentals and key signature, the default answer input, mic loudness, and sound. Changes save at once. -->
 <script lang="ts">
-  import { KEY_SIGNATURES, keySignatureName, type KeyChoice } from '../core/key-signature';
+  import { KEY_SIGNATURES, keyLabel, type KeyChoice } from '../core/key-signature';
   import { MIC_LEVELS } from '../core/listen';
   import { DIFFICULTIES, SESSION_LENGTHS, type Settings } from '../core/settings';
   import { SPRINT_SECONDS } from '../core/sprint';
@@ -43,13 +43,13 @@
         ? 'That file is not a backup. Nothing changed.'
         : `Restored ${String(count)} answers.`;
     });
-  // Random first, then none, sharps and flats; a select's value is a string, so options carry their index.
+  // Random first, then C major, sharp keys and flat keys; a select's value is a string, so options carry their index.
   const KEY_OPTIONS: { value: KeyChoice; text: string }[] = [
     { value: 'random', text: 'Random each session' },
     ...[0, ...KEY_SIGNATURES.filter((k) => k > 0), ...KEY_SIGNATURES.filter((k) => k < 0).reverse()].map(
       (value) => ({
         value,
-        text: keySignatureName(value) || 'None (C major)',
+        text: keyLabel(value),
       }),
     ),
   ];

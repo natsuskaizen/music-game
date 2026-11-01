@@ -29,7 +29,9 @@ test('M9-AC7 writing the letter on the pad answers the question', async ({ page 
 test('M10-AC2 a sharp note is only right with the sharp chosen on the pad', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('button', { name: 'Settings' }).click();
-  await page.getByRole('combobox', { name: 'Key signature' }).selectOption({ label: '7 sharps' });
+  await page
+    .getByRole('combobox', { name: 'Key signature' })
+    .selectOption({ label: 'C♯ major / A♯ minor (7♯)' });
   await page.getByRole('button', { name: 'Back', exact: true }).click();
   await page.getByRole('button', { name: 'Start' }).click();
   const quiz = page.getByRole('region', { name: 'Quiz' });

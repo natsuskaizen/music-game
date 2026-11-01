@@ -18,7 +18,7 @@ async function startInKey(page: Page, key: string, accidentals = false): Promise
 const sounding = async (quiz: Locator) => midiOf(pitchOfLabel((await staffTarget(quiz)).target));
 
 test('M9-AC4 in a key every question is graded by its sounding pitch on the piano', async ({ page }) => {
-  const quiz = await startInKey(page, '3 flats');
+  const quiz = await startInKey(page, 'E♭ major / C minor (3♭)');
   for (let i = 0; i < 8; i++) {
     const { staffName } = await staffTarget(quiz);
     expect(staffName).toMatch(/^[A-G][#b]?\d on the treble staff, key of 3 flats$/);
@@ -30,7 +30,7 @@ test('M9-AC4 in a key every question is graded by its sounding pitch on the pian
 });
 
 test('M9-AC4 a listening input accepts the sounding pitch with accidentals on', async ({ page }) => {
-  const quiz = await startInKey(page, '2 sharps', true);
+  const quiz = await startInKey(page, 'D major / B minor (2♯)', true);
   await quiz.getByRole('combobox', { name: 'Input' }).selectOption('scripted');
   for (let i = 0; i < 6; i++) {
     const { staffName } = await staffTarget(quiz);
