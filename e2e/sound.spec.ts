@@ -75,17 +75,15 @@ test('M1-AC5 a right answer plays the note with a playback audio session', async
   ).toBe('playback');
 });
 
-test('M1-AC5 a miss is silent until the reveal plays the correct note', async ({ page }) => {
+test('M1-AC5 a miss is silent until Skip plays the correct note', async ({ page }) => {
   const { quiz, target, tones } = await stubAudio(page, true);
   const wrong = quiz.locator(`.key:not([aria-label="${target}"])`);
   await wrong.nth(0).click();
   expect(await tones()).toEqual([]);
   await wrong.nth(1).click();
-  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
+  expect(await tones()).toEqual([]);
+  await quiz.getByRole('button', { name: 'Skip' }).click();
   expect(await tones()).toEqual([midiOfLabel(target)]);
-  // Taps while the answer is revealed don't replay it.
-  await quiz.getByRole('button', { name: target, exact: true }).click();
-  expect(await tones()).toHaveLength(1);
 });
 
 test('M1-AC5 without audioSession a touch device shows the ringer hint', async ({ page }) => {
@@ -93,12 +91,12 @@ test('M1-AC5 without audioSession a touch device shows the ringer hint', async (
   await expect(quiz.getByText('Turn the ringer on for sound.')).toBeVisible();
 });
 
-test('M3-AC2 with sound off nothing plays, even after a reveal', async ({ page }) => {
+test('M3-AC2 with sound off nothing plays, even after a skip', async ({ page }) => {
   const { quiz, target, tones } = await stubAudio(page, true, { on: false, onShow: true, onWrong: true });
   const wrong = quiz.locator(`.key:not([aria-label="${target}"])`);
   await wrong.nth(0).click();
   await wrong.nth(1).click();
-  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
+  await quiz.getByRole('button', { name: 'Skip' }).click();
   expect(await tones()).toEqual([]);
 });
 
@@ -110,7 +108,7 @@ test('M3-AC2 "when the note appears" plays the note as the question shows', asyn
 test('M3-AC2 "after a wrong try" plays the correct note on the first miss', async ({ page }) => {
   const { quiz, target, tones } = await stubAudio(page, true, { onWrong: true });
   await quiz.locator(`.key:not([aria-label="${target}"])`).first().click();
-  await expect(quiz.getByText('Not quite. One more try.')).toBeVisible();
+  await expect(quiz.getByText('Not quite. Keep trying, or skip.')).toBeVisible();
   expect(await tones()).toEqual([midiOfLabel(target)]);
 });
 

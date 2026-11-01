@@ -2,7 +2,6 @@ import { describe, expect, test } from 'vitest';
 import { midiOf, type ClefNote } from '../../src/core/pitch';
 import { notePool } from '../../src/core/ranges';
 import {
-  answerContinues,
   firstTryPercent,
   gradeAnswer,
   settledAttempt,
@@ -45,7 +44,7 @@ describe('gradeAnswer: exact pitch (design §14)', () => {
   });
 });
 
-describe('reduce: retry, then reveal, then wait (design §8.4)', () => {
+describe('reduce: keep trying until right, or skip (design §8.4)', () => {
   test('M2-AC3 a first-try hit scores and extends the streak', () => {
     expect(press(session({ streak: 2 }), 60)).toMatchObject({
       phase: 'right',
@@ -74,9 +73,27 @@ describe('reduce: retry, then reveal, then wait (design §8.4)', () => {
     });
   });
 
-  test('M2-AC3 the second miss reveals the answer and resets the streak', () => {
-    const s = press(session({ phase: 'retry', misses: [key(62)], streak: 2 }), 64);
-    expect(s).toMatchObject({ phase: 'reveal', misses: [key(62), key(64)], streak: 0, total: 1 });
+  test('M10-AC6 further misses keep the question open and never reveal it', () => {
+    const s = press(press(press(session(), 62), 64), 65);
+    expect(s).toMatchObject({ phase: 'retry', note: C4, misses: [key(62), key(64), key(65)], total: 0 });
+  });
+
+  test('M10-AC6 a late hit after several misses counts but is not first-try', () => {
+    const s = press(press(press(session({ streak: 2 }), 62), 64), 60);
+    expect(s).toMatchObject({ phase: 'right', streak: 0, firstTry: 0, total: 1 });
+  });
+
+  test('M10-AC6 skip records a miss, resets the streak and reveals, from ask or retry', () => {
+    for (const open of [session({ streak: 2 }), press(session({ streak: 2 }), 62)]) {
+      expect(reduce(open, { type: 'skip' }, first)).toMatchObject({ phase: 'reveal', streak: 0, total: 1 });
+    }
+  });
+
+  test('M10-AC6 skip does nothing once the question is settled, and next then moves on', () => {
+    const right = session({ phase: 'right' });
+    expect(reduce(right, { type: 'skip' }, first)).toBe(right);
+    const skipped = reduce(session(), { type: 'skip' }, first);
+    expect(next(skipped).phase).toBe('ask');
   });
 
   test('M2-AC3 a reveal ignores further answers until next', () => {
@@ -152,8 +169,11 @@ describe('settledAttempt', () => {
     });
   });
 
-  test('M4-4 a second miss is two tries and not correct', () => {
-    expect(attempt(session({ phase: 'retry', misses: [miss] }), miss)).toMatchObject({
+  test('M10-AC6 a skip after a miss is two tries and not correct', () => {
+    const skipped = reduce(session({ phase: 'retry', misses: [miss] }), { type: 'skip' }, first);
+    expect(
+      settledAttempt(session({ phase: 'retry', misses: [miss] }), skipped, { ...meta, answer: miss }),
+    ).toMatchObject({
       tries: 2,
       correct: false,
     });
@@ -177,18 +197,6 @@ test('M4-AC5 a review session with one weak note keeps asking it', () => {
   const again = next(solved);
   expect(again.phase).toBe('ask');
   expect(again.note).toEqual(C4);
-});
-
-describe('answerContinues (design §8.4)', () => {
-  test('M3-AC11 playing the revealed note stands in for Continue', () => {
-    expect(answerContinues(session({ phase: 'reveal' }), key(60))).toBe(true);
-  });
-
-  test('M3-AC11 a miss, or any answer before the reveal, never continues', () => {
-    expect(answerContinues(session({ phase: 'reveal' }), key(62))).toBe(false);
-    expect(answerContinues(session({ phase: 'retry' }), key(60))).toBe(false);
-    expect(answerContinues(session({ phase: 'right' }), key(60))).toBe(false);
-  });
 });
 
 describe('timeUp (design §14)', () => {
@@ -241,9 +249,9 @@ describe('letter answers', () => {
     expect(attempt).toMatchObject({ key: 'treble:C4', tries: 1, correct: true });
   });
 
-  test('M9-AC5 a wrong letter retries, then reveals', () => {
+  test('M9-AC5 a wrong letter keeps the question open', () => {
     const retry = reduce(session(), { type: 'answer', answer: letter('D') }, first);
     expect(retry.phase).toBe('retry');
-    expect(reduce(retry, { type: 'answer', answer: letter('D') }, first).phase).toBe('reveal');
+    expect(reduce(retry, { type: 'answer', answer: letter('D') }, first).phase).toBe('retry');
   });
 });

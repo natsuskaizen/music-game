@@ -10,6 +10,7 @@ const answer = (n: ClefNote): SessionEvent => ({
   answer: { kind: 'pitch', midi: midiOf(n.pitch) },
 });
 const NEXT: SessionEvent = { type: 'next' };
+const SKIP: SessionEvent = { type: 'skip' };
 const run = (...events: SessionEvent[]) => events.reduce(stepRun, startRun([C, D, E]));
 
 describe('sequence cursor (design §8.3, §8.4)', () => {
@@ -24,8 +25,10 @@ describe('sequence cursor (design §8.3, §8.4)', () => {
     expect(stepRun(r, NEXT)).toMatchObject({ index: 1, session: { phase: 'ask' } });
   });
 
-  test('M5-AC2 two misses reveal the note, and only Continue moves on', () => {
-    const r = run(answer(D), answer(D));
+  test('M10-AC6 misses never reveal the note; skip does, and only next moves on', () => {
+    const missed = run(answer(D), answer(D));
+    expect(missed).toMatchObject({ index: 0, session: { phase: 'retry' } });
+    const r = stepRun(missed, SKIP);
     expect(r).toMatchObject({ index: 0, session: { phase: 'reveal' } });
     expect(stepRun(r, NEXT).index).toBe(1);
   });
@@ -44,7 +47,7 @@ describe('sequence cursor (design §8.3, §8.4)', () => {
     const meta = { ts: 0, input: 'piano', ms: 100, answer: { kind: 'pitch', midi: 0 } } as const;
     const attempts: ReturnType<typeof settledAttempt>[] = [];
     let r: SequenceRun = startRun([C, D]);
-    for (const e of [answer(C), NEXT, answer(E), answer(E), NEXT]) {
+    for (const e of [answer(C), NEXT, answer(E), SKIP, NEXT]) {
       const after = stepRun(r, e);
       attempts.push(settledAttempt(r.session, after.session, meta));
       r = after;

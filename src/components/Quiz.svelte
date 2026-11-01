@@ -1,8 +1,8 @@
 <!-- The quiz screen (design §8.1): read the note on the staff (a grand staff for `both`) and answer with the active input.
-     A miss gets one retry, then the answer is revealed and the quiz waits for Continue; with a listening input,
-     playing the revealed note is Continue too (design §8.4).
+     A miss leaves the question open: keep trying until it is right, or tap Skip, which counts a miss, sounds the note
+     and moves on (design §8.4). Nothing else moves on after a miss.
      Sequence mode (settings.mode, not review) reads a run of notes through the cursor: a right note moves on by itself,
-     and the same Continue rules apply per note, so a listening input can play on through misses (design §8.4).
+     and Skip moves past the current note.
      Sound follows the sound settings (`noteToPlay`, design §14). Switching input keeps the question. -->
 <script lang="ts">
   import { onMount } from 'svelte';
@@ -15,8 +15,8 @@
   import { sequenceNotes, startRun, stepRun, type SequenceRun } from '../core/cursor';
   import { makeSequence, type Measure } from '../core/sequence';
   import {
-    answerContinues,
     firstTryPercent,
+    isOpen,
     isSettled,
     reduce,
     settledAttempt,
@@ -118,7 +118,7 @@
   // The default input starts; the switcher changes it for this quiz only.
   const defaultInput = () => inputById(settings.input);
   let input = $state.raw(defaultInput());
-  // A listening input hears the room: the app stays quiet (design §4.3) and playing the revealed note continues.
+  // A listening input hears the room: the app stays quiet (design §4.3).
   const listening = $derived('listens' in input && input.listens === true);
   let quiz = $state(begin());
   const sound = (before: Session | undefined, after: Session) => {
@@ -145,7 +145,7 @@
   // When the current question appeared, to time the answer.
   let shownAt = Date.now();
 
-  function record(before: Session, after: Session, answer: Answer) {
+  function record(before: Session, after: Session, answer: Answer | null) {
     const ts = Date.now();
     const attempt = settledAttempt(before, after, { ts, input: input.id, ms: ts - shownAt, answer });
     if (!attempt) return;
@@ -157,13 +157,12 @@
   }
 
   // Settled notes in order, then the one in play once it has settled.
-  const sequenceMarks = $derived([
-    ...outcomes,
-    ...(quiz.phase === 'right' ? (['right'] as const) : quiz.phase === 'reveal' ? (['wrong'] as const) : []),
-  ]);
+  const sequenceMarks = $derived([...outcomes, ...(quiz.phase === 'right' ? (['right'] as const) : [])]);
   const target = $derived(midiOf(quiz.note.pitch));
   const name = $derived(pitchLabel(quiz.note.pitch));
   const showsAnswer = $derived(isSettled(quiz.phase));
+  // Open for answers: a skip or an answer only counts while the question is not settled.
+  const open = $derived(isOpen(quiz.phase));
   // The note a listening input hears right now; an answer's own mark wins over it.
   let heard = $state<number>();
   const marks = $derived(
@@ -210,17 +209,24 @@
     if (asked === answered) advance();
   }
 
+  // Giving up on the question: it counts as a miss, the note sounds, and the quiz moves on.
+  function onSkip() {
+    if (!open) return;
+    const before = quiz;
+    quiz = step({ type: 'skip' });
+    // `quiz` is deep state, so its answers are proxies that IndexedDB can't clone.
+    record(before, quiz, $state.snapshot(before.misses.at(-1)) ?? null);
+    sound(before, quiz);
+    advance();
+  }
+
   async function onAnswer(answer: Answer) {
-    if (listening && answerContinues(quiz, answer)) {
-      advance();
-      return;
-    }
     const before = quiz;
     quiz = step({ type: 'answer', answer });
     record(before, quiz, answer);
     sound(before, quiz);
     if (streakEl && celebrates(before.streak, quiz.streak)) feedback.celebrate(streakEl);
-    if (quiz.phase !== before.phase) await respond();
+    if (quiz.phase !== before.phase || quiz.misses.length > before.misses.length) await respond();
   }
 </script>
 
@@ -251,8 +257,7 @@
   {/if}
   {#if ringerHint}<p class="hint">Turn the ringer on for sound.</p>{/if}
   <p class="msg {quiz.phase}" aria-live="polite">
-    {#if quiz.phase === 'retry'}Not quite. One more try.
-    {:else if quiz.phase === 'reveal'}It's {name}. {listening ? 'Play it or tap Continue.' : 'Tap Continue.'}
+    {#if quiz.phase === 'retry'}Not quite. Keep trying, or skip.
     {:else if quiz.phase === 'right'}Yes, {name}!
     {:else}{listening ? 'Play this note.' : (input.ask ?? 'Find this note on the keyboard.')}{/if}
   </p>
@@ -275,7 +280,6 @@
         {key}
         note={quiz.note}
         mark={quiz.phase === 'right' ? 'right' : quiz.phase === 'ask' ? undefined : 'wrong'}
-        revealed={quiz.phase === 'reveal'}
         {heard}
         bind:noteEl
       />
@@ -290,8 +294,8 @@
         heard = midi;
       }}
     />
-    <div class="continue">
-      {#if quiz.phase === 'reveal'}<button type="button" onclick={advance}>Continue</button>{/if}
+    <div class="skip">
+      {#if open}<button type="button" onclick={onSkip}>Skip</button>{/if}
     </div>
   {/if}
 </section>
@@ -319,7 +323,7 @@
   }
   select,
   .home,
-  .continue button {
+  .skip button {
     font: 700 0.95rem var(--font);
     text-transform: capitalize;
     border: 0;
@@ -340,7 +344,7 @@
     background: none;
     color: var(--muted);
   }
-  .continue button {
+  .skip button {
     background: var(--accent);
     color: var(--on-accent);
   }
@@ -356,19 +360,18 @@
     margin: 0;
     font-weight: 700;
   }
-  .msg.retry,
-  .msg.reveal {
+  .msg.retry {
     color: var(--wrong);
   }
   .msg.right {
     color: var(--right);
   }
-  .continue {
+  .skip {
     min-height: 3rem;
     display: flex;
     justify-content: center;
   }
-  .continue button {
+  .skip button {
     padding: 0.75rem 2rem;
     border-radius: var(--surface-radius);
   }

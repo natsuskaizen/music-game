@@ -124,7 +124,7 @@ Playwright can then drive it exactly like a person: `page.getByRole('button', { 
 ### 3.3 One grader for every input
 
 Letter pad, keyboard, and mic all end in the same pure function, `gradeAnswer()` (3.4). The
-retry → reveal → Continue flow and the stats therefore work identically whatever you answer with.
+keep-trying / Skip flow and the stats therefore work identically whatever you answer with.
 
 ### 3.4 Pluggable answer inputs
 
@@ -163,7 +163,7 @@ export const available = () => [...inputs.values()].filter(m => m.isAvailable())
 register(letterPad); register(pianoKeys); register(micListener); register(hardwareKeys);
 ```
 
-The grader takes an `Answer`, so every input shares the retry → reveal → Continue flow and the stats:
+The grader takes an `Answer`, so every input shares the keep-trying / Skip flow and the stats:
 
 ```ts
 // src/core/quiz.ts
@@ -605,13 +605,13 @@ that weak notes get at least N× the exposure. That gives cheap regression prote
 - Clef setting `treble` / `bass` / `both`. With `both`, each question picks a
   clef (weighted too), and a **grand staff** is shown with the note on one stave so the
   eye also learns to pick the right stave.
-- Wrong answer: same **retry-then-reveal** flow as sequences (8.4).
+- Wrong answer: same **keep-trying / Skip** flow as sequences (8.4).
 
 ### 8.2 Multi-note sequence
 
 - N notes (setting, default 6) on one stave. The current target note is highlighted blue.
 - A correct tap turns the note green and moves the cursor on. A wrong tap follows the
-  **retry-then-reveal** flow (8.4). Stats are recorded **per note**, so sequences feed the same table.
+  **keep-trying / Skip** flow (8.4). Stats are recorded **per note**, so sequences feed the same table.
 - Generation: sample each note with `pickNext`, but constrain the interval
   from the previous note (≤ an octave by default) so it reads like a melodic
   line instead of random jumps. This is a setting ("Leaps: small / any").
@@ -654,16 +654,15 @@ export function reduce(s: QuizState, e: QuizEvent, settings: Settings): QuizStat
 
 ---
 
-### 8.4 Wrong answers: retry, then reveal, then confirm (decided)
+### 8.4 Wrong answers: keep trying, or skip (decided; M10-6 replaced retry → reveal → Continue)
 
 Applies to both modes.
 
-1. **First miss**: the note shakes red and you get a **second try**. The timer, if on, doesn't restart.
-2. **Second miss or timeout**: the correct answer is **revealed**. The note is labeled
-   (e.g. "C6"), and the sound plays if enabled.
-3. The quiz **waits** until you tap **Continue**. It never advances automatically. With a listening input (the mic),
-   playing the revealed note also counts as Continue, so a player at the piano can keep going through a sequence
-   without touching the screen (Stan, 2026-10-31).
+1. **A miss** shakes the note red and leaves the question open. You keep trying as often as you like; the timer, if on,
+   doesn't restart. A hit after a miss counts as a second try (0.5 credit).
+2. **Skip** gives up: it counts as a miss, plays the correct note (if sound is on) and moves on to the next question or
+   note. There is no Continue button, and the mic has no "play the note to continue" rule.
+3. The quiz never advances after a miss on its own; only a right answer or Skip moves on (Stan, 2026-11-01).
 
 Scoring for the stats: a first-try hit is 1.0, a second-try hit is 0.5, and a miss is 0.
 `ewmaAcc` uses that credit instead of a plain boolean, and the Leitner `box` only goes
@@ -786,7 +785,7 @@ See [docs/roadmap.md](roadmap.md) for the milestones, one doc each, and the qual
 | Question | Decision |
 |---|---|
 | Hosting | GitHub Pages, deployed by GitHub Actions only when all gates are green |
-| Sequence errors | Retry once, then reveal, then wait for Continue; applies to both modes (8.4) |
+| Sequence errors | Keep trying until right, or Skip; applies to both modes (8.4) |
 | Look and feel | Early spike (M1) shows two themes on device (§14); pick one there |
 | Answer precision | Configurable per input via `exactOctave` (sections 3.4, 9) |
 | Answer input | Pluggable (3.4): on-screen piano, then mic from a real piano (M3); letter pad dropped (§14); write the letter (M9; speech dropped in M10) |

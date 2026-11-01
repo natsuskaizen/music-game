@@ -35,7 +35,6 @@
     marks = [],
     current,
     mark,
-    revealed = false,
     heard,
     noteEl = $bindable(),
   }: {
@@ -52,8 +51,6 @@
     current?: number;
     /** Colours the note after an answer. */
     mark?: 'right' | 'wrong';
-    /** Writes the note's name beside it (design §8.4 reveal). */
-    revealed?: boolean;
     /** MIDI note a listening input hears right now, drawn as a faint notehead; `undefined` for silence. */
     heard?: number;
     /** The note's group, for feedback animations. */
@@ -176,11 +173,6 @@
       <text class="glyph" x={NOTE_X} y={yOf(noteStave, pos)} text-anchor="middle" font-size={GLYPH_SIZE}
         >{GLYPH.wholeNote}</text
       >
-      {#if revealed}
-        <text class="name" x={NOTE_X + 2.2 * SPACE} y={yOf(noteStave, pos) + SPACE / 2.5}
-          >{pitchLabel(note.pitch)}</text
-        >
-      {/if}
     </g>
   {/if}
   {#if heardAt}
@@ -250,10 +242,6 @@
   }
   .beam {
     stroke-width: 8;
-  }
-  .name {
-    font: 700 20px var(--font);
-    fill: var(--wrong);
   }
   .heard {
     opacity: 0.45;

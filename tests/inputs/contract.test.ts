@@ -110,7 +110,7 @@ describe('M2-AC8 switching input mid-quiz', () => {
     const [lowestKey] = tapEnds(inputById('piano'));
     if (lowestKey) answer(lowestKey);
     expect(s.note).toBe(E4);
-    expect(s.phase).toBe('reveal');
+    expect(s.phase).toBe('retry');
     expect(s.misses).toEqual([{ kind: 'pitch', midi: 60 }, lowestKey]);
   });
 });
