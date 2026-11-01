@@ -22,6 +22,8 @@ interface InputBase {
   label: string;
   /** Feature check, e.g. the mic needs getUserMedia. Unavailable inputs are hidden. */
   isAvailable: () => boolean;
+  /** The quiz's question when the input doesn't use the keyboard, e.g. "Write this note's letter." */
+  ask?: string;
 }
 
 /** An input drawn on screen, e.g. the piano: the quiz renders its component. */

@@ -11,4 +11,4 @@ Scheduled as [M9](M9-accidentals-and-letters.md), which holds the acceptance cri
 
 ## Summary (fill in at completion)
 
-_Not started._ What shipped, decisions made, deviations from plan, follow-ups.
+Built in M9 (M9-1 to M9-3); see the [M9 Summary](M9-accidentals-and-letters.md#summary-fill-in-at-completion).

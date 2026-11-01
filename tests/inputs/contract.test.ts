@@ -9,7 +9,9 @@ import { available, inputById } from '../../src/inputs';
 import { register } from '../../src/inputs/registry';
 import type { InputMethod } from '../../src/inputs/types';
 import { isLetter, type ClefNote } from '../../src/core/pitch';
+import { HANDWRITTEN } from '../fixtures/handwriting';
 import { fakeInput } from './fake-input';
+import { writeOn } from './write-on';
 
 const random = stepwisePicker(Math.random);
 
@@ -23,7 +25,7 @@ const isWellFormed = (a: Answer) =>
     ? isLetter(a.letter)
     : Number.isInteger(a.midi) && a.midi >= MIDI_RANGE.lo && a.midi <= MIDI_RANGE.hi;
 
-// Taps the on-screen input's first and last controls and returns what it emitted.
+// Taps the on-screen input's first and last buttons, writes a letter on its pad if it has one, and returns what it emitted.
 function tapEnds(input: InputMethod): Answer[] {
   const answers: Answer[] = [];
   const target = document.createElement('div');
@@ -36,6 +38,9 @@ function tapEnds(input: InputMethod): Answer[] {
   const buttons = target.querySelectorAll('button');
   buttons[0]?.click();
   buttons[buttons.length - 1]?.click();
+  const pad = target.querySelector('[role="application"]');
+  if (pad) writeOn(pad, HANDWRITTEN[0]?.strokes ?? []);
+  flushSync();
   void unmount(app);
   return answers;
 }
@@ -56,7 +61,7 @@ describe.each(available().map((input) => [input.id, input] as const))('M2-AC7 in
     expect(input.label).not.toBe('');
   });
 
-  test('M2-AC7 emits well-formed pitch answers', async () => {
+  test('M2-AC7 emits well-formed answers', async () => {
     const answers = 'component' in input ? tapEnds(input) : await playHeadless(input);
     expect(answers.length).toBeGreaterThan(0);
     expect(answers.every(isWellFormed)).toBe(true);
@@ -65,7 +70,7 @@ describe.each(available().map((input) => [input.id, input] as const))('M2-AC7 in
 
 describe('M2-AC7 registry', () => {
   test('M2-AC7 lists the piano first, and the fake works with no core changes', () => {
-    expect(available().map((i) => i.id)).toEqual(['piano', 'fake']);
+    expect(available().map((i) => i.id)).toEqual(['piano', 'handwriting', 'fake']);
   });
 
   test('M2-AC7 refuses a duplicate id, since ids are stored in settings', () => {

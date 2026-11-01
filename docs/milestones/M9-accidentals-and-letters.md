@@ -33,4 +33,12 @@ AC7 (finger part) and AC8 are manual device checks for Stan; they stay open and 
 
 ## Summary (fill in at completion)
 
-_Not started._
+- **Shipped**: `Pitch` carries an accidental, and stats key by spelled pitch (`treble:F#5`), with old stats unchanged (AC1, AC3).
+  The staff draws sharps, flats, naturals and key signatures on both clefs (AC2). Settings add an accidentals toggle and a
+  key signature (chosen or random per session); notes in the key are graded by sounding pitch on piano and mic (AC4).
+- **Letter answers**: `Answer` can be a letter, right whatever the octave (AC5). Two letter inputs: speech (`lettersIn`,
+  hidden without a recognizer, AC6) and handwriting (a $P point-cloud recognizer for capital A–G, 95% on the fixtures, AC7).
+  Inputs that don't use the keyboard set the quiz's question (`ask`).
+- **Open**: AC7's finger check and AC8 (speech) are Stan's manual device checks. The handwriting fixtures are synthetic,
+  so the device check is the real accuracy test.
+- **Follow-ups**: the Stats heat rows show the natural pool only; lowercase handwriting isn't recognized.

@@ -789,7 +789,7 @@ See [docs/roadmap.md](roadmap.md) for the milestones, one doc each, and the qual
 | Sequence errors | Retry once, then reveal, then wait for Continue; applies to both modes (8.4) |
 | Look and feel | Early spike (M1) shows two themes on device (§14); pick one there |
 | Answer precision | Configurable per input via `exactOctave` (sections 3.4, 9) |
-| Answer input | Pluggable (3.4): on-screen piano, then mic from a real piano (M3); letter pad dropped (§14) |
+| Answer input | Pluggable (3.4): on-screen piano, then mic from a real piano (M3); letter pad dropped (§14); write or say the letter (M9) |
 | Framework | Svelte 5 + SVG + GSAP ([frameworks.md](frameworks.md)); Phaser 4 evaluated and not chosen |
 | Accidentals / key signatures | A later feature (F1 in the roadmap) |
 

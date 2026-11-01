@@ -254,7 +254,7 @@
     {#if quiz.phase === 'retry'}Not quite. One more try.
     {:else if quiz.phase === 'reveal'}It's {name}. {listening ? 'Play it or tap Continue.' : 'Tap Continue.'}
     {:else if quiz.phase === 'right'}Yes, {name}!
-    {:else}{listening ? 'Play this note.' : 'Find this note on the keyboard.'}{/if}
+    {:else}{listening ? 'Play this note.' : (input.ask ?? 'Find this note on the keyboard.')}{/if}
   </p>
   {#if quiz.phase === 'done'}
     <Results
