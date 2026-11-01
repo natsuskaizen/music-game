@@ -83,6 +83,11 @@ describe('M2-AC7 registry', () => {
     expect(inputById('letter-pad').id).toBe('piano');
   });
 
+  test('M10-AC4 no speech input is registered, and a stored one falls back to the piano', () => {
+    expect(available().map((input) => input.id)).not.toContain('speech');
+    expect(inputById('speech').id).toBe('piano');
+  });
+
   test('M2-AC7 a stopped headless input emits nothing', async () => {
     const answers: Answer[] = [];
     const stop = await fake.start((a) => answers.push(a));
