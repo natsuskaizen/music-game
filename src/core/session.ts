@@ -1,18 +1,15 @@
 // The quiz session as a reducer (design §8.3, §8.4): a miss gets one retry, then the answer is revealed and the
 // session waits for the next event. It ends after `questionsPerSession` questions. Inputs only produce an `Answer` (design §3.4).
-import { midiOf, type ClefNote } from './pitch';
+import { midiOf, type ClefNote, type Letter } from './pitch';
 import type { Picker } from './selector';
 import { statKey, type Attempt } from './stats';
 
-/** What an input reports. Every M2 input knows the octave, so an answer is an exact pitch (design §3.4, §14). */
-export interface Answer {
-  kind: 'pitch';
-  midi: number;
-}
+/** What an input reports: an exact pitch from keys or the mic, or just a letter from writing or speech (design §3.4, §14). */
+export type Answer = { kind: 'pitch'; midi: number } | { kind: 'letter'; letter: Letter };
 
-/** Whether `answer` names `note` exactly: same pitch and octave, so C5 is wrong for C6 (design §14). */
+/** Whether `answer` names `note`: a pitch must match the octave (C5 is wrong for C6), a letter ignores it (design §14). */
 export function gradeAnswer(note: ClefNote, answer: Answer): boolean {
-  return answer.midi === midiOf(note.pitch);
+  return answer.kind === 'letter' ? answer.letter === note.pitch.letter : answer.midi === midiOf(note.pitch);
 }
 
 /** Where a question stands: waiting, second try after one miss, revealed after two, answered right, or session over. */

@@ -1,4 +1,5 @@
 // Backup file (design §10): the attempt log as JSON. Stats are rebuilt from it, so the file holds nothing else.
+import { isLetter } from './pitch';
 import { applyAttempt, newStat, type Attempt, type NoteStat } from './stats';
 
 const BACKUP_VERSION = 1;
@@ -7,7 +8,11 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null;
 
 function isAnswer(value: unknown): boolean {
-  return value === null || (isRecord(value) && value.kind === 'pitch' && Number.isFinite(value.midi));
+  if (value === null) return true;
+  if (!isRecord(value)) return false;
+  return value.kind === 'letter'
+    ? isLetter(value.letter)
+    : value.kind === 'pitch' && Number.isFinite(value.midi);
 }
 
 const isTries = (value: unknown) => value === 1 || value === 2;

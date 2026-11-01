@@ -2,6 +2,14 @@
 // staff; the accidental only changes how it sounds, so staff positions stay plain arithmetic.
 const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const;
 
+/** A note letter, A to G. */
+export type Letter = (typeof LETTERS)[number];
+
+/** Whether `value` is a note letter, for validating stored or recognized input. */
+export function isLetter(value: unknown): value is Letter {
+  return LETTERS.some((l) => l === value);
+}
+
 /** The clef of one stave. */
 export type Clef = 'treble' | 'bass';
 
@@ -10,7 +18,7 @@ export type Accidental = -1 | 0 | 1;
 
 /** A spelled pitch in scientific notation; C4 is middle C. No `accidental` means natural, so pre-M9 pitches and stat keys are unchanged. */
 export interface Pitch {
-  letter: (typeof LETTERS)[number];
+  letter: Letter;
   accidental?: Accidental;
   octave: number;
 }

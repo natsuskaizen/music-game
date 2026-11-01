@@ -8,7 +8,7 @@ import { reduce, startSession, type Answer, type Session } from '../../src/core/
 import { available, inputById } from '../../src/inputs';
 import { register } from '../../src/inputs/registry';
 import type { InputMethod } from '../../src/inputs/types';
-import type { ClefNote } from '../../src/core/pitch';
+import { isLetter, type ClefNote } from '../../src/core/pitch';
 import { fakeInput } from './fake-input';
 
 const random = stepwisePicker(Math.random);
@@ -19,7 +19,9 @@ register(fake);
 
 const MIDI_RANGE = { lo: 21, hi: 108 }; // A0 to C8, the 88 keys.
 const isWellFormed = (a: Answer) =>
-  Number.isInteger(a.midi) && a.midi >= MIDI_RANGE.lo && a.midi <= MIDI_RANGE.hi;
+  a.kind === 'letter'
+    ? isLetter(a.letter)
+    : Number.isInteger(a.midi) && a.midi >= MIDI_RANGE.lo && a.midi <= MIDI_RANGE.hi;
 
 // Taps the on-screen input's first and last controls and returns what it emitted.
 function tapEnds(input: InputMethod): Answer[] {
@@ -99,6 +101,6 @@ describe('M2-AC8 switching input mid-quiz', () => {
     if (lowestKey) answer(lowestKey);
     expect(s.note).toBe(E4);
     expect(s.phase).toBe('reveal');
-    expect(s.misses.map((a) => a.midi)).toEqual([60, lowestKey?.midi]);
+    expect(s.misses).toEqual([{ kind: 'pitch', midi: 60 }, lowestKey]);
   });
 });
