@@ -33,6 +33,16 @@ describe('sequence cursor (design §8.3, §8.4)', () => {
     expect(stepRun(r, NEXT).index).toBe(1);
   });
 
+  test('M10-AC8 only the right note advances: repeated misses stay, the right note moves on, skip moves past', () => {
+    expect(run(answer(D), answer(E), answer(D)).index).toBe(0);
+    expect(run(answer(D), NEXT).index).toBe(0);
+    const right = run(answer(D), answer(C));
+    expect(right).toMatchObject({ index: 0, session: { phase: 'right' } });
+    expect(stepRun(right, NEXT)).toMatchObject({ index: 1, session: { phase: 'ask' } });
+    expect(stepRun(run(answer(C), NEXT), SKIP).session.phase).toBe('reveal');
+    expect(run(answer(C), NEXT, SKIP, NEXT).index).toBe(2);
+  });
+
   test('M5-AC2 walking the whole sequence ends in done on the last index', () => {
     const r = run(answer(C), NEXT, answer(D), NEXT, answer(E), NEXT);
     expect(r).toMatchObject({ index: 2, session: { phase: 'done', total: 3, firstTry: 3 } });
