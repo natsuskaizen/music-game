@@ -272,7 +272,7 @@ The mic shares the playback `AudioContext`. An `AnalyserNode` feeds `pitchy` abo
 a second. A note counts once it holds for 4 frames (~65 ms) with clarity > 0.9. The same
 note can fire again only after a short silence or a different note. The resulting MIDI number goes
 through `gradeAnswer()` like a tap. Frames quieter than the **mic loudness** setting (Soft / Firm / Loud, meter
-level 0.35 / 0.5 / 0.65, about −42 / −35 / −28 dB, default Firm) count as silence, so room noise and soft sounds
+level 0.15 / 0.3 / 0.45, about −52 / −45 / −37 dB, default Firm) count as silence, so room noise and soft sounds
 never answer; the meter marks that level. The heard note is drawn faintly on the staff, a black key as the natural
 below with a sharp. The shipped version is `src/inputs/mic.ts`.
 

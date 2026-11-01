@@ -2,6 +2,7 @@
 import { PitchDetector } from 'pitchy';
 import { audioContext, setRecording } from '../audio/context';
 import {
+  DETECTOR_FLOOR_DB,
   frameLevel,
   heardNote,
   initialListen,
@@ -13,7 +14,6 @@ import type { Answer } from '../core/session';
 import type { HeadlessInput, ListenHooks } from './types';
 
 const FFT_SIZE = 4096; // ~85 ms at 48 kHz, enough for the lowest bass notes
-const MIN_VOLUME_DB = -45; // quieter frames count as silence
 const MIDI_RANGE = { lo: 21, hi: 108 }; // A0 to C8, the 88 keys
 
 /** Raw audio, because echo cancellation, noise suppression and auto-gain all distort a piano's pitch. */
@@ -33,7 +33,7 @@ async function openMic(): Promise<MediaStream> {
 /** Reads the analyser's latest samples: their loudness, and the pitch frame when it is at least `minLevel` loud. */
 function frameReader(analyser: AnalyserNode, sampleRate: number, minLevel: number) {
   const detector = PitchDetector.forFloat32Array(FFT_SIZE);
-  detector.minVolumeDecibels = MIN_VOLUME_DB;
+  detector.minVolumeDecibels = DETECTOR_FLOOR_DB;
   const samples = new Float32Array(FFT_SIZE);
   return () => {
     analyser.getFloatTimeDomainData(samples);

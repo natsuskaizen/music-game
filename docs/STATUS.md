@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M10 (`docs/milestones/M10-quiz-fixes.md`) is In progress: ten fixes from Stan's device use, one issue and PR each, in order M10-1 to M10-10. M9 is "Built, device checks open".
-- **Next issue**: M10-5 (mic sensitivity). M10-4 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
+- **Next issue**: M10-6 (Skip replaces Continue). M10-5 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -54,7 +54,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Sequence | `core/sequence.ts` `makeSequence(pool, difficulty, { picker, random })` returns `Measure[]` of `{ note, duration }`. Hard's 3 measures force 12–16 notes (design's 10 can't fill 3 bars). Notes split evenly over measures; each measure has `count - 4` beats of two eighths, the rest quarters (always beamable pairs) | M5-1 |
 | Cursor | `core/cursor.ts`: `SequenceRun` `{ notes, index, session }`; `stepRun` reuses `reduce` with a picker that returns the next note and `questionsPerSession = notes.length`, so retry → reveal → Continue and per-note `settledAttempt` are unchanged. The index moves only on `next`; a single note is a run of one. Quiz adopts it in M5-4 | M5-2 |
 | Sequence layout | `core/sequence-layout.ts` `layoutSequence(measures, staves, span)`: slots by duration (quarter 30, eighth 24) stretched to fill the span, stems up below the middle line, a pair of eighths on one stave beamed (slope ≤ 1 space), a cross-stave pair gets line flags (no flag glyphs in the Bravura subset). `Staff` takes `sequence`, `marks` (right/wrong per note) and `current`; the gallery shows a 16-note Hard example | M5-3 |
-| Mic follow-ups | `Settings.micLevel` (`MIC_LEVELS` Soft 0.35 / Firm 0.5 default / Loud 0.65 on the meter scale): `loudEnough` turns quieter frames into silence before the filter; `HeadlessInput.start(emit, hooks)` takes `ListenHooks` (heard, level, minLevel); the meter marks the threshold. `answerContinues`: with a listening input, playing the revealed note is Continue. `heardMark` + `writtenPitch` draw the heard note faintly on the staff. Mic bar redesigned in M7-1 (`MicMeter.svelte`) | design §4.4, §8.4; M3-AC10–12 |
+| Mic follow-ups | `Settings.micLevel` (`MIC_LEVELS` Soft 0.15 / Firm 0.3 default / Loud 0.45 on the meter scale): `loudEnough` turns quieter frames into silence before the filter; `HeadlessInput.start(emit, hooks)` takes `ListenHooks` (heard, level, minLevel); the meter marks the threshold. `answerContinues`: with a listening input, playing the revealed note is Continue. `heardMark` + `writtenPitch` draw the heard note faintly on the staff. Mic bar redesigned in M7-1 (`MicMeter.svelte`) | design §4.4, §8.4; M3-AC10–12 |
 | Sequence quiz | `Settings.mode` (`single`/`sequence`, Segmented on Home). `Quiz` in sequence mode (not review) builds `makeSequence`, walks it with `stepRun`, and draws `Staff` `sequence` with `marks` (settled notes) and `current`. A right note advances at once (no animation); reveal/Continue and `answerContinues` work per note, so a listening input plays through misses | M5-4 |
 | Sprint clock | `core/sprint.ts`: `SPRINT_SECONDS` (60/50/40 by difficulty); `SprintClock` `{ lengthMs, usedMs, runningSince }` with `startSprint`, `remaining(clock, now)`, `pause`, `resume`, all taking `now` so tests use a fake clock. `Settings.timer` is a boolean, off by default | M6-1 |
 | Sprint in quiz | `SprintBar.svelte` owns the `SprintClock`, a 100 ms tick and the `visibilitychange` pause/resume; it mounts only while the quiz runs, so Play again restarts it. At 0 it fires `timeUp`: `reduce` sets `done` from any phase and the unfinished question is never counted (nothing is recorded for it). `Quiz.advance` ignores a late right-answer animation after `done` | M6-2 |
@@ -79,6 +79,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M10-5: mic levels lowered to Soft 0.15 / Firm 0.3 / Loud 0.45 (default Firm) and the detector floor to −55 dB; a quiet fixture is heard on Soft, not on the old Soft (M10-AC5 unit; piano check manual). Stored old levels fall back to the default.
 - 2026-11-01: M10-4: speech input removed (`inputs/speech.ts`, `core/speech.ts`, tests, docs); a stored `speech` input id falls back to the piano. Retires M9-AC6 and AC8 (M10-AC4 unit).
 - 2026-11-01: M10-3: the key picker lists keys by name with the relative minor and signature ("G major / E minor (1♯)"); `keyLabel` in `key-signature.ts`; stored values unchanged (M10-AC3 unit + e2e).
 - 2026-11-01: M10-2: letter answers carry an accidental (F is wrong for F♯); the handwriting pad has ♯/♭ toggles that apply to the next letter (M10-AC2 unit + e2e).
@@ -86,7 +87,6 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 - 2026-11-01: M10 kick-off: milestone doc, roadmap row and ten issues. Speech (M9-5) is to be removed (M10-4); the Continue button becomes Skip (M10-6).
 - 2026-11-01: M9-6: handwriting input: write A–G on a pad, read by a $P recognizer (M9-AC7 unit + e2e, 95% of fixtures; finger check manual). M9 Summary filled in.
 - 2026-11-01: M9-4: letter answers: `Answer` is a pitch or a letter, `gradeAnswer` ignores the octave for letters, backups accept them (M9-AC5 unit).
-- 2026-11-01: M9-3: accidentals and key signature settings; quiz, sequences and review use the spelled pool (M9-AC3, AC4 unit + e2e).
 
 ## Known issues / open questions
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.

@@ -1,6 +1,6 @@
 // @vitest-environment happy-dom
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { DEFAULT_MIC_LEVEL } from '../../src/core/listen';
+import { DEFAULT_MIC_LEVEL, MIC_LEVELS } from '../../src/core/listen';
 import type { Answer } from '../../src/core/session';
 import { micInput } from '../../src/inputs/mic';
 
@@ -94,7 +94,7 @@ describe('M3-5 mic input', () => {
   });
 
   test('M3-AC10 a note quieter than the threshold neither answers nor shows as heard', async () => {
-    amplitude = 0.014; // about -40 dB: loud enough to detect, under the default threshold
+    amplitude = 0.004; // about -51 dB: heard on Soft, under the default threshold
     const answers: Answer[] = [];
     const heard: (number | undefined)[] = [];
     const stop = await micInput.start((a) => answers.push(a), {
@@ -104,6 +104,15 @@ describe('M3-5 mic input', () => {
     runFrames(10);
     expect(answers).toEqual([]);
     expect(heard.every((midi) => midi === undefined)).toBe(true);
+    stop();
+  });
+
+  test('M10-AC5 the same quiet note answers on Soft', async () => {
+    amplitude = 0.004;
+    const answers: Answer[] = [];
+    const stop = await micInput.start((a) => answers.push(a), { minLevel: MIC_LEVELS[0] });
+    runFrames(10);
+    expect(answers).toEqual([{ kind: 'pitch', midi: 69 }]);
     stop();
   });
 
