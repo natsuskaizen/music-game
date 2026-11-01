@@ -7,7 +7,7 @@
 - Settings: include accidentals; key signature (choose or random). The piano and mic inputs work as-is.
 - Stats keyed by spelled pitch (e.g. `treble:F#5`), so F♯ and G♭ are tracked apart.
 
-Acceptance criteria to be written when this is scheduled.
+Scheduled as [M9](M9-accidentals-and-letters.md), which holds the acceptance criteria and issues.
 
 ## Summary (fill in at completion)
 

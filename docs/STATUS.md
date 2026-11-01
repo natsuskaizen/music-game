@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M8 Themes in Settings is built and stays "In progress" on the roadmap, the last milestone (`docs/milestones/M8-themes.md`); device AC3 is open for Stan, as are M7's AC7 and M3's AC6 and AC7.
-- **Next issue**: none queued; F1/F3 are backlog.
+- **Phase**: M9 Accidentals, key signatures & letter answers (`docs/milestones/M9-accidentals-and-letters.md`) is in progress, the F1 and F3 backlog scheduled by Stan; M8 is built with device AC3 open, as are M7's AC7 and M3's AC6 and AC7.
+- **Next issue**: M9-1 spelled pitch in core.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -67,20 +67,18 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Celebration | `core/streak.ts` `celebrates(before, after)`: true when the first-try streak rises to 5, 10, 20, then every 10 (a miss or retry never does). `Quiz` calls the theme's `Feedback.celebrate` on the streak count, so each theme pulses it its own way | M7-4 |
 | Reduced motion | `components/feedback.ts` `prefersReducedMotion()` + `feedbackFor`: the `still` feedback skips every tween; the app has no CSS transitions. State, marks and the Continue rule are unchanged | M7-5 |
 | Contrast | Themes must pass axe color-contrast (4.5:1): `--muted`, `--accent` (with `--on-accent`), `--right` and `--wrong` were darkened/lightened per theme. New tokens need the same check | M7-6 |
-| Later | Accidentals/key signatures (F1), write or say the letter (F3) | roadmap |
+| M9 plan | F1 (accidentals, key signatures) and F3 (letter inputs) are one milestone, ordered core → staff → settings → letter answers → speech → handwriting | M9 doc |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✱ built (device AC open) · F1, F3 backlog
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✓ built (device AC open) · M9 ✱ (F1, F3 scheduled into it)
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M9 kick-off: F1 and F3 merged into one milestone, issue list in the M9 doc, roadmap flip.
 - 2026-10-31: M8-2 (#106): `Settings.theme` and a Theme control in Settings; Home links removed; `activeTheme` lets `?theme=` override (M8-AC1 unit + e2e); M8 Summary filled in.
 - 2026-10-31: M8-1 (#105): `e2e/note-position.spec.ts` checks the drawn note (no leftover transform, notehead on its y) after five answers in every theme (M8-AC2); `ORIGIN` in `feedback.ts` sets `smoothOrigin: false`, which fixes Neon arcade (#36) and Storybook (#38).
 - 2026-10-31: M8 kick-off: issue list in the M8 doc, issues #105 (note position, closes #36/#38) and #106 (theme setting).
 - 2026-10-31: M7-6 (#97): `e2e/a11y.spec.ts` scans Home, Settings, Stats, quiz and results with axe in all three themes (M7-AC4); contrast fixes in `themes.css`; M7 Summary filled in.
-- 2026-10-31: M7-5 (#96): `feedbackFor(theme, reduced)` returns a motionless `Feedback` under `prefers-reduced-motion` (no tweens or sparks, a right answer moves on at once); `Quiz` reads the setting per use (M7-AC3 unit + e2e).
-- 2026-10-31: M7-4 (#95): `core/streak.ts` names celebrated streaks (5, 10, 20, then every 10) and each theme's `Feedback` gets `celebrate`, which pulses the streak count in `Quiz` (M7-AC8 unit).
-- 2026-10-31: M7-3 (#94): `core/install.ts` decides the install hint (iOS tab, not standalone, not dismissed), `InstallHint.svelte` on Home saves the dismissal, and the shell, update banner pad with `env(safe-area-inset-*)` (M7-AC2 unit + e2e; AC7 manual).
 
 ## Known issues / open questions
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
