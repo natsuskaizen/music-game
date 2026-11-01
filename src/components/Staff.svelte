@@ -153,6 +153,9 @@
     {/each}
     {#each layout.notes as placed, i (i)}
       <g class="note {marks[i] ?? ''}" class:current={i === current}>
+        {#if i === current}
+          <ellipse class="current-halo" cx={placed.x} cy={placed.y} rx={SPACE * 1.2} ry={SPACE * 0.9} />
+        {/if}
         {@render ledgers(placed.x, placed.stave, placed.pos, SEQUENCE_LEDGER_HALF)}
         {#if placed.accidental}
           {@render accidentalSign(placed.accidental.accidental, placed.accidental.x, placed.y)}
@@ -212,7 +215,6 @@
   .note {
     --mark: var(--note);
   }
-  .note.current,
   .note.fair {
     --mark: var(--accent);
   }
@@ -223,6 +225,13 @@
   .note.wrong,
   .note.weak {
     --mark: var(--wrong);
+  }
+  .note.current {
+    --mark: var(--current);
+  }
+  .current-halo {
+    fill: var(--current);
+    opacity: 0.18;
   }
   .note.unseen {
     --mark: var(--muted);
