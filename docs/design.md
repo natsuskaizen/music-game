@@ -60,8 +60,10 @@ Working prototypes of everything in this section lived in `prototypes/compare/` 
 
 Drill notes don't need stems, beams, or rhythm, so draw **whole notes**. The staff is
 5 SVG lines, and the ledger lines come from the pitch math in section 6. Clefs and
-noteheads are SMuFL glyphs from Bravura (SIL OFL), subset to 5 glyphs (about 3 KB):
-`gClef` U+E050, `fClef` U+E062, `brace` U+E000, `noteheadWhole` U+E0A2, `noteheadBlack` U+E0A4.
+noteheads are SMuFL glyphs from Bravura 1.392 (SIL OFL), subset to 8 glyphs (about 4 KB):
+`gClef` U+E050, `fClef` U+E062, `brace` U+E000, `noteheadWhole` U+E0A2, `noteheadBlack` U+E0A4, and (M9-2)
+`accidentalFlat` U+E260, `accidentalNatural` U+E261, `accidentalSharp` U+E262. To add one, rerun fontTools'
+`pyftsubset Bravura.woff2 --unicodes=<all of them> --flavor=woff2` on the 1.392 release.
 
 SMuFL fonts are designed so 1 em = 4 staff spaces and each glyph's baseline sits on its
 reference line. That makes positioning plain arithmetic:

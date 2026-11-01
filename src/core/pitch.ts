@@ -6,7 +6,7 @@ const LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'] as const;
 export type Clef = 'treble' | 'bass';
 
 /** Semitones a written accidental moves the letter: flat, natural, sharp. */
-type Accidental = -1 | 0 | 1;
+export type Accidental = -1 | 0 | 1;
 
 /** A spelled pitch in scientific notation; C4 is middle C. No `accidental` means natural, so pre-M9 pitches and stat keys are unchanged. */
 export interface Pitch {

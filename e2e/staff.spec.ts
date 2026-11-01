@@ -60,3 +60,42 @@ for (const theme of THEMES) {
     await svg.screenshot({ path: `reports/screenshots/${theme}-${testInfo.project.name}-sequence.png` });
   });
 }
+
+const KEYED = [
+  { name: 'G5 on the treble staff, key of 3 sharps', file: 'key-treble', signs: 3, accidentals: 1 },
+  { name: 'F#3 on the bass staff, key of 4 flats', file: 'key-bass', signs: 4, accidentals: 1 },
+  {
+    name: 'Sequence of 10 notes in 2 measures, key of 2 flats',
+    file: 'key-sequence',
+    signs: 4,
+    accidentals: 6,
+  },
+];
+
+for (const theme of THEMES) {
+  test(`M9-AC2 ${theme} theme draws key signatures and accidentals on both clefs`, async ({
+    page,
+  }, testInfo) => {
+    await page.goto(`./?theme=${theme}`);
+    await expectBravuraLoaded(page);
+    const gallery = page.getByRole('region', { name: 'Staff gallery' });
+    for (const staff of KEYED) {
+      const svg = gallery.getByRole('img', { name: staff.name });
+      await expect(svg.locator('.key-signature')).toHaveCount(staff.signs);
+      await expect(svg.locator('.accidental')).toHaveCount(staff.accidentals);
+      // Each accidental ends before its own notehead begins.
+      const gaps = await svg.locator('.note').evaluateAll((notes) =>
+        notes.flatMap((note) => {
+          const sign = note.querySelector('.accidental')?.getBoundingClientRect();
+          const head = note.querySelector('.glyph')?.getBoundingClientRect();
+          return sign && head ? [head.left - sign.right] : [];
+        }),
+      );
+      expect(gaps).toHaveLength(staff.accidentals);
+      for (const gap of gaps) expect(gap).toBeGreaterThanOrEqual(0);
+      await svg.screenshot({
+        path: `reports/screenshots/${theme}-${testInfo.project.name}-${staff.file}.png`,
+      });
+    }
+  });
+}

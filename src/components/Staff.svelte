@@ -1,8 +1,16 @@
 <!-- Draws one whole note, or a sequence of quarters and eighths in measures, on a treble, bass, or grand staff,
-     with ledger lines (design §3.1). A listening input's heard note shows as a faint notehead beside a single note. -->
+     with ledger lines, accidentals and a key signature (design §3.1). A listening input's heard note shows as a faint
+     notehead beside a single note. -->
 <script lang="ts">
   import type { Heat } from '../core/heatmap';
-  import { ledgerPositions, pitchLabel, staffPos, type ClefNote } from '../core/pitch';
+  import {
+    keySignatureMarks,
+    keySignatureName,
+    keySignatureWidth,
+    measureAccidentals,
+    type KeySignature,
+  } from '../core/key-signature';
+  import { ledgerPositions, pitchLabel, staffPos, type Accidental, type ClefNote } from '../core/pitch';
   import type { Measure } from '../core/sequence';
   import { layoutSequence } from '../core/sequence-layout';
   import {
@@ -21,6 +29,7 @@
 
   let {
     mode,
+    key = 0,
     note,
     sequence,
     marks = [],
@@ -31,6 +40,8 @@
     noteEl = $bindable(),
   }: {
     mode: ClefMode;
+    /** Sharps (positive) or flats (negative) in the key signature after each clef. */
+    key?: KeySignature;
     /** The one note to read; leave out when drawing a `sequence`. */
     note?: ClefNote;
     /** Measures to read in order, drawn instead of `note`. */
@@ -57,16 +68,20 @@
     wholeNote: '\uE0A2',
     quarterNote: '\uE0A4',
   };
+  const ACCIDENTAL_GLYPH: Record<Accidental, string> = { [-1]: '\uE260', 0: '\uE261', 1: '\uE262' };
   const GLYPH_SIZE = 4 * SPACE;
   const WIDTH = 640;
   const LEFT = 56;
   const RIGHT = 616;
   const NOTE_X = 340;
   const HEARD_X = NOTE_X - 3.5 * SPACE;
+  // Right edge of an accidental before the whole note, and the left edge of the key signature after the clef.
+  const NOTE_ACCIDENTAL_X = NOTE_X - 1.05 * SPACE;
+  const KEY_FROM = LEFT + 4 * SPACE;
   const LEDGER_HALF = 1.35 * SPACE;
   // Sequence notes sit closer together, so their ledger lines are shorter.
   const SEQUENCE_LEDGER_HALF = 0.85 * SPACE;
-  const SEQUENCE_FROM = LEFT + 4.5 * SPACE;
+  const SEQUENCE_GAP = 0.5 * SPACE;
 
   const staves = $derived(stavesFor(mode));
   const bounds = $derived(systemBounds(staves));
@@ -74,12 +89,21 @@
   const braceStretch = $derived((bounds.bottom - bounds.top) / GLYPH_SIZE);
   const noteStave = $derived(staves.find((stave) => stave.clef === note?.clef));
   const pos = $derived(note ? staffPos(note) : 0);
-  const layout = $derived(sequence && layoutSequence(sequence, staves, { from: SEQUENCE_FROM, to: RIGHT }));
-  const label = $derived(
+  const noteAccidental = $derived(note && measureAccidentals([note], key)[0]);
+  const sequenceFrom = $derived(KEY_FROM + keySignatureWidth(key) + SEQUENCE_GAP);
+  const layout = $derived(
+    sequence && layoutSequence(sequence, staves, { from: sequenceFrom, to: RIGHT, key }),
+  );
+  // A sequence too long for the staff widens it; the SVG scales to fit.
+  const right = $derived(Math.max(RIGHT, layout?.barlines.at(-1) ?? RIGHT));
+  const subject = $derived(
     sequence
       ? `Sequence of ${String(sequence.flat().length)} notes in ${String(sequence.length)} ${sequence.length === 1 ? 'measure' : 'measures'}`
-      : note && `${pitchLabel(note.pitch)} on the ${note.clef} staff`,
+      : note
+        ? `${pitchLabel(note.pitch)} on the ${note.clef} staff`
+        : '',
   );
+  const label = $derived(key === 0 ? subject : `${subject}, key of ${keySignatureName(key)}`);
   const heardAt = $derived.by(() => {
     const mark = heard === undefined ? undefined : heardMark(heard, mode);
     const stave = staves.find((s) => s.clef === mark?.note.clef);
@@ -87,20 +111,31 @@
   });
 </script>
 
+{#snippet accidentalSign(accidental: Accidental, x: number, y: number)}
+  <text class="accidental" {x} {y} text-anchor="end" font-size={GLYPH_SIZE}
+    >{ACCIDENTAL_GLYPH[accidental]}</text
+  >
+{/snippet}
+
 {#snippet ledgers(x: number, stave: Stave, at: number, half = LEDGER_HALF)}
   {#each ledgerPositions(at) as p (p)}
     <line class="staff-line ledger" x1={x - half} x2={x + half} y1={yOf(stave, p)} y2={yOf(stave, p)} />
   {/each}
 {/snippet}
 
-<svg viewBox="0 0 {WIDTH} {bounds.height}" role="img" aria-label={label}>
+<svg viewBox="0 0 {WIDTH + right - RIGHT} {bounds.height}" role="img" aria-label={label}>
   {#each staves as stave (stave.clef)}
     {#each STAFF_LINES as p (p)}
-      <line class="staff-line" x1={LEFT} x2={RIGHT} y1={yOf(stave, p)} y2={yOf(stave, p)} />
+      <line class="staff-line" x1={LEFT} x2={right} y1={yOf(stave, p)} y2={yOf(stave, p)} />
     {/each}
     <text class="glyph" x={LEFT + SPACE * 0.75} y={yOf(stave, clefLinePos(stave.clef))} font-size={GLYPH_SIZE}
       >{GLYPH[stave.clef]}</text
     >
+    {#each keySignatureMarks(stave.clef, key) as mark (mark.dx)}
+      <text class="glyph key-signature" x={KEY_FROM + mark.dx} y={yOf(stave, mark.pos)} font-size={GLYPH_SIZE}
+        >{ACCIDENTAL_GLYPH[mark.accidental]}</text
+      >
+    {/each}
   {/each}
   <line class="staff-line" x1={LEFT} x2={LEFT} y1={bounds.top} y2={bounds.bottom} />
   {#if staves.length > 1}
@@ -122,6 +157,9 @@
     {#each layout.notes as placed, i (i)}
       <g class="note {marks[i] ?? ''}" class:current={i === current}>
         {@render ledgers(placed.x, placed.stave, placed.pos, SEQUENCE_LEDGER_HALF)}
+        {#if placed.accidental}
+          {@render accidentalSign(placed.accidental.accidental, placed.accidental.x, placed.y)}
+        {/if}
         <text class="glyph" x={placed.x} y={placed.y} text-anchor="middle" font-size={GLYPH_SIZE}
           >{GLYPH.quarterNote}</text
         >
@@ -132,6 +170,9 @@
   {:else if note && noteStave}
     <g class="note {mark ?? ''}" bind:this={noteEl}>
       {@render ledgers(NOTE_X, noteStave, pos)}
+      {#if noteAccidental !== undefined}
+        {@render accidentalSign(noteAccidental, NOTE_ACCIDENTAL_X, yOf(noteStave, pos))}
+      {/if}
       <text class="glyph" x={NOTE_X} y={yOf(noteStave, pos)} text-anchor="middle" font-size={GLYPH_SIZE}
         >{GLYPH.wholeNote}</text
       >
@@ -146,9 +187,7 @@
     <g class="heard" aria-hidden="true">
       {@render ledgers(HEARD_X, heardAt.stave, heardAt.pos)}
       {#if heardAt.sharp}
-        <text class="sharp" x={HEARD_X - 1.4 * SPACE} y={yOf(heardAt.stave, heardAt.pos) + SPACE / 2.5}
-          >♯</text
-        >
+        {@render accidentalSign(1, HEARD_X - 1.05 * SPACE, yOf(heardAt.stave, heardAt.pos))}
       {/if}
       <text
         class="glyph"
@@ -172,30 +211,33 @@
     stroke-width: var(--staff-line-width);
     stroke-linecap: var(--staff-line-cap);
   }
-  .glyph {
+  .glyph,
+  .accidental {
     font-family: Bravura;
     fill: var(--ink);
   }
-  .note .glyph {
-    fill: var(--note);
+  /* A note's colour, shared by its notehead, accidental and stem. */
+  .note {
+    --mark: var(--note);
   }
-  .note.current .glyph {
-    fill: var(--accent);
+  .note.current,
+  .note.fair {
+    --mark: var(--accent);
   }
-  .note.right .glyph,
-  .note.strong .glyph {
-    fill: var(--right);
+  .note.right,
+  .note.strong {
+    --mark: var(--right);
   }
-  .note.wrong .glyph,
-  .note.weak .glyph,
-  .name {
-    fill: var(--wrong);
+  .note.wrong,
+  .note.weak {
+    --mark: var(--wrong);
   }
-  .note.fair .glyph {
-    fill: var(--accent);
+  .note.unseen {
+    --mark: var(--muted);
   }
-  .note.unseen .glyph {
-    fill: var(--muted);
+  .note .glyph,
+  .note .accidental {
+    fill: var(--mark);
   }
   .stem,
   .beam {
@@ -203,38 +245,21 @@
     stroke-width: 2;
     stroke-linecap: butt;
   }
+  .note .stem {
+    stroke: var(--mark);
+  }
   .beam {
     stroke-width: 8;
   }
-  .note.current .stem {
-    stroke: var(--accent);
-  }
-  .note.right .stem,
-  .note.strong .stem {
-    stroke: var(--right);
-  }
-  .note.wrong .stem,
-  .note.weak .stem {
-    stroke: var(--wrong);
-  }
-  .note.fair .stem {
-    stroke: var(--accent);
-  }
-  .note.unseen .stem {
-    stroke: var(--muted);
-  }
   .name {
     font: 700 20px var(--font);
+    fill: var(--wrong);
   }
   .heard {
     opacity: 0.45;
   }
   .heard .glyph,
-  .sharp {
+  .heard .accidental {
     fill: var(--accent);
-  }
-  .sharp {
-    font: 700 22px var(--font);
-    text-anchor: middle;
   }
 </style>

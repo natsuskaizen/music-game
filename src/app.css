@@ -1,4 +1,4 @@
-/* Bravura subset (clefs, brace, noteheads; SIL OFL). Small enough that Vite inlines it, so it is offline from the first paint. */
+/* Bravura subset (clefs, brace, noteheads, accidentals; SIL OFL; design §3.1). Small enough that Vite inlines it, so it is offline from the first paint. */
 @font-face {
   font-family: Bravura;
   src: url('./assets/bravura-subset.woff2') format('woff2');
