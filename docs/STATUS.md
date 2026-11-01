@@ -6,7 +6,7 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: M10 (`docs/milestones/M10-quiz-fixes.md`) is built (ten fixes from Stan's device use, M10-1 to M10-10); only a device check is open. The roadmap has no next milestone yet.
+- **Phase**: M10 (`docs/milestones/M10-quiz-fixes.md`) is built (ten fixes, M10-1 to M10-10) and stays In progress on the roadmap until Stan ticks M10-AC5, because `ac-report` needs one In progress milestone. The roadmap has no next milestone yet.
 - **Next issue**: none. Open device checks for Stan: M10-AC5 (mic on Soft with a piano), M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
 - **Blocked on Stan**: nothing.
 
@@ -75,7 +75,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | M9 plan | F1 (accidentals, key signatures) and F3 (letter inputs) are one milestone, ordered core → staff → settings → letter answers → speech → handwriting | M9 doc |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✓ built (device AC open) · M9 ✓ built (device ACs open) · M10 ✓ built (device check open)
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✓ built (device AC open) · M9 ✓ built (device ACs open) · M10 ✱ built, in progress for the AC5 device check (`ac-report` needs one In progress milestone)
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
