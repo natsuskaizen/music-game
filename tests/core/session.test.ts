@@ -211,3 +211,27 @@ describe('timeUp (design §14)', () => {
     expect(press(done, midiOf(C4.pitch)).phase).toBe('done');
   });
 });
+
+describe('letter answers', () => {
+  const letter = (l: 'C' | 'D'): Answer => ({ kind: 'letter', letter: l });
+
+  test('M9-AC5 a letter is right whatever the octave', () => {
+    expect(gradeAnswer(C4, letter('C'))).toBe(true);
+    expect(gradeAnswer(C6, letter('C'))).toBe(true);
+    expect(gradeAnswer(C4, letter('D'))).toBe(false);
+  });
+
+  test('M9-AC5 a letter answer settles the question and is credited to the note', () => {
+    const before = session();
+    const after = reduce(before, { type: 'answer', answer: letter('C') }, first);
+    expect(after.phase).toBe('right');
+    const attempt = settledAttempt(before, after, { ts: 1, input: 'letters', ms: 900, answer: letter('C') });
+    expect(attempt).toMatchObject({ key: 'treble:C4', tries: 1, correct: true });
+  });
+
+  test('M9-AC5 a wrong letter retries, then reveals', () => {
+    const retry = reduce(session(), { type: 'answer', answer: letter('D') }, first);
+    expect(retry.phase).toBe('retry');
+    expect(reduce(retry, { type: 'answer', answer: letter('D') }, first).phase).toBe('reveal');
+  });
+});

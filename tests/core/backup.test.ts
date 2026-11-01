@@ -28,11 +28,21 @@ test.each([
   ],
   ['three tries', JSON.stringify({ v: 1, attempts: [attempt({ tries: 3 as 1 })] })],
   [
-    'a non-pitch answer',
-    JSON.stringify({ v: 1, attempts: [attempt({ answer: { kind: 'letter' } as never })] }),
+    'an answer of an unknown kind',
+    JSON.stringify({ v: 1, attempts: [attempt({ answer: { kind: 'tap' } as never })] }),
   ],
 ])('M4-AC6 %s is refused', (_name, text) => {
   expect(parseBackup(text)).toBeNull();
+});
+
+test('M9-AC5 a letter answer survives a backup, a bad letter is refused', () => {
+  const letter = attempt({ answer: { kind: 'letter', letter: 'F' } });
+  expect(parseBackup(serializeBackup([letter]))).toEqual([letter]);
+  expect(
+    parseBackup(
+      JSON.stringify({ v: 1, attempts: [attempt({ answer: { kind: 'letter', letter: 'H' } as never })] }),
+    ),
+  ).toBeNull();
 });
 
 test('M4-AC6 stats rebuild by replaying attempts oldest first', () => {

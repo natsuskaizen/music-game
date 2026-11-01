@@ -169,7 +169,7 @@
   const marks = $derived(
     new Map<number, KeyMark>([
       ...(heard === undefined ? [] : [[heard, 'heard'] as const]),
-      ...quiz.misses.map((a) => [a.midi, 'wrong'] as const),
+      ...quiz.misses.flatMap((a) => (a.kind === 'pitch' ? [[a.midi, 'wrong'] as const] : [])),
       ...(showsAnswer ? [[target, 'right'] as const] : []),
     ]),
   );
