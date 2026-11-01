@@ -40,6 +40,16 @@ export function keySignatureName(key: KeySignature): string {
   return count === 0 ? '' : `${String(count)} ${kind}${count > 1 ? 's' : ''}`;
 }
 
+const MAJORS = ['C♭', 'G♭', 'D♭', 'A♭', 'E♭', 'B♭', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F♯', 'C♯'];
+const MINORS = ['A♭', 'E♭', 'B♭', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F♯', 'C♯', 'G♯', 'D♯', 'A♯'];
+
+/** A key by name for the picker, e.g. "G major / E minor (1♯)"; the signature count alone confused (M10-3). */
+export function keyLabel(key: KeySignature): string {
+  const count = Math.abs(key);
+  const signs = count === 0 ? 'no ♯ or ♭' : `${String(count)}${key > 0 ? '♯' : '♭'}`;
+  return `${MAJORS[key + 7] ?? ''} major / ${MINORS[key + 7] ?? ''} minor (${signs})`;
+}
+
 /** Every key signature from 7 flats to 7 sharps; the settings offer these (design §14). */
 export const KEY_SIGNATURES: KeySignature[] = Array.from({ length: 15 }, (_, i) => i - 7);
 

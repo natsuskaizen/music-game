@@ -3,6 +3,7 @@ import {
   KEY_SIGNATURES,
   keyAccidental,
   keySignatureMarks,
+  keyLabel,
   keySignatureName,
   keySignatureWidth,
   measureAccidentals,
@@ -133,4 +134,14 @@ describe('sessionKey', () => {
     expect(keyAccidental(2, 'G')).toBe(0);
     expect(keyAccidental(-2, 'E')).toBe(-1);
   });
+});
+
+test('M10-AC3 keyLabel names the major, its relative minor and the signature', () => {
+  expect([0, 1, -3, 7, -7].map(keyLabel)).toEqual([
+    'C major / A minor (no ♯ or ♭)',
+    'G major / E minor (1♯)',
+    'E♭ major / C minor (3♭)',
+    'C♯ major / A♯ minor (7♯)',
+    'C♭ major / A♭ minor (7♭)',
+  ]);
 });
