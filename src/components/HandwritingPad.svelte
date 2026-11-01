@@ -1,8 +1,9 @@
-<!-- Handwriting input (design §3.4, M9-6): write the note's letter with a finger. Once the finger has been lifted
-     for a moment the ink is read as a letter (`recognizeLetter`), answered, and cleared for the next one. -->
+<!-- Handwriting input (design §3.4, M9-6, M10-2): write the note's letter with a finger. Once the finger has been lifted
+     for a moment the ink is read as a letter (`recognizeLetter`), answered with the ♯ or ♭ chosen beside the pad,
+     and cleared for the next one. -->
 <script lang="ts">
   import { recognizeLetter, type Point, type Stroke } from '../core/handwriting';
-  import type { Letter } from '../core/pitch';
+  import type { Accidental } from '../core/pitch';
   import type { InputProps } from '../inputs/types';
 
   let { emit }: InputProps = $props();
@@ -11,7 +12,13 @@
   const PAUSE_MS = 600;
 
   let strokes = $state<Stroke[]>([]);
-  let read = $state<Letter>();
+  let read = $state<string>();
+  let accidental = $state<Accidental>(0);
+  const MARK = { [-1]: '♭', 0: '', 1: '♯' } as const;
+  const CHOICES: { value: Accidental; mark: string; name: string }[] = [
+    { value: 1, mark: '♯', name: 'Sharp' },
+    { value: -1, mark: '♭', name: 'Flat' },
+  ];
   let pad = $state<SVGSVGElement>();
   let drawing = false;
   let pending: ReturnType<typeof setTimeout> | undefined;
@@ -25,8 +32,9 @@
     const letter = recognizeLetter(strokes);
     strokes = [];
     if (!letter) return;
-    read = letter;
-    emit({ kind: 'letter', letter });
+    read = letter + MARK[accidental];
+    emit({ kind: 'letter', letter, ...(accidental && { accidental }) });
+    accidental = 0;
   };
 
   const down = (event: PointerEvent) => {
@@ -66,7 +74,19 @@
       <polyline points={stroke.map((p) => [p.x, p.y].join(',')).join(' ')} />
     {/each}
   </svg>
-  <p class="read" aria-live="polite">{read ? `Read as ${read}` : 'Write A to G with your finger'}</p>
+  <div class="accidentals" role="group" aria-label="Accidental">
+    {#each CHOICES as choice (choice.value)}
+      <button
+        type="button"
+        aria-label={choice.name}
+        aria-pressed={accidental === choice.value}
+        onclick={() => (accidental = accidental === choice.value ? 0 : choice.value)}>{choice.mark}</button
+      >
+    {/each}
+  </div>
+  <p class="read" aria-live="polite">
+    {read ? `Read as ${read}` : 'Write A to G with your finger (tap ♯ or ♭ first for a black key)'}
+  </p>
 </div>
 
 <style>
@@ -90,6 +110,23 @@
     stroke-width: 6;
     stroke-linecap: round;
     stroke-linejoin: round;
+  }
+  .accidentals {
+    display: flex;
+    gap: 0.5rem;
+  }
+  .accidentals button {
+    min-width: 3rem;
+    min-height: 2.75rem;
+    font-size: 1.5rem;
+    color: var(--ink);
+    background: var(--surface);
+    border: var(--surface-border);
+    border-radius: var(--surface-radius);
+  }
+  .accidentals button[aria-pressed='true'] {
+    color: var(--on-accent);
+    background: var(--accent);
   }
   .read {
     margin: 0;

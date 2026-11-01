@@ -8,7 +8,7 @@ import { reduce, startSession, type Answer, type Session } from '../../src/core/
 import { available, inputById } from '../../src/inputs';
 import { register } from '../../src/inputs/registry';
 import type { InputMethod } from '../../src/inputs/types';
-import { isLetter, type ClefNote } from '../../src/core/pitch';
+import { isAccidental, isLetter, type ClefNote } from '../../src/core/pitch';
 import { HANDWRITTEN } from '../fixtures/handwriting';
 import { fakeInput } from './fake-input';
 import { writeOn } from './write-on';
@@ -22,7 +22,7 @@ register(fake);
 const MIDI_RANGE = { lo: 21, hi: 108 }; // A0 to C8, the 88 keys.
 const isWellFormed = (a: Answer) =>
   a.kind === 'letter'
-    ? isLetter(a.letter)
+    ? isLetter(a.letter) && (a.accidental === undefined || isAccidental(a.accidental))
     : Number.isInteger(a.midi) && a.midi >= MIDI_RANGE.lo && a.midi <= MIDI_RANGE.hi;
 
 // Taps the on-screen input's first and last buttons, writes a letter on its pad if it has one, and returns what it emitted.

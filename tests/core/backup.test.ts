@@ -35,6 +35,19 @@ test.each([
   expect(parseBackup(text)).toBeNull();
 });
 
+test('M10-AC2 a letter answer with an accidental survives a backup, a bad accidental is refused', () => {
+  const sharp = attempt({ answer: { kind: 'letter', letter: 'F', accidental: 1 } });
+  expect(parseBackup(serializeBackup([sharp]))).toEqual([sharp]);
+  expect(
+    parseBackup(
+      JSON.stringify({
+        v: 1,
+        attempts: [attempt({ answer: { kind: 'letter', letter: 'F', accidental: 2 } as never })],
+      }),
+    ),
+  ).toBeNull();
+});
+
 test('M9-AC5 a letter answer survives a backup, a bad letter is refused', () => {
   const letter = attempt({ answer: { kind: 'letter', letter: 'F' } });
   expect(parseBackup(serializeBackup([letter]))).toEqual([letter]);

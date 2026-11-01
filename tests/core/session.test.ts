@@ -221,6 +221,18 @@ describe('letter answers', () => {
     expect(gradeAnswer(C4, letter('D'))).toBe(false);
   });
 
+  test("M10-AC2 a letter must carry the note's accidental: F is wrong for F♯, F♯ is wrong for F", () => {
+    const fSharp: ClefNote = { pitch: { letter: 'F', accidental: 1, octave: 5 }, clef: 'treble' };
+    const bFlat: ClefNote = { pitch: { letter: 'B', accidental: -1, octave: 3 }, clef: 'bass' };
+    const F: ClefNote = { pitch: { letter: 'F', octave: 5 }, clef: 'treble' };
+    expect(gradeAnswer(fSharp, { kind: 'letter', letter: 'F', accidental: 1 })).toBe(true);
+    expect(gradeAnswer(fSharp, { kind: 'letter', letter: 'F' })).toBe(false);
+    expect(gradeAnswer(F, { kind: 'letter', letter: 'F', accidental: 1 })).toBe(false);
+    expect(gradeAnswer(F, { kind: 'letter', letter: 'F', accidental: 0 })).toBe(true);
+    expect(gradeAnswer(bFlat, { kind: 'letter', letter: 'B', accidental: 1 })).toBe(false);
+    expect(gradeAnswer(bFlat, { kind: 'letter', letter: 'B', accidental: -1 })).toBe(true);
+  });
+
   test('M9-AC5 a letter answer settles the question and is credited to the note', () => {
     const before = session();
     const after = reduce(before, { type: 'answer', answer: letter('C') }, first);
