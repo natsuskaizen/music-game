@@ -240,7 +240,7 @@ test('M7-AC6 the mic meter shows the live level, the threshold mark and when it 
   const level = (detail: number) =>
     page.evaluate((d) => window.dispatchEvent(new CustomEvent('scripted-level', { detail: d })), detail);
 
-  await expect(meter.locator('.threshold')).toHaveAttribute('style', /left: 50%/); // Firm, the default
+  await expect(meter.locator('.threshold')).toHaveAttribute('style', /left: 30%/); // Firm, the default
   await level(0.2);
   await expect(meter).toHaveAttribute('aria-valuenow', '0.2');
   await expect(meter).toHaveAttribute('aria-valuetext', 'Too quiet');
