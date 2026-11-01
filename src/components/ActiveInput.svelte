@@ -66,7 +66,7 @@
   {:else}
     <p class="listening">
       Listening: {method.label}
-      <MicMeter {level} {minLevel} />
+      {#if method.listens}<MicMeter {level} {minLevel} />{/if}
     </p>
   {/if}
   <Keyboard {mode} {marks} {emit} />
