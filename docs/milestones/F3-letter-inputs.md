@@ -10,4 +10,4 @@ Scheduled as [M9](M9-accidentals-and-letters.md), which holds the acceptance cri
 
 ## Summary (fill in at completion)
 
-_Not started._
+Built in M9 (speech M9-5, handwriting M9-6); see the [M9 Summary](M9-accidentals-and-letters.md#summary-fill-in-at-completion).

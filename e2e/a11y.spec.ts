@@ -25,6 +25,13 @@ for (const theme of THEMES) {
     await expectNoViolations(page);
   });
 
+  test(`M7-AC4 the writing pad has no axe violations (${theme})`, async ({ page }) => {
+    const { quiz } = await openQuiz(page, `?theme=${theme}`);
+    await quiz.getByRole('combobox', { name: 'Input' }).selectOption('handwriting');
+    await expect(quiz.getByRole('application', { name: /Writing pad/ })).toBeVisible();
+    await expectNoViolations(page);
+  });
+
   test(`M7-AC4 the quiz and results have no axe violations (${theme})`, async ({ page }) => {
     await page.goto(`./?theme=${theme}`);
     await page.getByRole('button', { name: 'Settings' }).click();

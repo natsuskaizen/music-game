@@ -81,6 +81,7 @@ function listen(emit: (answer: Answer) => void): Promise<() => void> {
 export const speechInput: HeadlessInput = {
   id: 'speech',
   label: 'Say the letter',
+  ask: "Say this note's letter.",
   isAvailable() {
     return recognizerClass() !== undefined;
   },
