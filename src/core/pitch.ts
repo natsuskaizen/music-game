@@ -16,6 +16,11 @@ export type Clef = 'treble' | 'bass';
 /** Semitones a written accidental moves the letter: flat, natural, sharp. */
 export type Accidental = -1 | 0 | 1;
 
+/** Whether `value` is an accidental, for validating stored or recognized input. */
+export function isAccidental(value: unknown): value is Accidental {
+  return value === -1 || value === 0 || value === 1;
+}
+
 /** A spelled pitch in scientific notation; C4 is middle C. No `accidental` means natural, so pre-M9 pitches and stat keys are unchanged. */
 export interface Pitch {
   letter: Letter;

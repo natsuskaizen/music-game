@@ -36,6 +36,28 @@ describe('M9-AC7 handwriting pad', () => {
     close();
   });
 
+  test('M10-AC2 the pad has sharp and flat controls; the chosen one rides on the next letter, then resets', () => {
+    const { answers, pad, target, close } = openPad();
+    const press = (name: string) => {
+      target.querySelector<HTMLButtonElement>(`button[aria-label="${name}"]`)?.click();
+      flushSync();
+    };
+    press('Sharp');
+    expect(target.querySelector('button[aria-label="Sharp"]')?.getAttribute('aria-pressed')).toBe('true');
+    writeOn(pad, sample('F'));
+    flushSync();
+    expect(answers).toEqual([{ kind: 'letter', letter: 'F', accidental: 1 }]);
+    expect(target.textContent).toContain('Read as F♯');
+
+    writeOn(pad, sample('F'));
+    expect(answers.at(-1)).toEqual({ kind: 'letter', letter: 'F' });
+
+    press('Flat');
+    writeOn(pad, sample('B'));
+    expect(answers.at(-1)).toEqual({ kind: 'letter', letter: 'B', accidental: -1 });
+    close();
+  });
+
   test('M9-AC7 a tap answers nothing', () => {
     const { answers, pad, close } = openPad();
     writeOn(pad, [[{ x: 10, y: 10 }]]);

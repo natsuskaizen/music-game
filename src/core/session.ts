@@ -1,15 +1,18 @@
 // The quiz session as a reducer (design §8.3, §8.4): a miss gets one retry, then the answer is revealed and the
 // session waits for the next event. It ends after `questionsPerSession` questions. Inputs only produce an `Answer` (design §3.4).
-import { midiOf, type ClefNote, type Letter } from './pitch';
+import { midiOf, type Accidental, type ClefNote, type Letter } from './pitch';
 import type { Picker } from './selector';
 import { statKey, type Attempt } from './stats';
 
-/** What an input reports: an exact pitch from keys or the mic, or just a letter from writing or speech (design §3.4, §14). */
-export type Answer = { kind: 'pitch'; midi: number } | { kind: 'letter'; letter: Letter };
+/** What an input reports: an exact pitch from keys or the mic, or a letter with its accidental from writing or speech (design §3.4, §14). No `accidental` means natural. */
+export type Answer =
+  { kind: 'pitch'; midi: number } | { kind: 'letter'; letter: Letter; accidental?: Accidental };
 
-/** Whether `answer` names `note`: a pitch must match the octave (C5 is wrong for C6), a letter ignores it (design §14). */
+/** Whether `answer` names `note`: a pitch must match the octave (C5 is wrong for C6); a letter ignores the octave but not the accidental (F is wrong for F♯, design §14). */
 export function gradeAnswer(note: ClefNote, answer: Answer): boolean {
-  return answer.kind === 'letter' ? answer.letter === note.pitch.letter : answer.midi === midiOf(note.pitch);
+  return answer.kind === 'letter'
+    ? answer.letter === note.pitch.letter && (answer.accidental ?? 0) === (note.pitch.accidental ?? 0)
+    : answer.midi === midiOf(note.pitch);
 }
 
 /** Where a question stands: waiting, second try after one miss, revealed after two, answered right, or session over. */
