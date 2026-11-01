@@ -6,8 +6,8 @@ The living summary of where the project stands. It's auto-loaded into every Clau
 Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
-- **Phase**: every roadmap milestone is built. M9 (`docs/milestones/M9-accidentals-and-letters.md`) stays "In progress" on the roadmap only because its device checks are open and `ac-report` needs one In progress milestone.
-- **Next issue**: none on the roadmap. Open device checks for Stan: M9-AC7 (handwriting with a finger) and AC8 (speech), M8-AC3, M7-AC7, M3-AC6 and AC7.
+- **Phase**: M10 (`docs/milestones/M10-quiz-fixes.md`) is In progress: ten fixes from Stan's device use, one issue and PR each, in order M10-1 to M10-10. M9 is "Built, device checks open".
+- **Next issue**: M10-1 (handwriting G read as C). Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -76,15 +76,15 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | M9 plan | F1 (accidentals, key signatures) and F3 (letter inputs) are one milestone, ordered core → staff → settings → letter answers → speech → handwriting | M9 doc |
 
 ## Milestones
-M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✓ built (device AC open) · M9 ✓ built (device ACs open; still "In progress" for `ac-report`)
+M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓ · M6 ✓ · M7 ✓ built (device AC open) · M8 ✓ built (device AC open) · M9 ✓ built (device ACs open) · M10 ✱ in progress
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M10 kick-off: milestone doc, roadmap row and ten issues. Speech (M9-5) is to be removed (M10-4); the Continue button becomes Skip (M10-6).
 - 2026-11-01: M9-6: handwriting input: write A–G on a pad, read by a $P recognizer (M9-AC7 unit + e2e, 95% of fixtures; finger check manual). M9 Summary filled in.
 - 2026-11-01: M9-5: speech input: say the letter, `lettersIn` maps spoken words to A–G, hidden without a recognizer (M9-AC6 unit; AC8 manual).
 - 2026-11-01: M9-4: letter answers: `Answer` is a pitch or a letter, `gradeAnswer` ignores the octave for letters, backups accept them (M9-AC5 unit).
 - 2026-11-01: M9-3: accidentals and key signature settings; quiz, sequences and review use the spelled pool (M9-AC3, AC4 unit + e2e).
-- 2026-11-01: M9-2: accidentals and key signatures on the staff (glyphs, `core/key-signature.ts`, layout room, gallery examples; M9-AC2 unit + e2e).
 
 ## Known issues / open questions
 - `review.yml` re-runs the AI review on any `labeled` event, not just `review-override`: skipping it would leave a passing "skipped" check that hides a failed review. Labels are rare, so the extra run is accepted.
