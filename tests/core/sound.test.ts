@@ -15,7 +15,7 @@ const next = (s: Session) => reduce(s, { type: 'next' }, first);
 const sound = (over: Partial<SoundSettings> = {}): SoundSettings => ({ ...DEFAULT_SOUND, ...over });
 const retry = press(ask, target + 1);
 const right = press(ask, target);
-const reveal = press(retry, target + 2);
+const reveal = reduce(retry, { type: 'skip' }, first);
 
 describe('noteToPlay', () => {
   test('M3-AC2 by default a settled question plays its note and nothing else does', () => {
@@ -27,7 +27,7 @@ describe('noteToPlay', () => {
     expect(noteToPlay(right, next(right), sound())).toBeUndefined();
   });
 
-  test('M3-AC2 taps after a reveal do not replay the note', () => {
+  test('M3-AC2 taps after a skip do not replay the note', () => {
     expect(noteToPlay(reveal, press(reveal, target), sound())).toBeUndefined();
   });
 

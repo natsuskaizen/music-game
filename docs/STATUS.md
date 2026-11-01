@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M10 (`docs/milestones/M10-quiz-fixes.md`) is In progress: ten fixes from Stan's device use, one issue and PR each, in order M10-1 to M10-10. M9 is "Built, device checks open".
-- **Next issue**: M10-6 (Skip replaces Continue). M10-5 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
+- **Next issue**: M10-7 (keyboard highlights fade). M10-6 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -16,7 +16,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 | Framework | Svelte 5 + SVG (Bravura) + GSAP; Phaser 4 evaluated, not chosen | `docs/frameworks.md` |
 | Hosting | GitHub Pages, deploy only when all gates are green | roadmap |
 | Inputs | Pluggable `InputMethod` registry: on-screen piano (M2), mic (M3); letter pad dropped; default in Settings, switchable mid-quiz | design §3.4, §14 |
-| Wrong answers | Retry once, reveal, wait for Continue (never auto-advance) | design §8.4 |
+| Wrong answers | A miss keeps the question open; keep trying until right, or Skip (miss + sound + move on); never auto-advance (M10-6) | design §8.4 |
 | Answer precision | `exactOctave` setting for octave-aware inputs | design §9 |
 | Note selection | Weighted: ledger lines, weakness, slowness, staleness | design §7.3 |
 | Workflow | Milestone → issues → one PR per issue; code-reviewer agent (CI only) + static quality gates on every PR | roadmap |
@@ -79,6 +79,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M10-6: no Continue button: a miss leaves the question open, Skip counts a miss, plays the note and moves on; `SessionEvent` gains `skip`, `answerContinues` and the staff's `revealed` label are gone (M10-AC6 unit + e2e).
 - 2026-11-01: M10-5: mic levels lowered to Soft 0.15 / Firm 0.3 / Loud 0.45 (default Firm) and the detector floor to −55 dB; a quiet fixture is heard on Soft, not on the old Soft (M10-AC5 unit; piano check manual). Stored old levels fall back to the default.
 - 2026-11-01: M10-4: speech input removed (`inputs/speech.ts`, `core/speech.ts`, tests, docs); a stored `speech` input id falls back to the piano. Retires M9-AC6 and AC8 (M10-AC4 unit).
 - 2026-11-01: M10-3: the key picker lists keys by name with the relative minor and signature ("G major / E minor (1♯)"); `keyLabel` in `key-signature.ts`; stored values unchanged (M10-AC3 unit + e2e).

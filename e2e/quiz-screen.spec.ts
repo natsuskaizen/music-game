@@ -1,4 +1,4 @@
-// The M2 quiz screen (design §8.1, §8.4): retry, reveal, Continue, the grand staff, and switching input mid-quiz.
+// The M2 quiz screen (design §8.1, §8.4): retry, Skip, the grand staff, and switching input mid-quiz.
 // The e2e build adds a scripted headless input (src/inputs/scripted.ts) as the second input.
 import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -8,7 +8,7 @@ import { openQuiz, pitchOfLabel, staffTarget } from './quiz-page';
 import { midiOf, staffPos } from '../src/core/pitch';
 import { stavesFor, yOf } from '../src/core/staff-layout';
 
-const RETRY = 'Not quite. One more try.';
+const RETRY = 'Not quite. Keep trying, or skip.';
 
 // Answers with the scripted input, as a real headless input such as the mic would.
 async function scriptedAnswer(page: Page, label: string) {
@@ -30,20 +30,16 @@ test('M2-AC3 a first miss allows a second try and the question stays', async ({ 
   await expect(quiz.getByText('First try 0%')).toBeVisible();
 });
 
-test('M2-AC4 a second miss reveals the note and only Continue moves on', async ({ page }) => {
-  const { quiz, staffName, target, wrongKeys, key } = await openQuiz(page);
+test('M10-AC6 misses keep the question open, a hit still counts, and Skip moves on', async ({ page }) => {
+  const { quiz, staffName, wrongKeys } = await openQuiz(page);
   await wrongKeys.nth(0).click();
   await wrongKeys.nth(1).click();
-  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
-  await expect(quiz.locator('.note .name')).toHaveText(target);
-
-  await page.waitForTimeout(1500);
-  await key(target).click();
   await wrongKeys.nth(2).click();
-  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
+  await page.waitForTimeout(1500);
+  await expect(quiz.getByText(RETRY)).toBeVisible();
   await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', staffName);
 
-  await quiz.getByRole('button', { name: 'Continue' }).click();
+  await quiz.getByRole('button', { name: 'Skip' }).click();
   await expect(quiz.getByText('Find this note on the keyboard.')).toBeVisible();
   await expect(quiz.getByRole('img')).not.toHaveAttribute('aria-label', staffName);
 });
@@ -87,13 +83,14 @@ test('M2-AC8 switching input mid-quiz keeps the question and its tries', async (
   await expect(quiz.locator('.key.wrong')).toHaveCount(1); // the keyboard stays, to show the heard key
   await expect(quiz.getByText(RETRY)).toBeVisible();
   await scriptedAnswer(page, secondMiss);
-  await expect(quiz.getByText(`It's ${target}. Play it or tap Continue.`)).toBeVisible();
+  await expect(quiz.getByText(RETRY)).toBeVisible();
   await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', staffName);
 
   await switcher.selectOption('piano');
   await expect(quiz.locator('.key.wrong')).toHaveCount(2);
   await expect(key(secondMiss)).toHaveClass(/wrong/);
-  await expect(key(target)).toHaveClass(/right/);
+  await key(target).click();
+  await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
 });
 
 test('M2-AC8 a miss on one input and a hit on the other is a second-try answer', async ({ page }) => {
@@ -111,7 +108,7 @@ test('M2-AC8 a miss on one input and a hit on the other is a second-try answer',
   await expect(quiz.getByText('Streak 0')).toBeVisible();
 });
 
-test('M3-AC11 with a listening input, playing the revealed note moves on and a miss does not', async ({
+test('M10-AC6 with a listening input, playing the note moves on, a miss does not, and Skip does', async ({
   page,
 }) => {
   const { quiz, staffName, target, wrongKeys } = await openQuiz(page);
@@ -120,14 +117,17 @@ test('M3-AC11 with a listening input, playing the revealed note moves on and a m
   const miss = (await wrongKeys.nth(0).getAttribute('aria-label')) ?? '';
   await scriptedAnswer(page, miss);
   await scriptedAnswer(page, miss);
-  await expect(quiz.getByText(`It's ${target}. Play it or tap Continue.`)).toBeVisible();
-  await scriptedAnswer(page, miss);
+  await expect(quiz.getByText(RETRY)).toBeVisible();
   await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', staffName);
 
   await scriptedAnswer(page, target);
   await expect(quiz.getByText('Play this note.')).toBeVisible();
   await expect(quiz.getByRole('img')).not.toHaveAttribute('aria-label', staffName);
   await expect(quiz.getByText('First try 0%')).toBeVisible();
+
+  const second = (await quiz.getByRole('img').getAttribute('aria-label')) ?? '';
+  await quiz.getByRole('button', { name: 'Skip' }).click();
+  await expect(quiz.getByRole('img')).not.toHaveAttribute('aria-label', second);
 });
 
 test('M3-AC12 the heard note shows on the staff at its position, and leaves with silence', async ({
@@ -157,25 +157,28 @@ test('M3-AC12 the heard note shows on the staff at its position, and leaves with
   await expect(mark).toHaveCount(0);
 });
 
+/** How many attempts IndexedDB holds. */
+const storedAttempts = (page: Page) =>
+  page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((resolve) => {
+      const open = indexedDB.open('sight-reading');
+      open.onsuccess = () => {
+        resolve(open.result);
+      };
+    });
+    return new Promise<number>((resolve) => {
+      const count = db.transaction('attempts').objectStore('attempts').count();
+      count.onsuccess = () => {
+        resolve(count.result);
+      };
+    });
+  });
+
 test('M4-4 answers are kept on the device and survive a reload', async ({ page }) => {
   const { quiz, target, key } = await openQuiz(page);
   await key(target).click();
   await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
-  const stored = () =>
-    page.evaluate(async () => {
-      const db = await new Promise<IDBDatabase>((resolve) => {
-        const open = indexedDB.open('sight-reading');
-        open.onsuccess = () => {
-          resolve(open.result);
-        };
-      });
-      return new Promise<number>((resolve) => {
-        const count = db.transaction('attempts').objectStore('attempts').count();
-        count.onsuccess = () => {
-          resolve(count.result);
-        };
-      });
-    });
+  const stored = () => storedAttempts(page);
   await expect.poll(stored).toBe(1);
   await page.reload();
   expect(await stored()).toBe(1);
@@ -184,9 +187,8 @@ test('M4-4 answers are kept on the device and survive a reload', async ({ page }
 test('M4-AC5 review draws only the weak note and ends when it is learned', async ({ page }) => {
   const { quiz, target, wrongKeys, key } = await openQuiz(page, '', 'treble');
   await wrongKeys.nth(0).click();
-  await wrongKeys.nth(1).click();
-  await expect(quiz.getByText(`It's ${target}. Tap Continue.`)).toBeVisible();
-  await quiz.getByRole('button', { name: 'Continue' }).click();
+  await quiz.getByRole('button', { name: 'Skip' }).click();
+  await expect.poll(() => storedAttempts(page)).toBe(1);
   await quiz.getByRole('button', { name: 'Home' }).click();
 
   await page.getByRole('button', { name: 'Review weak notes (1)' }).click();

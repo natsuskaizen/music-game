@@ -8,7 +8,7 @@ test('M7-AC3 reduced motion: a right answer shows no sparks and moves on at once
 }) => {
   const { quiz, wrongKeys, key, target } = await openQuiz(page, '?theme=storybook');
   await wrongKeys.first().click();
-  await expect(quiz.getByText('Not quite. One more try.')).toBeVisible();
+  await expect(quiz.getByText('Not quite. Keep trying, or skip.')).toBeVisible();
   await key(target).click();
   await expect(quiz.locator('.spark')).toHaveCount(0);
 });

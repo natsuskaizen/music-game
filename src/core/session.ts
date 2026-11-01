@@ -1,5 +1,5 @@
-// The quiz session as a reducer (design §8.3, §8.4): a miss gets one retry, then the answer is revealed and the
-// session waits for the next event. It ends after `questionsPerSession` questions. Inputs only produce an `Answer` (design §3.4).
+// The quiz session as a reducer (design §8.3, §8.4): a miss keeps the question open for more tries until it is
+// answered right or skipped, and a skip reveals the answer. It ends after `questionsPerSession` questions. Inputs only produce an `Answer` (design §3.4).
 import { midiOf, type Accidental, type ClefNote, type Letter } from './pitch';
 import type { Picker } from './selector';
 import { statKey, type Attempt } from './stats';
@@ -15,12 +15,17 @@ export function gradeAnswer(note: ClefNote, answer: Answer): boolean {
     : answer.midi === midiOf(note.pitch);
 }
 
-/** Where a question stands: waiting, second try after one miss, revealed after two, answered right, or session over. */
+/** Where a question stands: waiting, open after a miss, skipped (revealed), answered right, or session over. */
 type Phase = 'ask' | 'retry' | 'reveal' | 'right' | 'done';
 
-/** Whether the question is settled (answered right, or revealed), so the answer shows and `next` may move on. */
+/** Whether the question is settled (answered right, or skipped), so `next` may move on. */
 export function isSettled(phase: Phase): boolean {
   return phase === 'right' || phase === 'reveal';
+}
+
+/** Whether the question still takes answers and skips: asked, or missed at least once. */
+export function isOpen(phase: Phase): boolean {
+  return phase === 'ask' || phase === 'retry';
 }
 
 /** One session: its note pool and question count, the current question, and the running score. */
@@ -41,8 +46,9 @@ export function withPool(s: Session, pool: ClefNote[]): Session {
   return { ...s, pool };
 }
 
-/** What the UI can tell the session: an answer, `next` after a right answer's animation or the Continue tap, or `timeUp` when the sprint ends. */
-export type SessionEvent = { type: 'answer'; answer: Answer } | { type: 'next' } | { type: 'timeUp' };
+/** What the UI can tell the session: an answer, `skip` to give up on the question, `next` after a right answer's animation or a skip, or `timeUp` when the sprint ends. */
+export type SessionEvent =
+  { type: 'answer'; answer: Answer } | { type: 'skip' } | { type: 'next' } | { type: 'timeUp' };
 
 /** A fresh session with an empty score and its first note from `pool`. */
 export function startSession(
@@ -55,20 +61,24 @@ export function startSession(
 }
 
 /**
- * Applies one event. Events that don't fit the phase (an answer during a reveal, `next` while asking) change nothing.
+ * Applies one event. Events that don't fit the phase (an answer after a skip, `next` while asking) change nothing.
  * `timeUp` ends the session at once; the unfinished question was never counted, so it is not a miss (design §14).
  */
 export function reduce(s: Session, e: SessionEvent, pick: Picker): Session {
   if (e.type === 'timeUp') return { ...s, phase: 'done' };
-  if (e.type === 'answer') return s.phase === 'ask' || s.phase === 'retry' ? answer(s, e.answer) : s;
-  return isSettled(s.phase) ? next(s, pick) : s;
+  if (e.type === 'next') return isSettled(s.phase) ? next(s, pick) : s;
+  if (!isOpen(s.phase)) return s;
+  return e.type === 'answer' ? answer(s, e.answer) : skip(s);
 }
 
 function answer(s: Session, a: Answer): Session {
   if (gradeAnswer(s.note, a)) return scoreRight(s);
-  const misses = [...s.misses, a];
-  if (s.phase === 'ask') return { ...s, phase: 'retry', misses };
-  return { ...s, phase: 'reveal', misses, streak: 0, total: s.total + 1 };
+  return { ...s, phase: 'retry', misses: [...s.misses, a] };
+}
+
+// Giving up counts as a miss and shows the answer.
+function skip(s: Session): Session {
+  return { ...s, phase: 'reveal', streak: 0, total: s.total + 1 };
 }
 
 function scoreRight(s: Session): Session {
@@ -86,14 +96,6 @@ function next(s: Session, pick: Picker): Session {
   const finished = s.questionsPerSession !== undefined && s.total >= s.questionsPerSession;
   if (finished || s.pool.length === 0) return { ...s, phase: 'done' };
   return { ...s, note: pick(s.pool, s.note), phase: 'ask', misses: [] };
-}
-
-/**
- * Whether an answer stands in for the Continue tap: playing the revealed note moves on, so someone at a real piano
- * keeps their hands on the keys (design §8.4). A miss still never moves on.
- */
-export function answerContinues(s: Session, a: Answer): boolean {
-  return s.phase === 'reveal' && gradeAnswer(s.note, a);
 }
 
 /** The attempt a question just settled into, or `undefined` if `after` is not a newly settled question. */
