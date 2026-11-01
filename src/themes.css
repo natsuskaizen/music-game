@@ -17,6 +17,7 @@
   --on-accent: #fbf6ea;
   --right: #3f6b35;
   --wrong: #a3321c;
+  --current: #1f5f99;
   --piano-case: #3a2c20;
   --key-white: #fdf9ef;
   --key-white-edge: #cdbf9f;
@@ -47,6 +48,7 @@
   --on-accent: #ffffff;
   --right: #1e7a44;
   --wrong: #cc2f4b;
+  --current: #2459c7;
   --piano-case: #3b2f73;
   --key-white: #ffffff;
   --key-white-edge: #c9c2ef;
@@ -77,6 +79,7 @@
   --on-accent: #0b0620;
   --right: #39ff88;
   --wrong: #ff6b86;
+  --current: #6aa8ff;
   --piano-case: #05020e;
   --key-white: #221a4d;
   --key-white-edge: #00e5ff;

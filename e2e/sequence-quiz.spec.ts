@@ -12,7 +12,7 @@ async function scriptedAnswer(page: Page, label: string) {
   await page.evaluate((detail) => window.dispatchEvent(new CustomEvent('scripted-answer', { detail })), midi);
 }
 
-test('M5-AC2 M10-AC8 a sequence moves on only with Skip or the right note, and ends after every note', async ({
+test('M5-AC2 M10-AC8 M10-AC9 a sequence moves on only with Skip or the right note, and ends after every note', async ({
   page,
 }) => {
   await page.goto('./');
@@ -31,6 +31,8 @@ test('M5-AC2 M10-AC8 a sequence moves on only with Skip or the right note, and e
   const current = quiz.locator('.note.current');
   for (let i = 0; i < 4; i++) {
     await expect(current).toHaveCount(1);
+    // M10-AC9: the current note carries a halo; settled notes do not.
+    await expect(quiz.locator('.current-halo')).toHaveCount(1);
     await scriptedAnswer(page, MISS);
     await scriptedAnswer(page, MISS);
     await expect(quiz.getByText('Not quite. Keep trying, or skip.')).toBeVisible();

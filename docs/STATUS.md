@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M10 (`docs/milestones/M10-quiz-fixes.md`) is In progress: ten fixes from Stan's device use, one issue and PR each, in order M10-1 to M10-10. M9 is "Built, device checks open".
-- **Next issue**: M10-9. M10-8 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
+- **Next issue**: M10-10. M10-9 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -79,6 +79,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M10-9: the current note in a sequence gets a soft halo and the new `--current` theme token (blue in each theme, distinct from `--wrong`, ≥ 4.5:1 on the surface); `Staff` `.note.current` no longer uses `--accent` (M10-AC9 unit + e2e).
 - 2026-11-01: M10-8: sequence mode already advanced only on the right note (and Skip) after M10-6's reducer; added the AC8 unit test and tagged the e2e (M10-AC8). No code change.
 - 2026-11-01: M10-7: keyboard right/wrong highlights fade out after 0.9 s (`core/flash.ts`, a CSS fade, none under reduced motion); `Quiz` flashes on each answer, so the session keeps no key marks; a repeat tap on a key lights it again once it has faded (M10-AC7 unit + e2e).
 - 2026-11-01: M10-6: no Continue button: a miss leaves the question open, Skip counts a miss, plays the note and moves on; `SessionEvent` gains `skip`, `answerContinues` and the staff's `revealed` label are gone (M10-AC6 unit + e2e).
