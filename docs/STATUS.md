@@ -7,7 +7,7 @@ Keep it under ~60 lines: link to docs, don't copy them.
 
 ## Now
 - **Phase**: M10 (`docs/milestones/M10-quiz-fixes.md`) is In progress: ten fixes from Stan's device use, one issue and PR each, in order M10-1 to M10-10. M9 is "Built, device checks open".
-- **Next issue**: M10-1 (handwriting G read as C). Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
+- **Next issue**: M10-2 (letter answers need the accidental). M10-1 is in review. Open device checks for Stan: M9-AC7 (handwriting with a finger), M8-AC3, M7-AC7, M3-AC6 and AC7.
 - **Blocked on Stan**: nothing.
 
 ## Decisions so far
@@ -80,6 +80,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
+- 2026-11-01: M10-1: handwriting reads G: three more G templates (short bar, low bar, hook) and a near-closed C template so C doesn't drift to G; fixtures add four hard G forms (M10-AC1 unit; finger check is M9-AC7).
 - 2026-11-01: M10 kick-off: milestone doc, roadmap row and ten issues. Speech (M9-5) is to be removed (M10-4); the Continue button becomes Skip (M10-6).
 - 2026-11-01: M9-6: handwriting input: write A–G on a pad, read by a $P recognizer (M9-AC7 unit + e2e, 95% of fixtures; finger check manual). M9 Summary filled in.
 - 2026-11-01: M9-5: speech input: say the letter, `lettersIn` maps spoken words to A–G, hidden without a recognizer (M9-AC6 unit; AC8 manual).

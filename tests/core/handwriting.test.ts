@@ -13,6 +13,13 @@ describe('M9-AC7 handwritten letters', () => {
     }
   });
 
+  test('M10-AC1 reads a written G as G (at least 90%), including short bars, low bars and hooks', () => {
+    const gs = HANDWRITTEN.filter((f) => f.letter === 'G');
+    const read = gs.map(({ strokes }) => recognizeLetter(strokes));
+    expect(read.filter((l) => l === 'G').length / gs.length).toBeGreaterThanOrEqual(0.9);
+    expect(read.filter((l) => l === 'C').length / gs.length).toBeLessThanOrEqual(0.05);
+  });
+
   test('M9-AC7 reads the same letter at any size and place on the pad', () => {
     const [{ letter, strokes }] = HANDWRITTEN as [(typeof HANDWRITTEN)[number]];
     const moved = strokes.map((s) => s.map((p) => ({ x: p.x * 3 + 200, y: p.y * 3 - 50 })));
