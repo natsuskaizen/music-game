@@ -79,7 +79,7 @@ M0 ✓ · M1 ✓ · M2 ✓ · M3 ✓ built (device ACs open) · M4 ✓ · M5 ✓
 (✓ done, ✱ in progress, ○ not started)
 
 ## Recent
-- 2026-11-01: M10-7: keyboard right/wrong highlights fade out after 0.9 s (`core/flash.ts`, a CSS fade, none under reduced motion); `Quiz` flashes on each answer, so the session keeps no key marks and a repeat tap on the same key lights it again (M10-AC7 unit + e2e).
+- 2026-11-01: M10-7: keyboard right/wrong highlights fade out after 0.9 s (`core/flash.ts`, a CSS fade, none under reduced motion); `Quiz` flashes on each answer, so the session keeps no key marks; a repeat tap on a key lights it again once it has faded (M10-AC7 unit + e2e).
 - 2026-11-01: M10-6: no Continue button: a miss leaves the question open, Skip counts a miss, plays the note and moves on; `SessionEvent` gains `skip`, `answerContinues` and the staff's `revealed` label are gone (M10-AC6 unit + e2e).
 - 2026-11-01: M10-5: mic levels lowered to Soft 0.15 / Firm 0.3 / Loud 0.45 (default Firm) and the detector floor to −55 dB; a quiet fixture is heard on Soft, not on the old Soft (M10-AC5 unit; piano check manual). Stored old levels fall back to the default.
 - 2026-11-01: M10-4: speech input removed (`inputs/speech.ts`, `core/speech.ts`, tests, docs); a stored `speech` input id falls back to the piano. Retires M9-AC6 and AC8 (M10-AC4 unit).
