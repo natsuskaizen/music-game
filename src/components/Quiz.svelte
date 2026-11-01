@@ -9,8 +9,9 @@
   import { SvelteMap } from 'svelte/reactivity';
   import { needsRingerHint, setIgnoreSilentSwitch } from '../audio/context';
   import { loadPiano, playPitch } from '../audio/piano';
+  import { sessionKey } from '../core/key-signature';
   import { midiOf, pitchLabel } from '../core/pitch';
-  import { notePool } from '../core/ranges';
+  import { notePool, reviewPool } from '../core/ranges';
   import { sequenceNotes, startRun, stepRun, type SequenceRun } from '../core/cursor';
   import { makeSequence, type Measure } from '../core/sequence';
   import {
@@ -29,7 +30,7 @@
   import { learnedPicker, weightsFor } from '../core/selector';
   import { summarize } from '../core/results';
   import { noteToPlay } from '../core/sound';
-  import { applyAttempt, newStat, weakNotes, type Attempt, type NoteStat } from '../core/stats';
+  import { applyAttempt, newStat, type Attempt, type NoteStat } from '../core/stats';
   import type { Theme } from '../core/theme';
   import { celebrates } from '../core/streak';
   import { feedbackFor, prefersReducedMotion } from './feedback';
@@ -81,7 +82,12 @@
     now: Date.now(),
     random: Math.random,
   }));
-  const fullPool = () => notePool(settings.clef, settings.difficulty);
+  // The key signature of this session: a random choice is drawn again on Play again (design §14).
+  // Review is written in C major, so each weak note shows its own accidental, whatever key it was missed in.
+  let key = $state(0);
+  const weakPool = () => reviewPool(settings.clef, settings.difficulty, stats);
+  const fullPool = () =>
+    notePool(settings.clef, settings.difficulty, { key, accidentals: settings.accidentals });
   // Review draws only weak notes and runs until none remain; a normal quiz runs for the chosen question count.
   // Sequence mode: the measures on the staff, the run walking them, and how each settled note went.
   // svelte-ignore state_referenced_locally
@@ -95,12 +101,14 @@
     run = startRun(sequenceNotes(measures));
     return run.session;
   }
-  const begin = () =>
-    review
-      ? startSession(weakNotes(fullPool(), stats), undefined, pick)
+  const begin = () => {
+    key = review ? 0 : sessionKey(settings.key, Math.random);
+    return review
+      ? startSession(weakPool(), undefined, pick)
       : sequenced
         ? beginSequence()
         : startSession(fullPool(), settings.questionsPerSession || undefined, pick);
+  };
   // One event through the cursor in sequence mode, else straight through the session.
   function step(event: SessionEvent): Session {
     if (!run) return reduce(quiz, event, pick);
@@ -145,7 +153,7 @@
     stats.set(attempt.key, applyAttempt(stats.get(attempt.key) ?? newStat(attempt.key), attempt));
     recordAttempt(attempt).catch(() => undefined);
     // A note that is no longer weak drops out of the review pool, and the session ends when the pool is empty.
-    if (review) quiz = withPool(quiz, weakNotes(fullPool(), stats));
+    if (review) quiz = withPool(quiz, weakPool());
   }
 
   // Settled notes in order, then the one in play once it has settled.
@@ -260,10 +268,11 @@
     />
   {:else}
     {#if run}
-      <Staff mode={settings.clef} sequence={measures} marks={sequenceMarks} current={run.index} />
+      <Staff mode={settings.clef} {key} sequence={measures} marks={sequenceMarks} current={run.index} />
     {:else}
       <Staff
         mode={settings.clef}
+        {key}
         note={quiz.note}
         mark={quiz.phase === 'right' ? 'right' : quiz.phase === 'ask' ? undefined : 'wrong'}
         revealed={quiz.phase === 'reveal'}

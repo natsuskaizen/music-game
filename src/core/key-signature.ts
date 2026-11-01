@@ -1,4 +1,4 @@
-// Key signatures and the accidentals a note shows (M9-2, design §3.1). Pure, so the Staff component only draws.
+// Key signatures, the accidentals a note shows, and how a key spells the note pool (M9-2, M9-3, design §3.1). Pure, so the Staff component only draws.
 import { staffPos, type Accidental, type ClefNote, type Pitch } from './pitch';
 import { SPACE } from './staff-layout';
 
@@ -40,7 +40,19 @@ export function keySignatureName(key: KeySignature): string {
   return count === 0 ? '' : `${String(count)} ${kind}${count > 1 ? 's' : ''}`;
 }
 
-function keyAccidental(key: KeySignature, letter: Pitch['letter']): Accidental {
+/** Every key signature from 7 flats to 7 sharps; the settings offer these (design §14). */
+export const KEY_SIGNATURES: KeySignature[] = Array.from({ length: 15 }, (_, i) => i - 7);
+
+/** The key setting: a fixed key signature, or a new random one each session. */
+export type KeyChoice = KeySignature | 'random';
+
+/** The key signature a session reads in: the chosen one, or one drawn from `KEY_SIGNATURES` for `random`. */
+export function sessionKey(choice: KeyChoice, random: () => number): KeySignature {
+  return choice === 'random' ? (KEY_SIGNATURES[Math.floor(random() * KEY_SIGNATURES.length)] ?? 0) : choice;
+}
+
+/** How a key signature alters a letter: F in G major sounds F♯, so this is +1. */
+export function keyAccidental(key: KeySignature, letter: Pitch['letter']): Accidental {
   const altered = (key > 0 ? SHARP_ORDER : FLAT_ORDER).slice(0, Math.abs(key));
   return altered.includes(letter) ? (Math.sign(key) as Accidental) : 0;
 }
@@ -57,5 +69,33 @@ export function measureAccidentals(notes: ClefNote[], key: KeySignature): (Accid
     const written = note.pitch.accidental ?? 0;
     inForce.set(where, written);
     return written === current ? undefined : written;
+  });
+}
+
+/** How a pool is spelled: the key signature, and whether written accidentals (♯, ♭, ♮ against the key) are asked too. */
+export interface Spelling {
+  key: KeySignature;
+  accidentals: boolean;
+}
+
+const ALTERATIONS: Accidental[] = [-1, 0, 1];
+// Rare spellings of a white key; only a key signature that has them (C♭, F♭ in flat keys, E♯, B♯ in sharp keys) asks for them.
+const RARE = new Set(['E1', 'B1', 'C-1', 'F-1']);
+
+const spelled = (natural: ClefNote, accidental: Accidental): ClefNote =>
+  accidental === 0 ? natural : { ...natural, pitch: { ...natural.pitch, accidental } };
+
+/**
+ * Spells natural notes for a key: each note sounds as the key signature says (F in G major is F♯), and with
+ * `accidentals` it also comes flat, natural and sharp, minus rare spellings like E♯. A natural stays without an `accidental`
+ * field, so C major without accidentals returns the pool unchanged (M9-AC3).
+ */
+export function spellNotes(pool: ClefNote[], { key, accidentals }: Spelling): ClefNote[] {
+  return pool.flatMap((note) => {
+    const inKey = keyAccidental(key, note.pitch.letter);
+    const options = accidentals
+      ? ALTERATIONS.filter((a) => a === inKey || !RARE.has(`${note.pitch.letter}${String(a)}`))
+      : [inKey];
+    return options.map((accidental) => spelled(note, accidental));
   });
 }

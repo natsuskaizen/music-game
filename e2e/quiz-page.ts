@@ -8,9 +8,13 @@ export async function staffTarget(quiz: Locator): Promise<{ staffName: string; t
   return { staffName, target: staffName.split(' ')[0] ?? '' };
 }
 
-/** The pitch of a key or note label such as "C4". */
+const ACCIDENTALS: Record<string, Pitch['accidental']> = { '#': 1, b: -1 };
+
+/** The pitch of a note label such as "C4", "F#5" or "Bb3". */
 export function pitchOfLabel(label: string): Pitch {
-  return { letter: label[0] as Pitch['letter'], octave: Number(label.slice(1)) };
+  const accidental = ACCIDENTALS[label[1] ?? ''];
+  const octave = Number(label.slice(accidental ? 2 : 1));
+  return { letter: label[0] as Pitch['letter'], octave, ...(accidental && { accidental }) };
 }
 
 /** Opens the quiz from Home (`query` such as "?theme=arcade", optional `clef`) and returns it with its current note and key locators. */

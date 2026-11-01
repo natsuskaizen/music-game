@@ -102,3 +102,17 @@ describe('migrateSettings theme', () => {
     expect(migrateSettings({ theme: 'neon' }).theme).toBe('paper');
   });
 });
+
+describe('migrateSettings accidentals and key', () => {
+  test('M9-AC3 accidentals are off and the key is C major by default, so old settings play as before', () => {
+    const old = migrateSettings({ clef: 'bass', difficulty: 'hard' });
+    expect([old.accidentals, old.key]).toEqual([false, 0]);
+  });
+
+  test('M9-AC4 a stored key from 7 flats to 7 sharps or random is kept; anything else is C major', () => {
+    expect(migrateSettings({ accidentals: true, key: -7 })).toMatchObject({ accidentals: true, key: -7 });
+    expect(migrateSettings({ key: 'random' }).key).toBe('random');
+    expect(migrateSettings({ key: 8 }).key).toBe(0);
+    expect(migrateSettings({ key: '2' }).key).toBe(0);
+  });
+});

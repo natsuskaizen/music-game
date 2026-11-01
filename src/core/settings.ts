@@ -1,5 +1,6 @@
 // Saved settings (design §9): small, read synchronously at startup, kept in localStorage.
 // `migrateSettings` makes any stored value safe, so an app update or a hand-edited value never breaks the app.
+import { KEY_SIGNATURES, type KeyChoice } from './key-signature';
 import { DEFAULT_MIC_LEVEL, MIC_LEVELS } from './listen';
 import type { Difficulty } from './ranges';
 import { DEFAULT_SOUND, VOLUMES, type SoundSettings } from './sound';
@@ -30,6 +31,10 @@ export interface Settings {
   timer: boolean;
   /** Look and feel (design §14). */
   theme: Theme;
+  /** Ask sharps, flats and naturals written against the key (M9). Off by default, so play is as before. */
+  accidentals: boolean;
+  /** Key signature: a fixed one (0 is none) or a random one per session (M9). */
+  key: KeyChoice;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -43,7 +48,11 @@ export const DEFAULT_SETTINGS: Settings = {
   micLevel: DEFAULT_MIC_LEVEL,
   timer: false,
   theme: 'paper',
+  accidentals: false,
+  key: 0,
 };
+
+const KEY_CHOICES: KeyChoice[] = [...KEY_SIGNATURES, 'random'];
 
 const KEY = 'settings';
 
@@ -84,6 +93,8 @@ export function migrateSettings(raw: unknown): Settings {
     micLevel: oneOf(stored.micLevel, MIC_LEVELS, d.micLevel),
     timer: flag(stored.timer, d.timer),
     theme: oneOf(stored.theme, THEME_IDS, d.theme),
+    accidentals: flag(stored.accidentals, d.accidentals),
+    key: oneOf(stored.key, KEY_CHOICES, d.key),
   };
 }
 
