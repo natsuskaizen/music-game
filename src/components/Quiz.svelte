@@ -36,7 +36,7 @@
   import { feedbackFor, prefersReducedMotion } from './feedback';
   import { available, inputById } from '../inputs';
   import { loadStats, recordAttempt, requestPersistence } from '../storage/db';
-  import type { KeyMark } from '../inputs/types';
+  import { addFlash, dropFlash, FLASH_MS, keyMarks, type Flash } from '../core/flash';
   import ActiveInput from './ActiveInput.svelte';
   import Results from './Results.svelte';
   import SprintBar from './SprintBar.svelte';
@@ -160,18 +160,22 @@
   const sequenceMarks = $derived([...outcomes, ...(quiz.phase === 'right' ? (['right'] as const) : [])]);
   const target = $derived(midiOf(quiz.note.pitch));
   const name = $derived(pitchLabel(quiz.note.pitch));
-  const showsAnswer = $derived(isSettled(quiz.phase));
   // Open for answers: a skip or an answer only counts while the question is not settled.
   const open = $derived(isOpen(quiz.phase));
   // The note a listening input hears right now; an answer's own mark wins over it.
   let heard = $state<number>();
-  const marks = $derived(
-    new Map<number, KeyMark>([
-      ...(heard === undefined ? [] : [[heard, 'heard'] as const]),
-      ...quiz.misses.flatMap((a) => (a.kind === 'pitch' ? [[a.midi, 'wrong'] as const] : [])),
-      ...(showsAnswer ? [[target, 'right'] as const] : []),
-    ]),
-  );
+  // Right and wrong keys light up for FLASH_MS, then fade; nothing about them is kept in the session.
+  let flashes = $state<Flash[]>([]);
+  let flashId = 0;
+  const marks = $derived(keyMarks(flashes, heard));
+
+  function flash(midi: number, mark: Flash['mark']) {
+    const id = ++flashId;
+    flashes = addFlash(flashes, { id, midi, mark });
+    setTimeout(() => {
+      flashes = dropFlash(flashes, id);
+    }, FLASH_MS);
+  }
 
   // The first note; later ones enter from advance(). The note group persists, so animating it right away is safe.
   $effect(() => {
@@ -225,6 +229,9 @@
     quiz = step({ type: 'answer', answer });
     record(before, quiz, answer);
     sound(before, quiz);
+    if (quiz.phase === 'right') flash(target, 'right');
+    else if (answer.kind === 'pitch' && quiz.misses.length > before.misses.length)
+      flash(answer.midi, 'wrong');
     if (streakEl && celebrates(before.streak, quiz.streak)) feedback.celebrate(streakEl);
     if (quiz.phase !== before.phase || quiz.misses.length > before.misses.length) await respond();
   }

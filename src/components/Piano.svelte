@@ -85,6 +85,7 @@
   .white {
     height: 100%;
     z-index: 1;
+    --fade-to: var(--key-white);
     background: var(--key-white);
     border: 1px solid var(--key-white-edge);
     border-top: 0;
@@ -92,6 +93,7 @@
   .black {
     height: 62%;
     z-index: 2;
+    --fade-to: var(--key-black);
     background: var(--key-black);
   }
   .key:active {
@@ -100,6 +102,7 @@
   .key.right {
     background: var(--right);
     box-shadow: 0 0 var(--mark-glow) var(--right);
+    animation: fade 900ms ease-out forwards;
   }
   .key.heard {
     background: var(--accent);
@@ -108,6 +111,20 @@
   .key.wrong {
     background: var(--wrong);
     box-shadow: 0 0 var(--mark-glow) var(--wrong);
+    animation: fade 900ms ease-out forwards;
+  }
+  /* Back to the key's own colour by the time core/flash.ts drops the mark. */
+  @keyframes fade {
+    to {
+      background: var(--fade-to);
+      box-shadow: 0 0 0 transparent;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .key.right,
+    .key.wrong {
+      animation: none;
+    }
   }
   span {
     font: 700 11px var(--font);

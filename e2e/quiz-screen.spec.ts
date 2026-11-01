@@ -16,13 +16,13 @@ async function scriptedAnswer(page: Page, label: string) {
   await page.evaluate((detail) => window.dispatchEvent(new CustomEvent('scripted-answer', { detail })), midi);
 }
 
-test('M2-AC3 a first miss allows a second try and the question stays', async ({ page }) => {
+test('M2-AC3 M10-AC7 a first miss allows a second try, the question stays and the red key fades', async ({ page }) => {
   const { quiz, staffName, target, wrongKeys, key } = await openQuiz(page);
   await wrongKeys.nth(0).click();
   await expect(quiz.getByText(RETRY)).toBeVisible();
-  await page.waitForTimeout(1000);
-  await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', staffName);
   await expect(quiz.locator('.key.wrong')).toHaveCount(1);
+  await expect(quiz.locator('.key.wrong')).toHaveCount(0); // M10-AC7: the highlight fades away
+  await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', staffName);
   await expect(quiz.getByRole('button', { name: 'Continue' })).toHaveCount(0);
 
   await key(target).click();
@@ -80,15 +80,13 @@ test('M2-AC8 switching input mid-quiz keeps the question and its tries', async (
 
   await switcher.selectOption('scripted');
   await expect(quiz.getByText('Listening: Scripted (test)')).toBeVisible();
-  await expect(quiz.locator('.key.wrong')).toHaveCount(1); // the keyboard stays, to show the heard key
   await expect(quiz.getByText(RETRY)).toBeVisible();
   await scriptedAnswer(page, secondMiss);
   await expect(quiz.getByText(RETRY)).toBeVisible();
   await expect(quiz.getByRole('img')).toHaveAttribute('aria-label', staffName);
 
   await switcher.selectOption('piano');
-  await expect(quiz.locator('.key.wrong')).toHaveCount(2);
-  await expect(key(secondMiss)).toHaveClass(/wrong/);
+  await expect(quiz.locator('.key.wrong')).toHaveCount(0); // faded by now; the question and tries remain
   await key(target).click();
   await expect(quiz.getByText(`Yes, ${target}!`)).toBeVisible();
 });
