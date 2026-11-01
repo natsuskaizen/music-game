@@ -18,6 +18,14 @@ test('M4-AC6 a backup parses back to the same attempts', () => {
   expect(parseBackup(serializeBackup(attempts))).toEqual(attempts);
 });
 
+test('M9-AC5 letter answers survive a backup', () => {
+  const attempts = [
+    attempt({ answer: { kind: 'letter', letter: 'C' } }),
+    attempt({ ts: 2000, key: 'treble:F#5', answer: { kind: 'letter', letter: 'G', accidental: -1 } }),
+  ];
+  expect(parseBackup(serializeBackup(attempts))).toEqual(attempts);
+});
+
 test.each([
   ['not json', 'oops'],
   ['a wrong version', '{"v":2,"attempts":[]}'],
@@ -28,8 +36,19 @@ test.each([
   ],
   ['three tries', JSON.stringify({ v: 1, attempts: [attempt({ tries: 3 as 1 })] })],
   [
-    'a non-pitch answer',
+    'a letter answer without a letter',
     JSON.stringify({ v: 1, attempts: [attempt({ answer: { kind: 'letter' } as never })] }),
+  ],
+  [
+    'a letter answer with a double sharp',
+    JSON.stringify({
+      v: 1,
+      attempts: [attempt({ answer: { kind: 'letter', letter: 'F', accidental: 2 as 1 } })],
+    }),
+  ],
+  [
+    'an unknown answer kind',
+    JSON.stringify({ v: 1, attempts: [attempt({ answer: { kind: 'hum' } as never })] }),
   ],
 ])('M4-AC6 %s is refused', (_name, text) => {
   expect(parseBackup(text)).toBeNull();

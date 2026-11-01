@@ -169,7 +169,8 @@
   const marks = $derived(
     new Map<number, KeyMark>([
       ...(heard === undefined ? [] : [[heard, 'heard'] as const]),
-      ...quiz.misses.map((a) => [a.midi, 'wrong'] as const),
+      // A letter has no octave, so only a missed key is marked.
+      ...quiz.misses.flatMap((a) => (a.kind === 'pitch' ? [[a.midi, 'wrong'] as const] : [])),
       ...(showsAnswer ? [[target, 'right'] as const] : []),
     ]),
   );

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { midiOf, type ClefNote } from '../../src/core/pitch';
+import { midiOf, type Accidental, type ClefNote, type Pitch } from '../../src/core/pitch';
 import { notePool } from '../../src/core/ranges';
 import {
   answerContinues,
@@ -42,6 +42,53 @@ describe('gradeAnswer: exact pitch (design §14)', () => {
   test('M2-AC9 C5 is wrong for C6, and so is C7', () => {
     expect(gradeAnswer(C6, key(72))).toBe(false);
     expect(gradeAnswer(C6, key(96))).toBe(false);
+  });
+});
+
+describe('gradeAnswer: letters ignore the octave (M9)', () => {
+  const Fs5: ClefNote = { pitch: { letter: 'F', accidental: 1, octave: 5 }, clef: 'treble' };
+  const letter = (name: Pitch['letter'], accidental?: Accidental): Answer =>
+    accidental === undefined
+      ? { kind: 'letter', letter: name }
+      : { kind: 'letter', letter: name, accidental };
+
+  test('M9-AC5 the right letter is correct in any octave', () => {
+    expect(gradeAnswer(C4, letter('C'))).toBe(true);
+    expect(gradeAnswer(C6, letter('C'))).toBe(true);
+  });
+
+  test('M9-AC5 another letter is wrong', () => {
+    expect(gradeAnswer(C4, letter('D'))).toBe(false);
+    expect(gradeAnswer(C4, letter('B'))).toBe(false);
+  });
+
+  test('M9-AC5 a sharp note needs its sharp, or the same sound spelled as a flat', () => {
+    expect(gradeAnswer(Fs5, letter('F', 1))).toBe(true);
+    expect(gradeAnswer(Fs5, letter('G', -1))).toBe(true);
+    expect(gradeAnswer(Fs5, letter('F'))).toBe(false);
+    expect(gradeAnswer(C4, letter('B', 1))).toBe(true);
+  });
+
+  test('M9-AC5 a letter answer settles into an attempt that credits the note itself', () => {
+    const answer = letter('C');
+    const after = reduce(session({ note: C6 }), { type: 'answer', answer }, first);
+    expect(after).toMatchObject({ phase: 'right', firstTry: 1, streak: 1 });
+    expect(settledAttempt(session({ note: C6 }), after, { ts: 1, input: 'speech', ms: 800, answer })).toEqual(
+      {
+        ts: 1,
+        input: 'speech',
+        ms: 800,
+        answer,
+        key: 'treble:C6',
+        tries: 1,
+        correct: true,
+      },
+    );
+  });
+
+  test('M9-AC5 two wrong letters reveal the note, as with keys', () => {
+    const missed = reduce(session(), { type: 'answer', answer: letter('E') }, first);
+    expect(reduce(missed, { type: 'answer', answer: letter('G') }, first).phase).toBe('reveal');
   });
 });
 

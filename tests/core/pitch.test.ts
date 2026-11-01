@@ -1,9 +1,11 @@
 import { describe, expect, test } from 'vitest';
 import {
   hzOf,
+  isLetter,
   ledgerPositions,
   midiOf,
   noteAt,
+  pitchClass,
   pitchLabel,
   staffPos,
   type Clef,
@@ -109,4 +111,15 @@ describe('spelled pitch', () => {
     expect(pitchLabel(explicit)).toBe('C6');
     expect(midiOf(explicit)).toBe(midiOf({ letter: 'C', octave: 6 }));
   });
+});
+
+test('M9-AC5 pitchClass wraps across the octave, so C♭ is B and B♯ is C', () => {
+  expect(pitchClass({ letter: 'C' })).toBe(0);
+  expect(pitchClass({ letter: 'C', accidental: -1 })).toBe(11);
+  expect(pitchClass({ letter: 'B', accidental: 1 })).toBe(0);
+});
+
+test('M9-AC5 isLetter accepts only the seven letter names', () => {
+  expect(['A', 'G'].every(isLetter)).toBe(true);
+  expect([undefined, 'H', 'c', 3].some(isLetter)).toBe(false);
 });

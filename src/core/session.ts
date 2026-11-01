@@ -1,18 +1,32 @@
 // The quiz session as a reducer (design §8.3, §8.4): a miss gets one retry, then the answer is revealed and the
 // session waits for the next event. It ends after `questionsPerSession` questions. Inputs only produce an `Answer` (design §3.4).
-import { midiOf, type ClefNote } from './pitch';
+import { midiOf, pitchClass, type Accidental, type ClefNote, type Pitch } from './pitch';
 import type { Picker } from './selector';
 import { statKey, type Attempt } from './stats';
 
-/** What an input reports. Every M2 input knows the octave, so an answer is an exact pitch (design §3.4, §14). */
-export interface Answer {
+/** A key pressed or a note played: an exact pitch, octave included (design §3.4, §14). */
+interface PitchAnswer {
   kind: 'pitch';
   midi: number;
 }
 
-/** Whether `answer` names `note` exactly: same pitch and octave, so C5 is wrong for C6 (design §14). */
+/** A letter written or spoken (M9): it has no octave, and no `accidental` means natural. */
+interface LetterAnswer {
+  kind: 'letter';
+  letter: Pitch['letter'];
+  accidental?: Accidental;
+}
+
+/** What an input reports. */
+export type Answer = PitchAnswer | LetterAnswer;
+
+/**
+ * Whether `answer` names `note`. A pitch must match exactly, so C5 is wrong for C6 (design §14); a letter must sound
+ * the same in any octave, so F♯ and G♭ both answer an F♯.
+ */
 export function gradeAnswer(note: ClefNote, answer: Answer): boolean {
-  return answer.midi === midiOf(note.pitch);
+  if (answer.kind === 'pitch') return answer.midi === midiOf(note.pitch);
+  return pitchClass(answer) === pitchClass(note.pitch);
 }
 
 /** Where a question stands: waiting, second try after one miss, revealed after two, answered right, or session over. */

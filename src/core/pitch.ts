@@ -15,6 +15,11 @@ export interface Pitch {
   octave: number;
 }
 
+/** Whether `value` is one of the seven letter names, so a backup file is checked before it is trusted. */
+export function isLetter(value: unknown): value is Pitch['letter'] {
+  return LETTERS.some((letter) => letter === value);
+}
+
 /** A pitch as written on one clef. Middle C on the treble and on the bass staff are different things to read (design §6.1). */
 export interface ClefNote {
   pitch: Pitch;
@@ -49,6 +54,11 @@ export function noteAt(clef: Clef, pos: number): ClefNote {
 /** MIDI number of a pitch (C4 = 60), the common currency of key presses and the mic (design §3.3). F♯4 and G♭4 share one. */
 export function midiOf(pitch: Pitch): number {
   return (pitch.octave + 1) * 12 + SEMITONE[pitch.letter] + (pitch.accidental ?? 0);
+}
+
+/** A pitch's place within the octave, 0–11 (C is 0): letter answers are graded by it, so F♯ and G♭ are both right. */
+export function pitchClass(pitch: Omit<Pitch, 'octave'>): number {
+  return midiOf({ ...pitch, octave: 0 }) % 12;
 }
 
 /** The natural a MIDI note is written on, and whether it needs a sharp: a black key sits on the natural below it. */
